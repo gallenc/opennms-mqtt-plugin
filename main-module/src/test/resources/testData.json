@@ -1,0 +1,4 @@
+[
+{ "time": "2017-09-18T09:00:14UTC", "id": "monitorID", "cityName": "Southampton", "stationName": "Common#1", "latitude": 0, "longitude": 0, "averaging": 0, "PM1": 10, "PM25": 100, "PM10": 1000},
+{ "time": "2017-09-18T09:00:14UTC", "id": "monitorID", "cityName": "Southampton", "stationName": "Common#1", "latitude": 0, "longitude": 0, "averaging": 0, "PM1": 10, "PM25": 100, "PM10": 1000}
+]

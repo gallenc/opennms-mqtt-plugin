@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.opennms.plugins</groupId>
+    <artifactId>MqttClient.parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>MqttClient.kar-package</artifactId>
+  <name>MqttClient.kar-package</name>
+  <description>Generate kar for ${productName}</description>
+  <packaging>kar</packaging>
+
+  <build>
+
+    <!-- <plugins> -->
+    <!-- <plugin> -->
+    <!-- <groupId>org.apache.karaf.tooling</groupId> -->
+    <!-- <artifactId>features-maven-plugin</artifactId> -->
+    <!-- <version>2.2.8</version> -->
+    <!-- <executions> -->
+    <!-- <execution> -->
+    <!-- <id>create-kar</id> -->
+    <!-- <goals> -->
+    <!-- <goal>create-kar</goal> -->
+    <!-- </goals> -->
+    <!-- <configuration> -->
+    <!-- <featuresFile>src/main/resources/features.xml</featuresFile> -->
+    <!-- </configuration> -->
+    <!-- </execution> -->
+    <!-- </executions> -->
+    <!-- </plugin> -->
+    <!-- </plugins> -->
+    <plugins>
+      <plugin>
+        <groupId>org.opennms.maven.plugins</groupId>
+        <artifactId>features-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>features.xml</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>generate-features-xml</goal>
+            </goals>
+            <configuration>
+              <name>${project.artifactId}</name>
+              <!-- This option will recursively pull the all of the <repository> -->
+              <!-- references inside all of the referenced repositories and put all of their features into -->
+              <!-- a single <features> repository. -->
+              <importRepositories>true</importRepositories>
+
+              <importRepositoryExclusions>
+
+              </importRepositoryExclusions>
+              <repositories>
+                <!-- Plugin Manager Feature -->
+                <repository>mvn:${project.groupId}/${productName}/${project.version}/xml/features</repository>
+                <repository>mvn:${project.groupId}/${productName}.kar-descriptor/${project.version}/xml/features</repository>
+               </repositories>
+
+              <features>
+                <!-- features defined as internal opennms plugins -->
+                <feature>${productName}</feature>
+                <feature>${productName}.kar-descriptor</feature>
+              </features>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.karaf.tooling</groupId>
+        <artifactId>karaf-maven-plugin</artifactId>
+        <configuration>
+          <featuresFile>${project.build.directory}/features/features.xml</featuresFile>
+        </configuration>
+      </plugin>
+
+    </plugins>
+
+  </build>
+
+  <dependencies>
+
+  </dependencies>
+
+
+
+
+</project>

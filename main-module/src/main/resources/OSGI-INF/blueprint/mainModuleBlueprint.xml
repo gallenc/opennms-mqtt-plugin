@@ -1,0 +1,80 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+  xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0"
+  xsi:schemaLocation="
+		http://www.osgi.org/xmlns/blueprint/v1.0.0
+		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+		
+		http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+		http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd
+		
+		http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.1.0
+		http://aries.apache.org/schemas/blueprint-ext/blueprint-ext-1.1.xsd
+">
+
+  <!-- opennms event proxy -->
+  <!-- note optional so that we can run tests outside of opennms -->
+  <reference id="eventProxy" interface="org.opennms.netmgt.events.api.EventProxy" availability="optional" timeout="100" />
+
+
+  <!-- print startup message to karaf console -->
+  <bean id="sayHello" class="org.opennms.plugins.mqttclient.SayHello" destroy-method="destroyMethod">
+  </bean>
+
+  <!-- Configuration properties -->
+  <cm:property-placeholder id="mqttClientProperties" persistent-id="org.opennms.plugin.mqttclient" update-strategy="reload">
+    <cm:default-properties>
+      <cm:property name="org.opennms.plugin.mqttclient.brokerUrl" value="tcp://localhost:1883" />
+      <cm:property name="org.opennms.plugin.mqttclient.clientId" value="opennms" />
+      <cm:property name="org.opennms.plugin.mqttclient.userName" value="" />
+      <cm:property name="org.opennms.plugin.mqttclient.password" value="" />
+      <cm:property name="org.opennms.plugin.mqttclient.connectionRetryInterval" value="30000" />
+      <cm:property name="org.opennms.plugin.mqttclient.qos" value="0" />
+      <cm:property name="org.opennms.plugin.mqttclient.eventtopic" value="mqtt_events" />
+      <cm:property name="org.opennms.plugin.mqttclient.datatopic" value="mqtt_data" />
+    </cm:default-properties>
+  </cm:property-placeholder>
+
+  <!-- MQTTClientImpl(String brokerUrl, String clientId, String userName, String password, String connectionRetryInterval) -->
+  <bean id="mqttClientMessageNotifier" class="org.opennms.plugins.mqttclient.MQTTClientImpl" init-method="init" destroy-method="destroy">
+    <argument index="0" value="${org.opennms.plugin.mqttclient.brokerUrl}" />
+    <argument index="1" value="${org.opennms.plugin.mqttclient.clientId}" />
+    <argument index="2" value="${org.opennms.plugin.mqttclient.userName}" />
+    <argument index="3" value="${org.opennms.plugin.mqttclient.password}" />
+    <argument index="4" value="${org.opennms.plugin.mqttclient.connectionRetryInterval}" />
+
+    <property name="topicList">
+      <list>
+        <bean class="org.opennms.plugins.mqttclient.MQTTTopicSubscription">
+          <property name="qos" value="${org.opennms.plugin.mqttclient.qos}" />
+          <property name="topic" value="${org.opennms.plugin.mqttclient.eventtopic}" />
+        </bean>
+        <bean class="org.opennms.plugins.mqttclient.MQTTTopicSubscription">
+          <property name="qos" value="${org.opennms.plugin.mqttclient.qos}" />
+          <property name="topic" value="${org.opennms.plugin.mqttclient.datatopic}" />
+        </bean>
+      </list>
+    </property>
+
+  </bean>
+
+
+  <bean id="messageNotifierClient" class="org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl" init-method="init" destroy-method="destroy">
+    <property name="messageNotifier" ref="mqttClientMessageNotifier" />
+    <property name="maxQueueLength" value="1000" />
+
+    <property name="topicHandlingClients">
+      <map>
+        <entry key="${org.opennms.plugin.mqttclient.eventtopic}" value-ref="mqttEventNotificationClient" />
+      </map>
+    </property>
+  </bean>
+
+  <bean id="mqttEventNotificationClient" class="org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient" init-method="init"
+    destroy-method="destroy">
+    <property name="eventProxy" ref="eventProxy" />
+  </bean>
+
+  <!-- used for testing only -->
+  <!-- <bean id="verySimpleClient" class="org.opennms.plugins.dbnotifier.VerySimpleNotificationClient" /> -->
+
+</blueprint>
