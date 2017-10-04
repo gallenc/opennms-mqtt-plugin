@@ -64,7 +64,7 @@ public class MQTTJsonTransmitterTest {
 	public static final String MQTT_PASSWORD = "mqtt-password";
 	
 	public static final String CLIENT_ID = "transmitter1";
-	public static final String TOPIC_NAME = "mqtt-events";
+	public static final String TOPIC_NAME = "mqtt-data"; // mqtt-events
 	public static final int QOS_LEVEL = 0;
 
 	public static final String jsonTestMessage="{"

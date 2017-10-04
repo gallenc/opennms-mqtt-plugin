@@ -12,9 +12,13 @@
 ">
 
   <!-- opennms event proxy -->
-  <!-- note optional so that we can run tests outside of opennms -->
-  <reference id="eventProxy" interface="org.opennms.netmgt.events.api.EventProxy" availability="optional" timeout="100" />
+  <reference id="eventProxy" interface="org.opennms.netmgt.events.api.EventProxy" availability="mandatory" timeout="100" />
 
+  <!-- opennms node dao -->
+  <reference id="nodeDao" interface="org.opennms.netmgt.dao.api.NodeDao" availability="mandatory" />
+
+  <!-- opennms persisterFactory -->
+  <reference id="persisterFactory" interface="org.opennms.netmgt.collection.api.PersisterFactory" availability="mandatory" />
 
   <!-- print startup message to karaf console -->
   <bean id="sayHello" class="org.opennms.plugins.mqttclient.SayHello" destroy-method="destroyMethod">
@@ -57,7 +61,6 @@
 
   </bean>
 
-
   <bean id="messageNotifierClient" class="org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl" init-method="init" destroy-method="destroy">
     <property name="messageNotifier" ref="mqttClientMessageNotifier" />
     <property name="maxQueueLength" value="1000" />
@@ -66,15 +69,44 @@
       <map>
         <entry key="${org.opennms.plugin.mqttclient.eventtopic}" value-ref="mqttEventNotificationClient" />
       </map>
+      <map>
+        <entry key="${org.opennms.plugin.mqttclient.datatopic}" value-ref="mqttDataNotificationClient" />
+      </map>
     </property>
   </bean>
+
+  <!-- used for testing only -->
+  <!-- <bean id="verySimpleClient" class="org.opennms.plugins.dbnotifier.VerySimpleNotificationClient" /> -->
 
   <bean id="mqttEventNotificationClient" class="org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient" init-method="init"
     destroy-method="destroy">
     <property name="eventProxy" ref="eventProxy" />
   </bean>
 
-  <!-- used for testing only -->
-  <!-- <bean id="verySimpleClient" class="org.opennms.plugins.dbnotifier.VerySimpleNotificationClient" /> -->
+  <bean id="mqttDataNotificationClient" class="org.opennms.plugins.messagenotifier.datanotifier.MqttDataNotificationClient" init-method="init"
+    destroy-method="destroy">
+    <property name="valuePersister" ref="valuePersister" />
+  </bean>
+
+  <bean id="valuePersister" class="org.opennms.plugins.messagenotifier.datanotifier.ValuePersister" init-method="init" destroy-method="destroy">
+    <property name="nodeDao" ref="nodeDao" />
+    <property name="eventProxy" ref="eventProxy" />
+    <property name="persisterFactory" ref="persisterFactory" />
+    <property name="configDao" ref="configDao" />
+  </bean>
+
+  <bean id="configDao" class="org.opennms.plugins.messagenotifier.datanotifier.ConfigDao">
+    <property name="foreignSource" value="mqtt" />
+    <property name="group" value="sniffy" />
+    <property name="intervalInSecondsStr" value="300" />
+    <property name="rrasProperty" value="RRA:AVERAGE:0.5:1:2016,RRA:AVERAGE:0.5:12:1488,RRA:AVERAGE:0.5:288:366,RRA:MAX:0.5:288:366,RRA:MIN:0.5:288:366" />
+
+    <property name="foreignIdKey" value="id" />
+    <property name="timeStampKey" value="time" />
+
+    <property name="guageKeysProperty" value="PM1,PM25,PM10,latitude,longitude,averaging" />
+    <property name="counterKeysProperty" value="" />
+    <property name="stringKeysProperty" value="" />
+  </bean>
 
 </blueprint>
