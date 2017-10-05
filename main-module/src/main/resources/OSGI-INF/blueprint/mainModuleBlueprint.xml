@@ -33,8 +33,8 @@
       <cm:property name="org.opennms.plugin.mqttclient.password" value="" />
       <cm:property name="org.opennms.plugin.mqttclient.connectionRetryInterval" value="30000" />
       <cm:property name="org.opennms.plugin.mqttclient.qos" value="0" />
-      <cm:property name="org.opennms.plugin.mqttclient.eventtopic" value="mqtt_events" />
-      <cm:property name="org.opennms.plugin.mqttclient.datatopic" value="mqtt_data" />
+      <cm:property name="org.opennms.plugin.mqttclient.eventtopic" value="mqtt-events" />
+      <cm:property name="org.opennms.plugin.mqttclient.datatopic" value="mqtt-data" />
     </cm:default-properties>
   </cm:property-placeholder>
 
@@ -68,8 +68,6 @@
     <property name="topicHandlingClients">
       <map>
         <entry key="${org.opennms.plugin.mqttclient.eventtopic}" value-ref="mqttEventNotificationClient" />
-      </map>
-      <map>
         <entry key="${org.opennms.plugin.mqttclient.datatopic}" value-ref="mqttDataNotificationClient" />
       </map>
     </property>
