@@ -58,8 +58,9 @@ public class MQTTJsonTransmitterTest {
 
 	public static final String TEST_JSON_FILE="./src/test/resources/testData.json";
 	
-	//public static final String SERVER_URL = "tcp://localhost:1883";
-	public static final String SERVER_URL = "tcp://192.168.202.1:1883";
+	//public static final String SERVER_URL = "tcp://localhost:1883"; 172.18.0.4
+	//public static final String SERVER_URL = "tcp://192.168.202.1:1883";
+	public static final String SERVER_URL = "tcp://172.18.0.4:1883"; // karaf1
 	public static final String MQTT_USERNAME = "mqtt-user";
 	public static final String MQTT_PASSWORD = "mqtt-password";
 	

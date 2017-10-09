@@ -19,8 +19,10 @@
     <productName>MqttClient</productName>
     <productFeatureRepository>mvn:${project.groupId}/${productName}/${project.version}/xml/features</productFeatureRepository>
 
-    <licencemanagerVersion>1.1.0-SNAPSHOT</licencemanagerVersion>
-    <org.opennms.version>21.0.0-SNAPSHOT</org.opennms.version>
+    <licencemanagerVersion>1.0.4</licencemanagerVersion>
+    <!-- <licencemanagerVersion>1.1.0-SNAPSHOT</licencemanagerVersion> -->
+    <org.opennms.version>20.1.0</org.opennms.version>
+    <!-- <org.opennms.version>21.0.0-SNAPSHOT</org.opennms.version> -->
 
     <slf4jVersion>1.7.21</slf4jVersion>
     <log4j2Version>2.8.2</log4j2Version>
@@ -322,6 +324,45 @@
       <url>http://maven.opennms.org/content/groups/opennms.org-release</url>
     </pluginRepository>
   </pluginRepositories>
+
+  <repositories>
+    <repository>
+      <id>vaadin-snapshots</id>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <url>http://maven.opennms.org/content/groups/vaadin-snapshot/</url>
+    </repository>
+    <repository>
+      <id>vaadin-addons</id>
+      <url>http://maven.opennms.org/content/groups/vaadin.com-addons/</url>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <id>opennms-repo</id>
+      <name>OpenNMS Repository</name>
+      <url>http://maven.opennms.org/content/groups/opennms.org-release</url>
+    </repository>
+    <repository>
+      <id>opennms-snapshots</id>
+      <name>OpenNMS Snapshot Maven Repository</name>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <url>http://maven.opennms.org/content/groups/opennms.org-snapshot</url>
+    </repository>
+  </repositories>
 
   <!-- Change this to match your repo for the licenced product modules (i.e. plugins containing the authenticator) -->
   <!-- NOTE use maven settings.xml in production project NOT Url basic auth http://admin:admin123@localhost -->
