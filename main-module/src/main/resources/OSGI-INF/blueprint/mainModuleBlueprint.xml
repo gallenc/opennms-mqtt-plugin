@@ -35,6 +35,18 @@
       <cm:property name="org.opennms.plugin.mqttclient.qos" value="0" />
       <cm:property name="org.opennms.plugin.mqttclient.eventtopic" value="mqtt-events" />
       <cm:property name="org.opennms.plugin.mqttclient.datatopic" value="mqtt-data" />
+
+      <cm:property name="org.opennms.plugin.mqttclient.message.foreignsource" value="mqtt" />
+      <cm:property name="org.opennms.plugin.mqttclient.message.foreignidkey" value="id" />
+      <cm:property name="org.opennms.plugin.mqttclient.message.timestampkey" value="time" />
+
+      <cm:property name="org.opennms.plugin.mqttclient.message.persist.guagekeys" value="PM1,PM25,PM10,latitude,longitude,averaging" />
+      <cm:property name="org.opennms.plugin.mqttclient.message.persist.counterkeys" value="" />
+      <cm:property name="org.opennms.plugin.mqttclient.message.persist.stringkeys" value="" />
+
+      <cm:property name="org.opennms.plugin.mqttclient.message.persist.group" value="sniffy" />
+      <cm:property name="org.opennms.plugin.mqttclient.message.persist.interval" value="300" />
+      <cm:property name="org.opennms.plugin.mqttclient.message.persist.rras" value="RRA:AVERAGE:0.5:1:2016,RRA:AVERAGE:0.5:12:1488,RRA:AVERAGE:0.5:288:366,RRA:MAX:0.5:288:366,RRA:MIN:0.5:288:366" />
     </cm:default-properties>
   </cm:property-placeholder>
 
@@ -79,6 +91,8 @@
   <bean id="mqttEventNotificationClient" class="org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient" init-method="init"
     destroy-method="destroy">
     <property name="eventProxy" ref="eventProxy" />
+    <property name="foreignSource" value="${org.opennms.plugin.mqttclient.message.foreignsource}" />
+    <property name="foreignIdKey" value="${org.opennms.plugin.mqttclient.message.foreignidkey}" />
   </bean>
 
   <bean id="mqttDataNotificationClient" class="org.opennms.plugins.messagenotifier.datanotifier.MqttDataNotificationClient" init-method="init"
@@ -94,17 +108,19 @@
   </bean>
 
   <bean id="configDao" class="org.opennms.plugins.messagenotifier.datanotifier.ConfigDao">
-    <property name="foreignSource" value="mqtt" />
-    <property name="group" value="sniffy" />
-    <property name="intervalInSecondsStr" value="300" />
-    <property name="rrasProperty" value="RRA:AVERAGE:0.5:1:2016,RRA:AVERAGE:0.5:12:1488,RRA:AVERAGE:0.5:288:366,RRA:MAX:0.5:288:366,RRA:MIN:0.5:288:366" />
 
-    <property name="foreignIdKey" value="id" />
-    <property name="timeStampKey" value="time" />
+    <property name="foreignSource" value="${org.opennms.plugin.mqttclient.message.foreignsource}" />
+    <property name="foreignIdKey" value="${org.opennms.plugin.mqttclient.message.foreignidkey}" />
+    <property name="timeStampKey" value="${org.opennms.plugin.mqttclient.message.timestampkey}" />
 
-    <property name="guageKeysProperty" value="PM1,PM25,PM10,latitude,longitude,averaging" />
-    <property name="counterKeysProperty" value="" />
-    <property name="stringKeysProperty" value="" />
+    <property name="guageKeysProperty" value="${org.opennms.plugin.mqttclient.message.persist.guagekeys}" />
+    <property name="counterKeysProperty" value="${org.opennms.plugin.mqttclient.message.persist.counterkeys}" />
+    <property name="stringKeysProperty" value="${org.opennms.plugin.mqttclient.message.persist.stringkeys}" />
+
+    <property name="group" value="${org.opennms.plugin.mqttclient.message.persist.group}" />
+    <property name="intervalInSecondsStr" value="${org.opennms.plugin.mqttclient.message.persist.interval}" />
+    <property name="rrasProperty" value="${oorg.opennms.plugin.mqttclient.message.persist.rras}" />
+
   </bean>
 
 </blueprint>

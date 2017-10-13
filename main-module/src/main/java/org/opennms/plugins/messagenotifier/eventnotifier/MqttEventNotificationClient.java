@@ -58,14 +58,26 @@ public class MqttEventNotificationClient implements NotificationClient {
 	public static final String MQTT_QOS_PARAM = "mqtt-qos";
 	
 
-	EventProxy eventProxy = null;
-
+	private EventProxy eventProxy = null;
+	
+    private String foreignSource="mqtt";
+    
+    private String foreignIdKey="id";
+	
 	public EventProxy getEventProxy() {
 		return eventProxy;
 	}
 
 	public void setEventProxy(EventProxy eventProxy) {
 		this.eventProxy = eventProxy;
+	}
+
+	public void setForeignSource(String foreignSource) {
+		this.foreignSource = foreignSource;
+	}
+
+	public void setForeignIdKey(String foreignIdKey) {
+		this.foreignIdKey = foreignIdKey;
 	}
 
 	@Override
@@ -103,6 +115,8 @@ public class MqttEventNotificationClient implements NotificationClient {
 				eb.addParam(MQTT_TOPIC_PARAM,topic);
 				eb.addParam(MQTT_QOS_PARAM,qosStr);
 				eb.addParam(MQTT_PAYLOAD_STRING_PARAM,payloadString);
+				
+				// TODO get node from foreign source eb.setNode(node)
 
 				//copy in all values as json in params
 				for(Object key: jsonObject.keySet()){

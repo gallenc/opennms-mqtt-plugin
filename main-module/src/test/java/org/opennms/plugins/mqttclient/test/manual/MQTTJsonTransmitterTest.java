@@ -60,12 +60,14 @@ public class MQTTJsonTransmitterTest {
 	
 	//public static final String SERVER_URL = "tcp://localhost:1883"; 172.18.0.4
 	//public static final String SERVER_URL = "tcp://192.168.202.1:1883";
-	public static final String SERVER_URL = "tcp://172.18.0.4:1883"; // karaf1
+	//public static final String SERVER_URL = "tcp://172.18.0.4:1883"; // karaf1
+	public static final String SERVER_URL = "tcp://139.162.227.142:1883"; // linode
 	public static final String MQTT_USERNAME = "mqtt-user";
 	public static final String MQTT_PASSWORD = "mqtt-password";
 	
 	public static final String CLIENT_ID = "transmitter1";
-	public static final String TOPIC_NAME = "mqtt-data"; // mqtt-events
+	//public static final String TOPIC_NAME = "mqtt-data"; // mqtt-data
+	public static final String TOPIC_NAME = "mqtt-events"; // mqtt-events
 	public static final int QOS_LEVEL = 0;
 
 	public static final String jsonTestMessage="{"

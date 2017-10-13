@@ -54,20 +54,20 @@ import org.slf4j.LoggerFactory;
 public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	private static final Logger LOG = LoggerFactory.getLogger(MQTTClientImpl.class);
 
-	// connectionRetryInterval   interval (ms) before re attempting connection.
-	private Integer connectionRetryInterval=30000;
-	private String brokerUrl;
-	private String password;
-	private String userName;
+	// m_connectionRetryInterval   interval (ms) before re attempting connection.
+	private Integer m_connectionRetryInterval=30000;
+	private String m_brokerUrl;
+	private String m_password;
+	private String m_userName;
 
 	private AtomicInteger reconnectionCount = new AtomicInteger(0);
 
 	// Private instance variables
-	private MqttAsyncClient 	client;
-	private MqttConnectOptions 	conOpt;
+	private MqttAsyncClient 	m_client;
+	private MqttConnectOptions 	m_conOpt;
 	private boolean clean=true;
 
-	private AtomicBoolean clientConnected = new AtomicBoolean(false); 
+	private AtomicBoolean m_clientConnected = new AtomicBoolean(false); 
 
 	private Thread m_connectionRetryThread=null;
 
@@ -104,45 +104,51 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	}
 
 	public boolean isClientConnected() {
-		return clientConnected.get();
+		return m_clientConnected.get();
 	}
 
 	/**
 	 * @param brokerUrl the url to connect to
-	 * @param clientId the client id to connect with
+	 * @param clientId the m_client id to connect with
 	 * @param userName the username to connect with
 	 * @param password the password for the user
-	 * @param connectionRetryInterval   interval (ms) before re attempting connection.
+	 * @param connectionRetryInterval interval (ms) before re attempting connection.
 	 */
 	public MQTTClientImpl(String brokerUrl, String clientId, String userName, String password, String connectionRetryInterval) {
-		this.brokerUrl = brokerUrl;
-		this.userName = userName;
-		this.password = password;
-		this.connectionRetryInterval=Integer.parseInt(connectionRetryInterval);
+		if ((brokerUrl == null) || (brokerUrl.trim().equals(""))) throw new IllegalArgumentException("mqtt m_brokerUrl cannot be empty or null");
+		try{
+			this.m_connectionRetryInterval=Integer.parseInt(connectionRetryInterval);
+		} catch (Exception e){
+			new IllegalArgumentException("mqtt m_connectionRetryInterval is not an integer",e);
+		}
+
+		m_brokerUrl = brokerUrl;
+		m_userName = userName;
+		m_password = password;
 
 		MemoryPersistence persistence = new MemoryPersistence();
 
 		try {
 			// Construct the connection options object that contains connection parameters
 			// such as cleanSession and LWT
-			conOpt = new MqttConnectOptions();
-			conOpt.setCleanSession(clean);
-			if(password != null ) {
-				conOpt.setPassword(this.password.toCharArray());
+			m_conOpt = new MqttConnectOptions();
+			m_conOpt.setCleanSession(clean);
+			if(m_userName != null && ! m_userName.trim().equals("") ) {
+				m_conOpt.setUserName(m_userName);
 			}
-			if(userName != null) {
-				conOpt.setUserName(this.userName);
+			if(m_password!= null && ! m_password.trim().equals("")) {
+				m_conOpt.setPassword(m_password.toCharArray());
 			}
 
-			// Construct a non-blocking MQTT client instance
-			client = new MqttAsyncClient(this.brokerUrl,clientId, persistence);
+			// Construct a non-blocking MQTT m_client instance
+			m_client = new MqttAsyncClient(this.m_brokerUrl,clientId, persistence);
 
 			// Set this wrapper as the callback handler
-			client.setCallback(this);
+			m_client.setCallback(this);
 
 		} catch (MqttException e) {
-			LOG.error("Unable to set up MQTT client",e);
-			throw new RuntimeException("Unable to set up MQTT client",e);
+			LOG.error("Unable to set up MQTT m_client",e);
+			throw new RuntimeException("Unable to set up MQTT m_client",e);
 		}
 	}
 
@@ -153,25 +159,25 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 * @return true if connected, false if not
 	 */
 	public synchronized boolean connect(){
-		if (client.isConnected()) {
-			clientConnected.set(true);
+		if (m_client.isConnected()) {
+			m_clientConnected.set(true);
 			return true;
 		}
-		LOG.debug("Connecting to "+brokerUrl + " with client ID "+client.getClientId()
+		LOG.debug("Connecting to "+m_brokerUrl + " with m_client ID "+m_client.getClientId()
 				+" (number of connection attempts since start="
 				+ reconnectionCount.incrementAndGet()+")");
 		IMqttToken conToken;
 		try {
-			conToken = client.connect(conOpt,null,null);
+			conToken = m_client.connect(m_conOpt,null,null);
 			conToken.waitForCompletion();
 		} catch (MqttException e1) {
 			// An exception is thrown if connect fails.
-			LOG.error("failed to connect to MQTT broker:"+ brokerUrl ,e1);
-			clientConnected.set(false);
+			LOG.error("failed to connect to MQTT broker:"+ m_brokerUrl ,e1);
+			m_clientConnected.set(false);
 			return false;
 		}
 		LOG.debug("Connected to MQTT broker");
-		clientConnected.set(true);
+		m_clientConnected.set(true);
 		return true;
 	}
 
@@ -182,8 +188,8 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 * @param payload the set of bytes to send to the MQTT server
 	 */
 	public void publishSynchronous(String topicName, int qos, byte[] payload) {
-		if(! clientConnected.get()){
-			if (LOG.isDebugEnabled()) LOG.debug("client disconnected. not publishing message");
+		if(! m_clientConnected.get()){
+			if (LOG.isDebugEnabled()) LOG.debug("m_client disconnected. not publishing message");
 			return; 
 		}
 
@@ -196,12 +202,12 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			LOG.debug("Publishing synchronous message at: "+time+ " to topic \""+topicName+"\" qos "+qos);
 		}	
 		// Send the message to the server, control is returned as soon
-		// as the MQTT client has accepted to deliver the message.
+		// as the MQTT m_client has accepted to deliver the message.
 		// Use the delivery token to wait until the message has been
 		// delivered
 
 		try {
-			IMqttDeliveryToken pubToken = client.publish(topicName, message, null, null);
+			IMqttDeliveryToken pubToken = m_client.publish(topicName, message, null, null);
 			pubToken.waitForCompletion();
 		} catch (MqttException e) {
 			throw new RuntimeException("problem synchronously publishing message.",e);
@@ -217,8 +223,8 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 * @param payload the set of bytes to send to the MQTT server
 	 */
 	public void publishAsynchronous(String topicName, int qos, byte[] payload) {
-		if(! clientConnected.get()){
-			if (LOG.isDebugEnabled()) LOG.debug("client disconnected. not publishing message");
+		if(! m_clientConnected.get()){
+			if (LOG.isDebugEnabled()) LOG.debug("m_client disconnected. not publishing message");
 			return; 
 		}
 
@@ -232,7 +238,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 		message.setQos(qos);
 
 		try {
-			IMqttDeliveryToken pubToken = client.publish(topicName, message, null, null);
+			IMqttDeliveryToken pubToken = m_client.publish(topicName, message, null, null);
 		} catch (MqttException e) {
 			throw new RuntimeException("problem synchronously publishing message",e);
 		} 	
@@ -245,7 +251,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 */
 	public void subscribe(String topic, int qos){
 		try {
-			client.subscribe(topic,qos);
+			m_client.subscribe(topic,qos);
 		} catch (MqttException e) {
 			throw new RuntimeException("problem subscribing to topic:"+topic+ " qos "+qos,e);
 		}
@@ -256,12 +262,12 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 */
 	public void destroy(){
 		try {
-			clientConnected.set(false);
+			m_clientConnected.set(false);
 			stopConnectionRetryThead();
-			client.disconnect();
-			client.close();
+			m_client.disconnect();
+			m_client.close();
 		} catch (MqttException e) {
-			LOG.error("problem closing client",e);
+			LOG.error("problem closing m_client",e);
 		}
 	}
 
@@ -274,15 +280,15 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 
 
 	/**
-	 * Disconnect the client
+	 * Disconnect the m_client
 	 * Issue the disconnect and then use a token to wait until
 	 * the disconnect completes.
 	 */
 	public synchronized void disconnect(){
 		LOG.debug("Disconnecting from MQTT broker");
-		if(clientConnected.getAndSet(false)){
+		if(m_clientConnected.getAndSet(false)){
 			try {
-				IMqttToken discToken = client.disconnect(null, null);
+				IMqttToken discToken = m_client.disconnect(null, null);
 				discToken.waitForCompletion();
 			} catch (MqttException e1) {
 				// An exception is thrown if connect fails.
@@ -294,12 +300,12 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 
 	/**
 	 * Starts trying to reconnect to the broker in a separate thread. 
-	 * the retry interval sets how long between connection attempts the client waits
+	 * the retry interval sets how long between connection attempts the m_client waits
 	 */
 	private synchronized void startConnectionRetryThead(){
 		if (m_connectionRetryThread==null){
 
-			if(connectionRetryInterval==null) throw new RuntimeException("connectionretryInterval cannot be null");
+			if(m_connectionRetryInterval==null) throw new RuntimeException("connectionretryInterval cannot be null");
 
 			m_connectionRetryThread = new Thread(new Runnable() {
 
@@ -330,9 +336,9 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 
 								throw new InterruptedException();
 							}
-							LOG.debug("waiting "+connectionRetryInterval
+							LOG.debug("waiting "+m_connectionRetryInterval
 									+ "ms before retrying to connect to Mqtt broker");
-							Thread.sleep(connectionRetryInterval);
+							Thread.sleep(m_connectionRetryInterval);
 						}
 					} catch (InterruptedException e) {
 						Thread.currentThread().interrupt();
@@ -342,12 +348,12 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			});
 
 			m_connectionRetryThread.start();
-			LOG.info("connection retry thread started: retryInterval="+connectionRetryInterval);
+			LOG.info("connection retry thread started: retryInterval="+m_connectionRetryInterval);
 		}
 	}
 
 	private synchronized void stopConnectionRetryThead(){
-		clientConnected.set(false);
+		m_clientConnected.set(false);
 		if (m_connectionRetryThread!=null){
 			m_connectionRetryThread.interrupt();
 			m_connectionRetryThread=null;
@@ -368,8 +374,8 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 */
 	@Override
 	public void connectionLost(Throwable cause) {
-		clientConnected.set(false);
-		LOG.debug("Connection to " + brokerUrl + " lost!" + cause);
+		m_clientConnected.set(false);
+		LOG.debug("Connection to " + m_brokerUrl + " lost!" + cause);
 		startConnectionRetryThead();
 	}
 
@@ -382,7 +388,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	@Override
 	public void messageArrived(String topic, MqttMessage message) throws MqttException {
 		// Called when a message arrives from the server that matches any
-		// subscription made by the client
+		// subscription made by the m_client
 		if(LOG.isDebugEnabled()){
 			String time = new Timestamp(System.currentTimeMillis()).toString();
 			LOG.debug("Time:\t" +time +
@@ -396,7 +402,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 
 		MessageNotification dbn = new MessageNotification(topic, qos, payload);
 
-		// send notifications to registered clients - note each client must return quickly
+		// send notifications to registered clients - note each m_client must return quickly
 		synchronized(messageNotificationClientList) {
 			Iterator<MessageNotificationClient> i = messageNotificationClientList.iterator(); // Must be in synchronized block
 			while (i.hasNext()){
