@@ -35,6 +35,10 @@
       <cm:property name="org.opennms.plugin.mqttclient.qos" value="0" />
       <cm:property name="org.opennms.plugin.mqttclient.eventtopic" value="mqtt-events" />
       <cm:property name="org.opennms.plugin.mqttclient.datatopic" value="mqtt-data" />
+      
+      <cm:property name="org.opennms.plugin.mqttclient.create-mssing-nodes" value="true" />
+      <cm:property name="org.opennms.plugin.mqttclient.cache_max_ttl" value="0" /> <!-- Set to zero to disable TTL -->
+      <cm:property name="org.opennms.plugin.mqttclient.cache_max_size" value="10000" /> <!-- Set to zero to disable max size -->
 
       <cm:property name="org.opennms.plugin.mqttclient.message.foreignsource" value="mqtt" />
       <cm:property name="org.opennms.plugin.mqttclient.message.foreignidkey" value="id" />
@@ -99,10 +103,19 @@
     destroy-method="destroy">
     <property name="valuePersister" ref="valuePersister" />
   </bean>
-
-  <bean id="valuePersister" class="org.opennms.plugins.messagenotifier.datanotifier.ValuePersister" init-method="init" destroy-method="destroy">
+  
+   <bean id="nodeByForeignSourceCache" class="org.opennms.plugins.mqttclient.NodeByForeignSourceCacheImpl" init-method="init" destroy-method="destroy">
     <property name="nodeDao" ref="nodeDao" />
     <property name="eventProxy" ref="eventProxy" />
+    <property name="transactionOperations" ref="transactionOperations" />
+    <property name="MAX_TTL" value="${org.opennms.plugin.mqttclient.cache_max_ttl}" />
+    <property name="MAX_SIZE" value="${org.opennms.plugin.mqttclient.cache_max_size}" />
+    <property name="createMissingNodes" value="${org.opennms.plugin.mqttclient.create-mssing-nodes}" />
+   </bean>
+  
+
+  <bean id="valuePersister" class="org.opennms.plugins.messagenotifier.datanotifier.ValuePersister" init-method="init" destroy-method="destroy">
+    <property name="nodeByForeignSourceCache" ref="nodeByForeignSourceCache" />
     <property name="persisterFactory" ref="persisterFactory" />
     <property name="configDao" ref="configDao" />
   </bean>

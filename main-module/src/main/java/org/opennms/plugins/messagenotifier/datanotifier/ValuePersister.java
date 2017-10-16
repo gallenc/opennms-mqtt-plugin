@@ -48,11 +48,11 @@ import org.opennms.netmgt.collection.api.ServiceParameters;
 import org.opennms.netmgt.collection.support.builder.CollectionSetBuilder;
 import org.opennms.netmgt.collection.support.builder.NodeLevelResource;
 import org.opennms.netmgt.dao.api.NodeDao;
-import org.opennms.netmgt.events.api.EventProxy;
 import org.opennms.netmgt.model.OnmsNode;
 import org.opennms.netmgt.model.ResourcePath;
 import org.opennms.netmgt.model.ResourceTypeUtils;
 import org.opennms.netmgt.rrd.RrdRepository;
+import org.opennms.plugins.mqttclient.NodeByForeignSourceCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,71 +64,66 @@ import org.slf4j.LoggerFactory;
  */
 public class ValuePersister  {
 	private static final Logger LOG = LoggerFactory.getLogger(ValuePersister.class);
-	
+
 	private ServiceParameters params;
 
 	private RrdRepository repository;
 
 	private PersisterFactory persisterFactory;
-	
+
 	private Persister persister;
 
 	private List<String> rras;
 
 	private int intervalInSeconds;
-	
+
 	private String foreignSource;
-	
+
 	private ConfigDao configDao;
-	
-	private NodeDao nodeDao;
 
-	private EventProxy eventProxy;
-	
-	public void setEventProxy(EventProxy eventProxy) {
-		this.eventProxy = eventProxy;
-	}
-
-    public void setNodeDao(NodeDao nodeDao) {
-		this.nodeDao = nodeDao;
-	}
+	private NodeByForeignSourceCache nodeByForeignSourceCache;
 
 	public void setConfigDao(ConfigDao configDao) {
 		this.configDao = configDao;
 	}
-    
+
 	public void setPersisterFactory(PersisterFactory persisterFactory) {
 		this.persisterFactory = persisterFactory;
 	}
 
-    // init method to be called by blueprint after all parameters set
-    public void init(){
-    	LOG.info("initialising value persitor with configDao values:"+configDao.toString());
-    	
-    	rras = configDao.getRras();
-    	intervalInSeconds=configDao.getIntervalInSeconds();
-    	foreignSource=configDao.getForeignSource();
-    	
+	public void setNodeByForeignSourceCache(NodeByForeignSourceCache nodeByForeignSourceCache) {
+		this.nodeByForeignSourceCache = nodeByForeignSourceCache;
+	}
+
+
+	// init method to be called by blueprint after all parameters set
+	public void init(){
+		LOG.info("initialising value persitor with configDao values:"+configDao.toString());
+
+		rras = configDao.getRras();
+		intervalInSeconds=configDao.getIntervalInSeconds();
+		foreignSource=configDao.getForeignSource();
+
 		// Setup auxiliary objects needed by the persister
-    	params = new ServiceParameters(Collections.emptyMap());
+		params = new ServiceParameters(Collections.emptyMap());
 		repository = new RrdRepository();
 		repository.setRraList(rras);
 		repository.setStep(Math.max(intervalInSeconds, 1));
 		repository.setHeartBeat(repository.getStep() * 2);
 		repository.setRrdBaseDir(Paths.get(System.getProperty("opennms.home"),"share","rrd","snmp").toFile());
-		
+
 		persister = persisterFactory.createPersister(params, repository);
-    }
-    
-    // destroy method to be called by blueprint
-    public void destroy(){
-    	
-    }
-    
-    
-    @SuppressWarnings("unchecked")
+	}
+
+	// destroy method to be called by blueprint
+	public void destroy(){
+
+	}
+
+
+	@SuppressWarnings("unchecked")
 	public void persistJsonAttributes(String jsonStr){
-    	JSONObject jsonObject=null;
+		JSONObject jsonObject=null;
 		jsonObject=null;
 		try {
 			JSONParser parser = new JSONParser();
@@ -140,16 +135,16 @@ public class ValuePersister  {
 			throw new RuntimeException("cannot parse notification payload to json object. payloadString="+ jsonStr,e1);
 		}
 		persistAttributeMap(jsonObject);
-    }
-    
+	}
 
-    public void persistAttributeMap(Map<String,Object> attributeMap){
+
+	public void persistAttributeMap(Map<String,Object> attributeMap){
 
 		String foreignIdKey = configDao.getForeignIdKey();
 		String timeStampKey = configDao.getTimeStampKey();
 		String group = configDao.getGroup();
 		Map<String,AttributeType> dataDefinition = configDao.getDataDefinition();
-		
+
 		Date timeStamp;
 		String foreignId;
 
@@ -177,15 +172,22 @@ public class ValuePersister  {
 		foreignId = attributeMap.get(foreignIdKey).toString();
 		// remove foreignId if present as not needed for Attributes
 		attributeMap.remove(foreignIdKey);
-		
+
 		//find node id (if exists) from foreign source and foreign id
 		String lookupCriteria= foreignSource+":"+foreignId;
-		OnmsNode node = nodeDao.get(lookupCriteria);
-		if(node==null){
-			//TODO create new node
-			throw new RuntimeException("no node exists for foreignSource="+foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap));
+		Map<String, String> nodeData = nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria);
+
+		if(nodeData==null){
+			LOG.info("no node exists for foreignSource="+foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap));
 		} else {
-			Integer nodeId = node.getId();
+			Integer nodeId;
+			try {
+				nodeId = Integer.parseInt(nodeData.get("nodeId"));
+			} catch (Exception e){
+				throw new RuntimeException("cannot parse nodeId from node cash data for foreignSource="
+						+foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap),e);
+			}
+
 			CollectionAgent agent = new MockCollectionAgent(foreignSource, foreignId, nodeId);
 			NodeLevelResource nodelevelResource = new NodeLevelResource(nodeId);
 			// Generate the collection set
@@ -203,39 +205,39 @@ public class ValuePersister  {
 					LOG.error("no data definition for parameter:"+attributeName+" in received attribute map:"+objectMapToString(attributeMap));
 				}
 			}
-			
+
 			CollectionSet collectionSet =  builder.build();
 
 			// Persist
 			collectionSet.visit(persister);
 		}
 	}
-	
+
 	public Date parseJsonTimestamp(String dateStr){
 		//TODO
 		return new Date();
 	}
-	
-    private String objectMapToString(Map<String,Object> jsonObject){
-    	StringBuffer msg = new StringBuffer("[");
-    	for(String key:jsonObject.keySet()){
-    		msg.append("'"+key+":"+jsonObject.get(key)+"'  ");
-    	}
-    	msg.append("]");
-    	return msg.toString();
-    }
+
+	private String objectMapToString(Map<String,Object> jsonObject){
+		StringBuffer msg = new StringBuffer("[");
+		for(String key:jsonObject.keySet()){
+			msg.append("'"+key+":"+jsonObject.get(key)+"'  ");
+		}
+		msg.append("]");
+		return msg.toString();
+	}
 
 	private static class MockCollectionAgent implements CollectionAgent {
 
 		private final int nodeId;
-		
+
 		private final String foreignId;
-		
+
 		private final String nodeLabel;
-		
+
 		private final String foreignSource;
 
-		
+
 		// use for store by foreignSource
 		public MockCollectionAgent(String foreignSource, String foreignId, int nodeId) {
 			this.nodeId = 0;

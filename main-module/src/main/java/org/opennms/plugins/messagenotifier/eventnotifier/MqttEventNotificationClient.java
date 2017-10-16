@@ -141,7 +141,7 @@ public class MqttEventNotificationClient implements NotificationClient {
 				LOG.error("OpenNMS event proxy not set - not sending event to opennms");
 			}
 		} catch (EventProxyException ex) {
-			throw new RuntimeException("event proxy problem sending AlarmChangeNotificationEvent to OpenNMS:",ex);
+			throw new RuntimeException("event proxy problem sending event to OpenNMS:",ex);
 		}
 	}
 
