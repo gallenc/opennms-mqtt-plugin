@@ -108,7 +108,7 @@
   <bean id="mqttDataNotificationClient" class="org.opennms.plugins.messagenotifier.datanotifier.MqttDataNotificationClient" init-method="init"
     destroy-method="destroy">
     <property name="valuePersister" ref="valuePersister" />
-  </bean>
+  </bean> 
 
   <bean id="nodeByForeignSourceCache" class="org.opennms.plugins.mqttclient.NodeByForeignSourceCacheImpl" init-method="init" destroy-method="destroy">
     <property name="nodeDao" ref="nodeDao" />
