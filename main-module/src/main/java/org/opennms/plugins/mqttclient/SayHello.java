@@ -47,7 +47,7 @@ public class SayHello {
 	}
 	
 	public void destroyMethod(){
-		LOG.info("Goodbye - Hello - MqttClient stopped");
-		System.out.println("Goodbye - Hello - MqttClient stopped");
+		LOG.info("Goodbye - MqttClient stopped");
+		System.out.println("Goodbye - MqttClient stopped");
 	}
 }

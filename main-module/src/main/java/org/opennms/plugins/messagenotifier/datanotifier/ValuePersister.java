@@ -178,7 +178,7 @@ public class ValuePersister  {
 		Map<String, String> nodeData = nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria);
 
 		if(nodeData==null){
-			LOG.info("no node exists for foreignSource="+foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap));
+			LOG.warn("no node exists for foreignSource="+foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap));
 		} else {
 			Integer nodeId;
 			try {
@@ -202,7 +202,7 @@ public class ValuePersister  {
 					AttributeType attributeType = dataDefinition.get(attributeName);
 					builder.withAttribute(nodelevelResource, group, attributeName, attributeValue, attributeType);
 				} else {
-					LOG.error("no data definition for parameter:"+attributeName+" in received attribute map:"+objectMapToString(attributeMap));
+					LOG.warn("no data definition for parameter:"+attributeName+" in received attribute map:"+objectMapToString(attributeMap));
 				}
 			}
 
