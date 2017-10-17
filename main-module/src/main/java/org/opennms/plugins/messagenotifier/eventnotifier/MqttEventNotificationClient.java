@@ -28,15 +28,22 @@
 
 package org.opennms.plugins.messagenotifier.eventnotifier;
 
+import java.util.Map;
+
+import jline.internal.Log;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.opennms.netmgt.collection.api.PersisterFactory;
 import org.opennms.netmgt.events.api.EventProxy;
 import org.opennms.netmgt.events.api.EventProxyException;
 import org.opennms.netmgt.model.events.EventBuilder;
 import org.opennms.netmgt.xml.event.Event;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.NotificationClient;
+import org.opennms.plugins.messagenotifier.datanotifier.ConfigDao;
+import org.opennms.plugins.mqttclient.NodeByForeignSourceCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +64,10 @@ public class MqttEventNotificationClient implements NotificationClient {
 	public static final String MQTT_TOPIC_PARAM = "mqtt-topic";
 	public static final String MQTT_QOS_PARAM = "mqtt-qos";
 	
-
+	private NodeByForeignSourceCache nodeByForeignSourceCache;
+	
+	private ConfigDao configDao;
+	
 	private EventProxy eventProxy = null;
 	
     private String foreignSource="mqtt";
@@ -79,7 +89,16 @@ public class MqttEventNotificationClient implements NotificationClient {
 	public void setForeignIdKey(String foreignIdKey) {
 		this.foreignIdKey = foreignIdKey;
 	}
+	
+	//TODO USE THIS
+	public void setConfigDao(ConfigDao configDao) {
+		this.configDao = configDao;
+	}
 
+	public void setNodeByForeignSourceCache(NodeByForeignSourceCache nodeByForeignSourceCache) {
+		this.nodeByForeignSourceCache = nodeByForeignSourceCache;
+	}
+	
 	@Override
 	public void sendMessageNotification(MessageNotification messageNotification) {
 		try{
@@ -116,7 +135,25 @@ public class MqttEventNotificationClient implements NotificationClient {
 				eb.addParam(MQTT_QOS_PARAM,qosStr);
 				eb.addParam(MQTT_PAYLOAD_STRING_PARAM,payloadString);
 				
-				// TODO get node from foreign source eb.setNode(node)
+				// find foreignId from json message and find or possibly create new node for foreignid
+				Object fidobj = jsonObject.get(foreignIdKey);
+				if(fidobj!=null){
+					String foreignId = fidobj.toString();
+					//find node id (if exists) from foreign source and foreign id
+					String lookupCriteria= foreignSource+":"+foreignId;
+					Map<String, String> nodeData = nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria);
+					String nodeIdStr=null;
+					if(nodeData==null) {
+						LOG.debug("cannot find node for lookupCriteria="+lookupCriteria);
+					} else try {
+						nodeIdStr=nodeData.get("nodeId");
+						Integer nodeId = Integer.parseInt(nodeIdStr);
+						eb.setNodeid(nodeId);
+					} catch (Exception e){
+						LOG.error("cannot parse nodeId "+nodeIdStr+
+								"from node cash data for lookupCriteria="+lookupCriteria,e);
+					}
+				}
 
 				//copy in all values as json in params
 				for(Object key: jsonObject.keySet()){

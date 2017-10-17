@@ -185,18 +185,18 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 		// parent.getForeignId());
 		// }
 		//
-		// //assetRecord.
-		// OnmsAssetRecord assetRecord= node.getAssetRecord() ;
-		// if(assetRecord!=null){
-		//
-		// //geolocation
-		// OnmsGeolocation gl = assetRecord.getGeolocation();
-		// if (gl !=null){
-		// if (gl.getLatitude() !=null)body.put("asset-latitude",
-		// gl.getLatitude().toString());
-		// if (gl.getLongitude()!=null)body.put("asset-longitude",
-		// gl.getLongitude().toString());
-		// }
+		 //assetRecord.
+		 OnmsAssetRecord assetRecord= node.getAssetRecord() ;
+		 if(assetRecord!=null){
+		
+		 //geolocation
+		 OnmsGeolocation gl = assetRecord.getGeolocation();
+		 if (gl !=null){
+		 if (gl.getLatitude() !=null)body.put("asset-latitude",
+		 gl.getLatitude().toString());
+		 if (gl.getLongitude()!=null)body.put("asset-longitude",
+		 gl.getLongitude().toString());
+		 }
 		//
 		// //assetRecord
 		// if (assetRecord.getRegion() !=null && !
@@ -254,7 +254,7 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 		// "".equals(assetRecord.getModelNumber()))
 		// body.put("asset-modelnumber", assetRecord.getModelNumber());
 		// }
-		// }
+		}
 
 	}
 
