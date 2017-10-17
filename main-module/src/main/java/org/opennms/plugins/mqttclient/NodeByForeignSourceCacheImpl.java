@@ -125,6 +125,11 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 		m_eventIpcManager.addEventListener(this);
 
 	}
+	
+	public void destroy(){
+		if (m_eventIpcManager!=null) m_eventIpcManager.removeEventListener(this);
+		
+	}
 
 	private Map<String, String> getNodeAndCategoryInfo(String nodeCriteria) {
 		// always returns a hashmap but will be empty if the node not found
