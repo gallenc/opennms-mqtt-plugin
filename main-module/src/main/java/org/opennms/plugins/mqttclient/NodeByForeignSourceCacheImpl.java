@@ -28,8 +28,8 @@
 
 package org.opennms.plugins.mqttclient;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -115,7 +115,10 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 					// throws exception if value not in database
 					// google cache cannot handle null values 
 					// and we do not want to cache negative results
-					if(result==null || result.isEmpty()) throw new NodeNotInDatabaseException();
+					if(result==null || result.isEmpty()) {
+						LOG.debug("CacheLoader cannot find node in database for key="+key);
+						throw new NodeNotInDatabaseException();
+					}
 					return result;
 				}
 			};
@@ -135,8 +138,8 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 	}
 
 	private Map<String, String> getNodeAndCategoryInfo(String nodeCriteria) {
-		// always returns a hashmap but will be empty if the node not found
-		final Map<String, String> result = new HashMap<>();
+		// always returns a linked hashmap but will be empty if the node not found
+		final Map<String, String> result = new LinkedHashMap<>();
 
 		// safety check
 		if (nodeCriteria != null) {
@@ -157,6 +160,14 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 			});
 
 		}
+		if(LOG.isDebugEnabled()){
+			StringBuffer sb= new StringBuffer("Node Data fetched from database:");
+			for(String key : result.keySet()){
+				sb.append("\n   "+key+" : "+result.get(key));
+			}
+			LOG.debug(sb.toString());
+		}
+		
 		return result;
 	}
 
@@ -288,6 +299,7 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 			return m_nodeDataCache.get(nodeCriteria);
 		} catch (ExecutionException e) {
 			if (e.getCause()  instanceof NodeNotInDatabaseException){
+				LOG.debug("CacheLoader threw NodeNotInDatabaseException because cannot find node in database for key nodeCriteria="+nodeCriteria);
 				return null;
 			}
 			else {
