@@ -370,7 +370,7 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 					if(nodeData!=null) return nodeData;
 
 					// telling other mqtt threads that node is already being added for nodeCriteria
-					m_persistMap.put(nodeCriteria, null);
+					m_persistMap.put(nodeCriteria, nodeCriteria);
 
 					OnmsNode onmsNode = new OnmsNode();
 					onmsNode.setType(NodeType.ACTIVE);
