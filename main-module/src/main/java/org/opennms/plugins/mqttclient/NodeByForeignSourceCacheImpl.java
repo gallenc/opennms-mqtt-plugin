@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.opennms.netmgt.dao.api.MonitoringLocationDao;
 import org.opennms.netmgt.dao.api.NodeDao;
 import org.opennms.netmgt.events.api.EventConstants;
 import org.opennms.netmgt.events.api.EventIpcManager;
@@ -48,6 +49,7 @@ import org.opennms.netmgt.model.OnmsGeolocation;
 import org.opennms.netmgt.model.OnmsNode;
 import org.opennms.netmgt.model.OnmsNode.NodeType;
 import org.opennms.netmgt.model.events.EventBuilder;
+import org.opennms.netmgt.model.monitoringLocations.OnmsMonitoringLocation;
 import org.opennms.netmgt.xml.event.Event;
 import org.opennms.netmgt.xml.event.Parm;
 import org.slf4j.Logger;
@@ -72,6 +74,7 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 	private long MAX_TTL = 5; // Minutes
 
 	private volatile NodeDao m_nodeDao;
+	private volatile MonitoringLocationDao m_monitoringLocationDao;
 	private volatile TransactionOperations m_transactionOperations;
 	private volatile EventIpcManager m_eventIpcManager;
 
@@ -374,6 +377,8 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 
 					OnmsNode onmsNode = new OnmsNode();
 					onmsNode.setType(NodeType.ACTIVE);
+					OnmsMonitoringLocation defaultLocation= m_monitoringLocationDao.getDefaultLocation();
+					onmsNode.setLocation(defaultLocation);
 					if (nodeCriteria.contains(":")) {
 						String[] criteria = nodeCriteria.split(":");
 						String foreignId = criteria[0];
@@ -481,13 +486,12 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 		this.m_eventProxy = eventProxy;
 	}
 
-
 	public void setEventIpcManager(EventIpcManager eventIpcManager) {
 		this.m_eventIpcManager = eventIpcManager;
 	}
-
-
-
-
+	
+	public void setMonitoringLocationDao(MonitoringLocationDao monitoringLocationDao) {
+		this.m_monitoringLocationDao = monitoringLocationDao;
+	}
 
 }
