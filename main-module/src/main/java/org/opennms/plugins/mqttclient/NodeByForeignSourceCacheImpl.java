@@ -393,8 +393,8 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 					onmsNode.setLocation(defaultLocation);
 					if (nodeCriteria.contains(":")) {
 						String[] criteria = nodeCriteria.split(":");
-						String foreignId = criteria[0];
-						String foreignSource = criteria[1];
+						String foreignSource = criteria[0];
+						String foreignId = criteria[1];
 						onmsNode.setForeignSource(foreignSource);
 						onmsNode.setForeignId(foreignId);
 						onmsNode.setLabel(foreignId);
