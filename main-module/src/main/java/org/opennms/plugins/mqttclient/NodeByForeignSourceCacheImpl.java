@@ -38,6 +38,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.opennms.netmgt.dao.api.NodeDao;
 import org.opennms.netmgt.events.api.EventConstants;
+import org.opennms.netmgt.events.api.EventIpcManager;
+import org.opennms.netmgt.events.api.EventListener;
 import org.opennms.netmgt.events.api.EventProxy;
 import org.opennms.netmgt.events.api.EventProxyException;
 import org.opennms.netmgt.model.OnmsAssetRecord;
@@ -61,7 +63,7 @@ import com.google.common.cache.LoadingCache;
 /**
  * Created: User: cgallen
  */
-public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
+public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, EventListener {
 	private static final Logger LOG = LoggerFactory.getLogger(NodeByForeignSourceCacheImpl.class);
 
 	private static final String MQTT_UNKNOWN_NODE_EVENT = "uei.opennms.org/plugin/MqttReceiver/unknownNodeEvent";
@@ -71,10 +73,11 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 
 	private volatile NodeDao m_nodeDao;
 	private volatile TransactionOperations m_transactionOperations;
-	
-	private EventProxy eventProxy;
-	
-	private boolean createMissingNodes = true;
+	private volatile EventIpcManager m_eventIpcManager;
+
+	private volatile EventProxy m_eventProxy;
+
+	private boolean m_createMissingNodes = true;
 
 	// contains list of nodes pending persisting
 	private ConcurrentHashMap<String, String> m_persistMap = new ConcurrentHashMap<String, String>();
@@ -117,10 +120,14 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 			m_nodeDataCache = cacheBuilder.build(loader);
 		}
 
+		// register for node events
+		if(m_eventIpcManager== null) throw new RuntimeException("m_eventIpcManager cannot be null"); 
+		m_eventIpcManager.addEventListener(this);
+
 	}
 
 	private Map<String, String> getNodeAndCategoryInfo(String nodeCriteria) {
-		// always returns a hashmap but will be empty if teh node not found
+		// always returns a hashmap but will be empty if the node not found
 		final Map<String, String> result = new HashMap<>();
 
 		// safety check
@@ -134,6 +141,7 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 				protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
 					OnmsNode node = m_nodeDao.get(nodeCriteria);
 					if (node != null) {
+						// the node is created so no longer need to block concurrent creations
 						m_persistMap.remove(nodeCriteria);
 						populateBodyWithNodeInfo(result, node);
 					}
@@ -185,75 +193,75 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 		// parent.getForeignId());
 		// }
 		//
-		 //assetRecord.
-		 OnmsAssetRecord assetRecord= node.getAssetRecord() ;
-		 if(assetRecord!=null){
-		
-		 //geolocation
-		 OnmsGeolocation gl = assetRecord.getGeolocation();
-		 if (gl !=null){
-		 if (gl.getLatitude() !=null)body.put("asset-latitude",
-		 gl.getLatitude().toString());
-		 if (gl.getLongitude()!=null)body.put("asset-longitude",
-		 gl.getLongitude().toString());
-		 }
-		//
-		// //assetRecord
-		// if (assetRecord.getRegion() !=null && !
-		// "".equals(assetRecord.getRegion())) body.put("asset-region",
-		// assetRecord.getRegion());
-		// if (assetRecord.getBuilding() !=null && !
-		// "".equals(assetRecord.getBuilding())) body.put("asset-building",
-		// assetRecord.getBuilding());
-		// if (assetRecord.getFloor() !=null && !
-		// "".equals(assetRecord.getFloor())) body.put("asset-floor",
-		// assetRecord.getFloor());
-		// if (assetRecord.getRoom() !=null && !
-		// "".equals(assetRecord.getRoom())) body.put("asset-room",
-		// assetRecord.getRoom());
-		// if (assetRecord.getRack() !=null && !
-		// "".equals(assetRecord.getRack())) body.put("asset-rack",
-		// assetRecord.getRack());
-		// if (assetRecord.getSlot() !=null && !
-		// "".equals(assetRecord.getSlot())) body.put("asset-slot",
-		// assetRecord.getSlot());
-		// if (assetRecord.getPort() !=null && !
-		// "".equals(assetRecord.getPort())) body.put("asset-port",
-		// assetRecord.getPort());
-		// if (assetRecord.getCategory() !=null && !
-		// "".equals(assetRecord.getCategory())) body.put("asset-category",
-		// assetRecord.getCategory());
-		// if (assetRecord.getDisplayCategory() !=null && !
-		// "".equals(assetRecord.getDisplayCategory()))
-		// body.put("asset-displaycategory", assetRecord.getDisplayCategory());
-		// if (assetRecord.getNotifyCategory() !=null && !
-		// "".equals(assetRecord.getNotifyCategory()))
-		// body.put("asset-notifycategory", assetRecord.getNotifyCategory());
-		// if (assetRecord.getPollerCategory() !=null && !
-		// "".equals(assetRecord.getPollerCategory()))
-		// body.put("asset-pollercategory", assetRecord.getPollerCategory());
-		// if (assetRecord.getThresholdCategory() !=null && !
-		// "".equals(assetRecord.getThresholdCategory()))
-		// body.put("asset-thresholdcategory",
-		// assetRecord.getThresholdCategory());
-		// if (assetRecord.getManagedObjectType() !=null && !
-		// "".equals(assetRecord.getManagedObjectType()))
-		// body.put("asset-managedobjecttype",
-		// assetRecord.getManagedObjectType());
-		// if (assetRecord.getManagedObjectInstance() !=null && !
-		// "".equals(assetRecord.getManagedObjectInstance()))
-		// body.put("asset-managedobjectinstance",
-		// assetRecord.getManagedObjectInstance());
-		// if (assetRecord.getManufacturer() !=null && !
-		// "".equals(assetRecord.getManufacturer()))
-		// body.put("asset-manufacturer", assetRecord.getManufacturer());
-		// if (assetRecord.getVendor() !=null && !
-		// "".equals(assetRecord.getVendor())) body.put("asset-vendor",
-		// assetRecord.getVendor());
-		// if (assetRecord.getModelNumber() !=null && !
-		// "".equals(assetRecord.getModelNumber()))
-		// body.put("asset-modelnumber", assetRecord.getModelNumber());
-		// }
+		//assetRecord.
+		OnmsAssetRecord assetRecord= node.getAssetRecord() ;
+		if(assetRecord!=null){
+
+			//geolocation
+			OnmsGeolocation gl = assetRecord.getGeolocation();
+			if (gl !=null){
+				if (gl.getLatitude() !=null)body.put("asset-latitude",
+						gl.getLatitude().toString());
+				if (gl.getLongitude()!=null)body.put("asset-longitude",
+						gl.getLongitude().toString());
+			}
+			//
+			// //assetRecord
+			// if (assetRecord.getRegion() !=null && !
+			// "".equals(assetRecord.getRegion())) body.put("asset-region",
+			// assetRecord.getRegion());
+			// if (assetRecord.getBuilding() !=null && !
+			// "".equals(assetRecord.getBuilding())) body.put("asset-building",
+			// assetRecord.getBuilding());
+			// if (assetRecord.getFloor() !=null && !
+			// "".equals(assetRecord.getFloor())) body.put("asset-floor",
+			// assetRecord.getFloor());
+			// if (assetRecord.getRoom() !=null && !
+			// "".equals(assetRecord.getRoom())) body.put("asset-room",
+			// assetRecord.getRoom());
+			// if (assetRecord.getRack() !=null && !
+			// "".equals(assetRecord.getRack())) body.put("asset-rack",
+			// assetRecord.getRack());
+			// if (assetRecord.getSlot() !=null && !
+			// "".equals(assetRecord.getSlot())) body.put("asset-slot",
+			// assetRecord.getSlot());
+			// if (assetRecord.getPort() !=null && !
+			// "".equals(assetRecord.getPort())) body.put("asset-port",
+			// assetRecord.getPort());
+			// if (assetRecord.getCategory() !=null && !
+			// "".equals(assetRecord.getCategory())) body.put("asset-category",
+			// assetRecord.getCategory());
+			// if (assetRecord.getDisplayCategory() !=null && !
+			// "".equals(assetRecord.getDisplayCategory()))
+			// body.put("asset-displaycategory", assetRecord.getDisplayCategory());
+			// if (assetRecord.getNotifyCategory() !=null && !
+			// "".equals(assetRecord.getNotifyCategory()))
+			// body.put("asset-notifycategory", assetRecord.getNotifyCategory());
+			// if (assetRecord.getPollerCategory() !=null && !
+			// "".equals(assetRecord.getPollerCategory()))
+			// body.put("asset-pollercategory", assetRecord.getPollerCategory());
+			// if (assetRecord.getThresholdCategory() !=null && !
+			// "".equals(assetRecord.getThresholdCategory()))
+			// body.put("asset-thresholdcategory",
+			// assetRecord.getThresholdCategory());
+			// if (assetRecord.getManagedObjectType() !=null && !
+			// "".equals(assetRecord.getManagedObjectType()))
+			// body.put("asset-managedobjecttype",
+			// assetRecord.getManagedObjectType());
+			// if (assetRecord.getManagedObjectInstance() !=null && !
+			// "".equals(assetRecord.getManagedObjectInstance()))
+			// body.put("asset-managedobjectinstance",
+			// assetRecord.getManagedObjectInstance());
+			// if (assetRecord.getManufacturer() !=null && !
+			// "".equals(assetRecord.getManufacturer()))
+			// body.put("asset-manufacturer", assetRecord.getManufacturer());
+			// if (assetRecord.getVendor() !=null && !
+			// "".equals(assetRecord.getVendor())) body.put("asset-vendor",
+			// assetRecord.getVendor());
+			// if (assetRecord.getModelNumber() !=null && !
+			// "".equals(assetRecord.getModelNumber()))
+			// body.put("asset-modelnumber", assetRecord.getModelNumber());
+			// }
 		}
 
 	}
@@ -280,7 +288,7 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 		}
 	}
 
-	
+
 	/**
 	 * refreshes the entry for a given nodeId
 	 * does nothing if the node entry a given node id does not exist
@@ -304,7 +312,7 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 	 */
 	@Override
 	public void removeEntryForNodeId(String nodeId) {
-		LOG.debug("refreshing node m_nodeDataCache entry: " + nodeId);
+		LOG.debug("removing node m_nodeDataCache entry for nodeId: " + nodeId);
 
 		for(Entry<String, Map<String, String>> entry :m_nodeDataCache.asMap().entrySet()){
 			String entryNodeId= entry.getValue().get("nodeId");
@@ -314,19 +322,16 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 			};
 		}
 	}
-	
+
 	@Override
 	public void removeEntry(String nodeCriteria) {
 		m_nodeDataCache.invalidate(nodeCriteria);
-		
 	}
 
 	@Override
 	public void refreshEntry(String nodeCriteria) {
 		m_nodeDataCache.refresh(nodeCriteria);
-		
 	}
-	
 
 
 	/**
@@ -339,54 +344,76 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 
 		Map<String, String> nodeData = getEntry(nodeCriteria);
 		if (nodeData != null) return nodeData;
-		
+
 		EventBuilder eb= new EventBuilder(MQTT_UNKNOWN_NODE_EVENT, "mqtt-client");
 		eb.addParam(new Parm("nodeCriteria", nodeCriteria));
 		sendEvent(eb.getEvent());
-		
-		if(!this.createMissingNodes) return null;
+
+		if(!this.m_createMissingNodes) return null;
 
 		// try to create new node if not already scheduled for creation by another thread
-		// this stops rapid messages from same new node trying to create several new nodes
+		// this stops rapid messages from same new node trying to create several new nodes in a race
 		// m_persistMap prevents attempts to create the node if already requested. The
-		// persistmap entry is cleared next time the node is actually loaded from the database by the cache
+		// m_persistMap entry is cleared next time the node is actually loaded from the database by the cache
 		if (!m_persistMap.containsKey(nodeCriteria)) {
-			OnmsNode onmsNode = new OnmsNode();
-			onmsNode.setType(NodeType.ACTIVE);
-			if (nodeCriteria.contains(":")) {
-				String[] criteria = nodeCriteria.split(":");
-				String foreignId = criteria[0];
-				String foreignSource = criteria[1];
-				onmsNode.setForeignSource(foreignSource);
-				onmsNode.setForeignId(foreignId);
-				onmsNode.setLabel(foreignId);
-			} else {
-				onmsNode.setLabel(nodeCriteria);
-			}
-			LOG.debug("addNode: Adding node {}", onmsNode);
 			synchronized (this) {
-				if (!m_persistMap.containsKey(nodeCriteria)) {
+				// check another mqtt thread is not trying to create this node
+				if (! m_persistMap.containsKey(nodeCriteria)) {
+					// check again if node has just been created
+					// if it has then just return the data
+					nodeData = getEntry(nodeCriteria);
+					if(nodeData!=null) return nodeData;
+
+					// telling other mqtt threads that node is already being added for nodeCriteria
 					m_persistMap.put(nodeCriteria, null);
-					//TODO using save or update incase the node has been created by an external process
+
+					OnmsNode onmsNode = new OnmsNode();
+					onmsNode.setType(NodeType.ACTIVE);
+					if (nodeCriteria.contains(":")) {
+						String[] criteria = nodeCriteria.split(":");
+						String foreignId = criteria[0];
+						String foreignSource = criteria[1];
+						onmsNode.setForeignSource(foreignSource);
+						onmsNode.setForeignId(foreignId);
+						onmsNode.setLabel(foreignId);
+					} else {
+						onmsNode.setLabel(nodeCriteria);
+					}
+					LOG.debug("Mqtt cache Adding node {}", onmsNode);
+
+					//using save or update in case the node has just been created by an external process
 					m_nodeDao.saveOrUpdate(onmsNode);
 					m_nodeDao.flush();
-					
+					LOG.debug("Mqtt cache node added {}", onmsNode);
+
+					// retrieve added node to and sends node added event 
+					// this updates the cache which clears entry in m_persistMap 
+					nodeData = getEntry(nodeCriteria);
+					if(nodeData==null){
+						throw new RuntimeException("problem creating and retreiving new node for nodeCriteria="+nodeCriteria);
+					}
+
+					eb= new EventBuilder(EventConstants.NODE_ADDED_EVENT_UEI, "mqtt-client");
+					eb.addParam("nodelabel", nodeData.get("nodelabel"));
+					eb.addParam(new Parm("nodeCriteria", nodeCriteria));
+
+					String nidStr =nodeData.get("nodeId");
+					Long nodeId = Long.parseLong(nidStr);
+					eb.setNodeid(nodeId);
+
+					sendEvent(eb.getEvent());
 				}
 			}
-			//TODO do this properly
-			EventBuilder eb2= new EventBuilder(EventConstants.NODE_ADDED_EVENT_UEI, "mqtt-client");
-			eb.addParam(new Parm("nodeCriteria", nodeCriteria));
-			sendEvent(eb.getEvent());
 		}
 
 		return nodeData;
 	}
-	
+
 	private void sendEvent(Event e){
 		LOG.debug("sending event to opennms. event.tostring():" + e.toString());
 		try {
-			if (eventProxy != null) {
-				eventProxy.send(e);
+			if (m_eventProxy != null) {
+				m_eventProxy.send(e);
 			} else {
 				LOG.error("OpenNMS event proxy not set - not sending event to opennms");
 			}
@@ -395,12 +422,38 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 		}
 	}
 
-	/* getters and setters */
-	
-	public void setCreateMissingNodes(boolean createMissingNodes) {
-		this.createMissingNodes = createMissingNodes;
+	// EventListener
+	@Override
+	public String getName() {
+		return "MQTTNodeByForeignSourceCache";
 	}
-	
+
+	@Override
+	public void onEvent(Event event) {
+		// check for node change events
+		String uei=event.getUei();
+		if(uei!=null && uei.startsWith("uei.opennms.org/nodes/")) {
+			Long nodeId=event.getNodeid();
+			if(EventConstants.NODE_DELETED_EVENT_UEI.equals(uei)){
+				LOG.debug("node cache removing entry for nodeId="+nodeId);
+				if(nodeId!=null) removeEntryForNodeId(Long.toString(nodeId));
+			} else if (
+					// uei.endsWith("Added") || only cashing nodes which are in MQTT messags
+					uei.endsWith("Updated") || 
+					uei.endsWith("Changed")
+					) {
+				LOG.debug("node cache updating entry for nodeId="+nodeId);
+				if(nodeId!=null) refreshEntryForNodeId(Long.toString(nodeId));
+			}
+		}
+	}
+
+	/* getters and setters */
+
+	public void setCreateMissingNodes(boolean createMissingNodes) {
+		this.m_createMissingNodes = createMissingNodes;
+	}
+
 	public void setNodeDao(NodeDao nodeDao) {
 		this.m_nodeDao = nodeDao;
 	}
@@ -417,10 +470,15 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache {
 	public void setMAX_TTL(long MAX_TTL) {
 		this.MAX_TTL = MAX_TTL;
 	}
-	
+
 
 	public void setEventProxy(EventProxy eventProxy) {
-		this.eventProxy = eventProxy;
+		this.m_eventProxy = eventProxy;
+	}
+
+
+	public void setEventIpcManager(EventIpcManager eventIpcManager) {
+		this.m_eventIpcManager = eventIpcManager;
 	}
 
 
