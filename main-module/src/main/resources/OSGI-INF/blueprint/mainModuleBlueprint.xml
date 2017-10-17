@@ -13,6 +13,8 @@
 
   <!-- opennms event proxy -->
   <reference id="eventProxy" interface="org.opennms.netmgt.events.api.EventProxy" availability="mandatory" timeout="100" />
+  
+  <bean id="eventIpcManager" class="org.opennms.netmgt.events.api.EventIpcManagerFactory" factory-method="getIpcManager" />
 
   <!-- opennms node dao -->
   <reference id="nodeDao" interface="org.opennms.netmgt.dao.api.NodeDao" availability="mandatory" />
@@ -111,6 +113,7 @@
   <bean id="nodeByForeignSourceCache" class="org.opennms.plugins.mqttclient.NodeByForeignSourceCacheImpl" init-method="init" destroy-method="destroy">
     <property name="nodeDao" ref="nodeDao" />
     <property name="eventProxy" ref="eventProxy" />
+    <property name="eventIpcManager" ref="eventIpcManager" />
     <property name="transactionOperations" ref="transactionOperations" />
     <property name="MAX_TTL" value="${org.opennms.plugin.mqttclient.cache_max_ttl}" />
     <property name="MAX_SIZE" value="${org.opennms.plugin.mqttclient.cache_max_size}" />
