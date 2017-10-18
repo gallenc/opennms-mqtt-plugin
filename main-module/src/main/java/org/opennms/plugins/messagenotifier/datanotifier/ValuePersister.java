@@ -186,7 +186,7 @@ public class ValuePersister  {
 			try {
 				nodeId = Integer.parseInt(nodeData.get("nodeId"));
 			} catch (Exception e){
-				throw new RuntimeException("cannot parse nodeId from node cash data for foreignSource="
+				throw new RuntimeException("Cannot parse nodeId from node cash data for foreignSource="
 						+foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap),e);
 			}
 
