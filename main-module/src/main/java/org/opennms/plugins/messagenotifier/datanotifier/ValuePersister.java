@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -217,8 +218,8 @@ public class ValuePersister  {
 				String attributeValue = attributeMap.get(key).toString();
 				if(dataDefinition.containsKey(attributeName)){
 					AttributeType attributeType = dataDefinition.get(attributeName);
-					if(LOG.isDebugEnabled()) LOG.debug("ValuePersistor at timeStampValue:"+timeStampValue
-							+" timeStamp:"+timeStamp
+					if(LOG.isDebugEnabled()) LOG.debug("ValuePersistor at json timeStampValue:"+timeStampValue
+							+" timeStamp:"+parseDatetoJsonTimestamp(timeStamp)
 							+" adding attribute:"+attributeName
 							+" attributeValue:"+attributeValue
 							+" attributeType:"+attributeType.toString()
@@ -237,6 +238,7 @@ public class ValuePersister  {
 		}
 	}
 
+	//TODO look at using java.time
 	public Date parseJsonTimestampToDate(String dateStr){
 		Date date;
 		
@@ -251,10 +253,13 @@ public class ValuePersister  {
 		return date;
 	}
 	
+	//TODO look at using java.time
 	public String parseDatetoJsonTimestamp(Date date){
 		String dateStr;
 		try {
 			SimpleDateFormat formatter = new SimpleDateFormat(dateTimeFormatPattern);
+			TimeZone zone= TimeZone.getTimeZone("UTC");
+			formatter.setTimeZone(zone);
 			dateStr = formatter.format(date);
 		} catch (Exception e) {
 			throw new RuntimeException("cannot format supplied date :"+date

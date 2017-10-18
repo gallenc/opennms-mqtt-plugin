@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Test;
 import org.opennms.netmgt.collection.api.AttributeGroup;
@@ -21,12 +22,39 @@ import org.opennms.plugins.messagenotifier.datanotifier.ConfigDao;
 import org.opennms.plugins.messagenotifier.datanotifier.ValuePersister;
 
 public class ValuePersisterJsonDateTest {
+	
+	@Test
+	public void simpletestDate(){
+		String startDateString="2017-10-18T15:01:29UTC";
+		String dateTimeFormatPattern="yyyy-mm-dd'T'HH:mm:ssz";
+		String newDateString=null;
+		Date date=null;
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat(dateTimeFormatPattern);
+			date = formatter.parse(startDateString);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		try {
+			SimpleDateFormat formatter2 = new SimpleDateFormat(dateTimeFormatPattern);
+			TimeZone zone= TimeZone.getTimeZone("UTC");
+			formatter2.setTimeZone(zone);
+			newDateString= formatter2.format(date);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		System.out.println("startDateString "+startDateString );
+		System.out.println("newDateString "+newDateString );
+		
+	}
+
 
 	@Test
 	public void testDate() {
 		
 		String startDateString="2017-10-18T15:01:29UTC";
-		String dateTimeFormatPattern="yyyy-mm-dd'T'HH:mm:ssz";
+		String dateTimeFormatPattern="yyyy-mm-dd'T'HH:mm:ssZ";
 		
 		ValuePersister vp = new ValuePersister();
 		PersisterFactory persisterFactory = new MockPersisterFactory();
