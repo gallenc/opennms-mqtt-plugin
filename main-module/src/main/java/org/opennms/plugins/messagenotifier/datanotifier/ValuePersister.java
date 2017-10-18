@@ -151,13 +151,14 @@ public class ValuePersister  {
 
 		// try to parse timestamp from json
 		// or create a timestamp if timestamp key not set
+		String timeStampValue="not set";
 		if(timeStampKey==null || "".equals(timeStampKey.trim())){
 			timeStamp = new Date();
 		} else {
 			if (!attributeMap.containsKey(timeStampKey)) {
 				throw new RuntimeException("no time stamp value for timeStampKey:"+timeStampKey+" in received attribute map:"+objectMapToString(attributeMap));
 			} else try {
-				String timeStampValue = attributeMap.get(timeStampKey).toString();
+				timeStampValue = attributeMap.get(timeStampKey).toString();
 				timeStamp = parseJsonTimestamp(timeStampValue);
 			} catch (Exception e){
 				throw new RuntimeException("cannot parse timeStampValue for timeStampKey:"+timeStampKey+" in received attribute map:"+objectMapToString(attributeMap),e);
@@ -189,13 +190,13 @@ public class ValuePersister  {
 						+foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap),e);
 			}
 
-			CollectionAgent agent = new MockCollectionAgent(foreignSource, foreignId, nodeId);
 			NodeLevelResource nodelevelResource = new NodeLevelResource(nodeId);
 			
 			// Build the interface resource
 			InterfaceLevelResource interfaceLevelResource = new InterfaceLevelResource(nodelevelResource, "mqtt");
 			
 			// Generate the collection set
+			CollectionAgent agent = new MockCollectionAgent(foreignSource, foreignId, nodeId);
 			CollectionSetBuilder builder = new CollectionSetBuilder(agent);
 			builder.withTimestamp(timeStamp);
 
@@ -205,7 +206,13 @@ public class ValuePersister  {
 				String attributeValue = attributeMap.get(key).toString();
 				if(dataDefinition.containsKey(attributeName)){
 					AttributeType attributeType = dataDefinition.get(attributeName);
-					if(LOG.isDebugEnabled()) LOG.debug("adding attribute:"+attributeName+" attributeValue:"+attributeValue+" attributeType:"+attributeType.toString());
+					if(LOG.isDebugEnabled()) LOG.debug("ValuePersistor at timeStampValue:"+timeStampValue
+							+" timeStamp:"+timeStamp
+							+" adding attribute:"+attributeName
+							+" attributeValue:"+attributeValue
+							+" attributeType:"+attributeType.toString()
+							+" group:"+group
+							+" interfaceLevelResource:"+interfaceLevelResource.toString());
 					builder.withAttribute(interfaceLevelResource , group, attributeName, attributeValue, attributeType);
 				} else {
 					LOG.warn("no data definition for parameter:"+attributeName+" in received attribute map:"+objectMapToString(attributeMap));
