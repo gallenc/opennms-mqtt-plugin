@@ -253,7 +253,7 @@ public class ValuePersister  {
 
 		// use for store by foreignSource
 		public MockCollectionAgent(String foreignSource, String foreignId, int nodeId) {
-			this.nodeId = 0;
+			this.nodeId = nodeId; //0 ?
 			this.foreignId =foreignId;
 			this.nodeLabel=foreignId;
 			this.foreignSource=foreignSource;
