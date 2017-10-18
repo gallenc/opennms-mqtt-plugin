@@ -30,6 +30,8 @@ package org.opennms.plugins.messagenotifier.datanotifier;
 
 import java.net.InetAddress;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -73,10 +75,18 @@ public class ValuePersister  {
 	private PersisterFactory persisterFactory;
 
 	private Persister persister;
+	
+	// works with 2017-10-18T15:01:29UTC
+	private String dateTimeFormatPattern="yyyy-mm-dd'T'HH:mm:ssz";
 
-	private List<String> rras;
+	// default 5 minutes
+	private List<String> rras = Arrays.asList("RRA:AVERAGE:0.5:1:2016",
+			"RRA:AVERAGE:0.5:12:1488",
+			"RRA:AVERAGE:0.5:288:366",
+			"RRA:MAX:0.5:288:366",
+			"RRA:MIN:0.5:288:366");
 
-	private int intervalInSeconds;
+	private int intervalInSeconds = 300;
 
 	private String foreignSource;
 
@@ -104,6 +114,7 @@ public class ValuePersister  {
 		rras = configDao.getRras();
 		intervalInSeconds=configDao.getIntervalInSeconds();
 		foreignSource=configDao.getForeignSource();
+		dateTimeFormatPattern=configDao.getDateTimeFormatPattern();
 
 		// Setup auxiliary objects needed by the persister
 		params = new ServiceParameters(Collections.emptyMap());
@@ -150,7 +161,7 @@ public class ValuePersister  {
 		String foreignId;
 
 		// try to parse timestamp from json
-		// or create a timestamp if timestamp key not set
+		// or create a timestamp from current date if timestamp key not set
 		String timeStampValue="not set";
 		if(timeStampKey==null || "".equals(timeStampKey.trim())){
 			timeStamp = new Date();
@@ -159,7 +170,7 @@ public class ValuePersister  {
 				throw new RuntimeException("no time stamp value for timeStampKey:"+timeStampKey+" in received attribute map:"+objectMapToString(attributeMap));
 			} else try {
 				timeStampValue = attributeMap.get(timeStampKey).toString();
-				timeStamp = parseJsonTimestamp(timeStampValue);
+				timeStamp = parseJsonTimestampToDate(timeStampValue);
 			} catch (Exception e){
 				throw new RuntimeException("cannot parse timeStampValue for timeStampKey:"+timeStampKey+" in received attribute map:"+objectMapToString(attributeMap),e);
 			}
@@ -226,9 +237,30 @@ public class ValuePersister  {
 		}
 	}
 
-	public Date parseJsonTimestamp(String dateStr){
-		//TODO
-		return new Date();
+	public Date parseJsonTimestampToDate(String dateStr){
+		Date date;
+		
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat(dateTimeFormatPattern);
+			date = formatter.parse(dateStr);
+		} catch (Exception e) {
+			LOG.warn("using current date because cannot parse supplied json date string :"+dateStr
+					+" with supplied dateTimeFormatPattern: "+dateTimeFormatPattern, e);
+			date = new Date();
+		} 
+		return date;
+	}
+	
+	public String parseDatetoJsonTimestamp(Date date){
+		String dateStr;
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat(dateTimeFormatPattern);
+			dateStr = formatter.format(date);
+		} catch (Exception e) {
+			throw new RuntimeException("cannot format supplied date :"+date
+					+" with supplied dateTimeFormatPattern: "+dateTimeFormatPattern, e);
+		}
+		return dateStr;
 	}
 
 	private String objectMapToString(Map<String,Object> jsonObject){

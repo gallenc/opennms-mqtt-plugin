@@ -1,5 +1,6 @@
 package org.opennms.plugins.messagenotifier.datanotifier;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -13,6 +14,9 @@ import org.slf4j.LoggerFactory;
 
 public class ConfigDao {
 	private static final Logger LOG = LoggerFactory.getLogger(ConfigDao.class);
+	
+	// works with 2017-10-18T15:01:29UTC
+	private static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-mm-dd'T'HH:mm:ssz";
 
 	private final List<String> _DEFAULT_RRAS = Arrays.asList(
 			// Use the default list of RRAs we provide in our stock configuration files
@@ -25,6 +29,9 @@ public class ConfigDao {
 	private final int DEFAULT_INTERVAL_IN_SECONDS = 300;
 
 	private Map<String,AttributeType> dataDefinition= new LinkedHashMap<String,AttributeType>();
+
+
+	private String m_dateTimeFormatPattern=DEFAULT_DATE_TIME_FORMAT_PATTERN;
 
 	private String foreignSource;
 
@@ -94,6 +101,25 @@ public class ConfigDao {
 	public String getGroup() {
 		return group;
 	}
+	
+	
+	public String getDateTimeFormatPattern() {
+		return m_dateTimeFormatPattern;
+	}
+
+	public void setDateTimeFormatPattern(String dateTimeFormatPattern) {
+		if(dateTimeFormatPattern==null || "".equals(dateTimeFormatPattern.trim())) {
+			this.m_dateTimeFormatPattern =DEFAULT_DATE_TIME_FORMAT_PATTERN;
+			LOG.info("supplied dateTimeFormatPattern empty using default:"+this.m_dateTimeFormatPattern);
+		}
+		try{
+			new SimpleDateFormat(dateTimeFormatPattern);
+		} catch (Exception e){
+			LOG.error("using default "+DEFAULT_DATE_TIME_FORMAT_PATTERN
+					+ " because cannot parse supplied dateTimeFormatPattern: "+dateTimeFormatPattern);
+		}
+		this.m_dateTimeFormatPattern = dateTimeFormatPattern;
+	}
 
 	// methods to convert comma separated lists into List<string>
 	
@@ -135,18 +161,19 @@ public class ConfigDao {
 		return csvList;
 	}
 
+
 	@Override
 	public String toString() {
 		StringBuffer msg = new StringBuffer("ConfigDao [foreignSource=" + foreignSource + ", foreignIdKey="
 				+ foreignIdKey + ", timeStampKey=" + timeStampKey + ", group="
-				+ group + ", intervalInSeconds=" + intervalInSeconds);
-		msg.append("/n dataDefinition");
+				+ group + ", intervalInSeconds=" + intervalInSeconds+", m_dateTimeFormatPattern=" + m_dateTimeFormatPattern);
+		msg.append("\n dataDefinition");
 		for (String attributeName :dataDefinition.keySet()){
-			msg.append("   attributeName:"+attributeName+" dataType:"+dataDefinition.get(attributeName).getName()+"/n");
+			msg.append("   attributeName:"+attributeName+" dataType:"+dataDefinition.get(attributeName).getName()+"\n");
 		}
-		msg.append("/n rras");
+		msg.append("\n rras");
 		for (String rra :rras){
-			msg.append("   "+rra+"/n");
+			msg.append("   "+rra+"\n");
 		}
 		msg.append("]");
 		return msg.toString();

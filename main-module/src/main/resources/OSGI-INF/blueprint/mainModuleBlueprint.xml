@@ -49,6 +49,8 @@
       <cm:property name="org.opennms.plugin.mqttclient.message.foreignsource" value="mqtt" />
       <cm:property name="org.opennms.plugin.mqttclient.message.foreignidkey" value="id" />
       <cm:property name="org.opennms.plugin.mqttclient.message.timestampkey" value="time" />
+        
+      <cm:property name="org.opennms.plugin.mqttclient.message.time-format-pattern" value="yyyy-mm-dd'T'HH:mm:ssz" /> <!--  works with 2017-10-18T15:01:29UTC -->
 
       <cm:property name="org.opennms.plugin.mqttclient.message.persist.guagekeys" value="PM1,PM25,PM10,latitude,longitude,averaging" />
       <cm:property name="org.opennms.plugin.mqttclient.message.persist.counterkeys" value="" />
@@ -135,6 +137,7 @@
     <property name="foreignSource" value="${org.opennms.plugin.mqttclient.message.foreignsource}" />
     <property name="foreignIdKey" value="${org.opennms.plugin.mqttclient.message.foreignidkey}" />
     <property name="timeStampKey" value="${org.opennms.plugin.mqttclient.message.timestampkey}" />
+    <property name="dateTimeFormatPattern" value="${org.opennms.plugin.mqttclient.message.time-format-pattern}" />
 
     <property name="guageKeysProperty" value="${org.opennms.plugin.mqttclient.message.persist.guagekeys}" />
     <property name="counterKeysProperty" value="${org.opennms.plugin.mqttclient.message.persist.counterkeys}" />
