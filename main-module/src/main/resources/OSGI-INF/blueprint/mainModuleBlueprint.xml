@@ -142,7 +142,7 @@
 
     <property name="group" value="${org.opennms.plugin.mqttclient.message.persist.group}" />
     <property name="intervalInSecondsStr" value="${org.opennms.plugin.mqttclient.message.persist.interval}" />
-    <property name="rrasProperty" value="${oorg.opennms.plugin.mqttclient.message.persist.rras}" />
+    <property name="rrasProperty" value="${org.opennms.plugin.mqttclient.message.persist.rras}" />
 
   </bean>
 
