@@ -205,6 +205,7 @@ public class ValuePersister  {
 				String attributeValue = attributeMap.get(key).toString();
 				if(dataDefinition.containsKey(attributeName)){
 					AttributeType attributeType = dataDefinition.get(attributeName);
+					if(LOG.isDebugEnabled()) LOG.debug("adding attribute:"+attributeName+" attributeValue:"+attributeValue+" attributeType:"+attributeType.toString());
 					builder.withAttribute(interfaceLevelResource , group, attributeName, attributeValue, attributeType);
 				} else {
 					LOG.warn("no data definition for parameter:"+attributeName+" in received attribute map:"+objectMapToString(attributeMap));
