@@ -46,6 +46,7 @@ import org.opennms.netmgt.collection.api.Persister;
 import org.opennms.netmgt.collection.api.PersisterFactory;
 import org.opennms.netmgt.collection.api.ServiceParameters;
 import org.opennms.netmgt.collection.support.builder.CollectionSetBuilder;
+import org.opennms.netmgt.collection.support.builder.InterfaceLevelResource;
 import org.opennms.netmgt.collection.support.builder.NodeLevelResource;
 import org.opennms.netmgt.dao.api.NodeDao;
 import org.opennms.netmgt.model.OnmsNode;
@@ -190,6 +191,10 @@ public class ValuePersister  {
 
 			CollectionAgent agent = new MockCollectionAgent(foreignSource, foreignId, nodeId);
 			NodeLevelResource nodelevelResource = new NodeLevelResource(nodeId);
+			
+			// Build the interface resource
+			InterfaceLevelResource interfaceLevelResource = new InterfaceLevelResource(nodelevelResource, "mqtt");
+			
 			// Generate the collection set
 			CollectionSetBuilder builder = new CollectionSetBuilder(agent);
 			builder.withTimestamp(timeStamp);
@@ -200,7 +205,7 @@ public class ValuePersister  {
 				String attributeValue = attributeMap.get(key).toString();
 				if(dataDefinition.containsKey(attributeName)){
 					AttributeType attributeType = dataDefinition.get(attributeName);
-					builder.withAttribute(nodelevelResource, group, attributeName, attributeValue, attributeType);
+					builder.withAttribute(interfaceLevelResource , group, attributeName, attributeValue, attributeType);
 				} else {
 					LOG.warn("no data definition for parameter:"+attributeName+" in received attribute map:"+objectMapToString(attributeMap));
 				}
