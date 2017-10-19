@@ -74,13 +74,9 @@ import org.slf4j.LoggerFactory;
 public class ValuePersister  {
 	private static final Logger LOG = LoggerFactory.getLogger(ValuePersister.class);
 
-	private ServiceParameters m_params;
-
-	private RrdRepository m_repository;
-
 	private PersisterFactory m_persisterFactory;
 
-	private Persister m_persister;
+
 
 	// works with 2017-10-19 10:15:02.854888";
 	private String m_dateTimeFormatPattern="yyyy-MM-dd HH:mm:ss.SSSSSS";
@@ -140,15 +136,7 @@ public class ValuePersister  {
 		m_dateTimeFormatPattern=m_configDao.getDateTimeFormatPattern();
 		setTimeZoneOffset(m_configDao.getTimeZoneOffset());
 
-		// Setup auxiliary objects needed by the m_persister
-		m_params = new ServiceParameters(Collections.emptyMap());
-		m_repository = new RrdRepository();
-		m_repository.setRraList(m_rras);
-		m_repository.setStep(Math.max(m_intervalInSeconds, 1));
-		m_repository.setHeartBeat(m_repository.getStep() * 2);
-		m_repository.setRrdBaseDir(Paths.get(System.getProperty("opennms.home"),"share","rrd","snmp").toFile());
-
-		m_persister = m_persisterFactory.createPersister(m_params, m_repository);
+		
 	}
 
 	// destroy method to be called by blueprint
@@ -255,6 +243,23 @@ public class ValuePersister  {
 			}
 
 			CollectionSet collectionSet =  builder.build();
+			
+			//TODO may be OK here or not
+			ServiceParameters m_params;
+
+			RrdRepository m_repository;
+			
+			Persister m_persister;
+			
+			// Setup auxiliary objects needed by the m_persister
+			m_params = new ServiceParameters(Collections.emptyMap());
+			m_repository = new RrdRepository();
+			m_repository.setRraList(m_rras);
+			m_repository.setStep(Math.max(m_intervalInSeconds, 1));
+			m_repository.setHeartBeat(m_repository.getStep() * 2);
+			m_repository.setRrdBaseDir(Paths.get(System.getProperty("opennms.home"),"share","rrd","snmp").toFile());
+
+			m_persister = m_persisterFactory.createPersister(m_params, m_repository);
 
 			// Persist
 			collectionSet.visit(m_persister);

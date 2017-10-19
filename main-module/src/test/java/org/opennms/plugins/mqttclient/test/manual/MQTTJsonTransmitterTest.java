@@ -59,7 +59,8 @@ public class MQTTJsonTransmitterTest {
 	// works with 2017-10-19 10:15:02.854888
 	private static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
 	
-	public static final String TEST_JSON_FILE="./src/test/resources/testData.json";
+	//public static final String TEST_JSON_FILE="./src/test/resources/testData.json";
+	public static final String TEST_JSON_FILE="./src/test/resources/testData2.json";
 	
 	//public static final String SERVER_URL = "tcp://localhost:1883"; 172.18.0.4
 	//public static final String SERVER_URL = "tcp://192.168.202.1:1883";
@@ -159,9 +160,13 @@ public class MQTTJsonTransmitterTest {
 		for (Object obj : jsonArray){
 			try{
 				JSONObject jsonobj = (JSONObject) obj;
+				
+				LOG.debug("sending json message"+jsonobj.toJSONString());
+				
 				String message=jsonobj.toJSONString();
 				byte[] payload = message.getBytes();
 				client.publishSynchronous(topic, qos, payload);
+				LOG.debug("message sent");
 			} catch(Exception e){
 				LOG.debug("problem publishing json message", e);
 			}
