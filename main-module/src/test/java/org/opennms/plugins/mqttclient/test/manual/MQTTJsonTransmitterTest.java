@@ -56,6 +56,9 @@ import org.slf4j.LoggerFactory;
 public class MQTTJsonTransmitterTest {
 	private static final Logger LOG = LoggerFactory.getLogger(MQTTJsonTransmitterTest.class);
 
+	// works with 2017-10-19 10:15:02.854888
+	private static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
+	
 	public static final String TEST_JSON_FILE="./src/test/resources/testData.json";
 	
 	//public static final String SERVER_URL = "tcp://localhost:1883"; 172.18.0.4
@@ -98,7 +101,7 @@ public class MQTTJsonTransmitterTest {
 	}
 
 	public static String jsonTime(Date date){
-		SimpleDateFormat df = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ssz" );
+		SimpleDateFormat df = new SimpleDateFormat( DEFAULT_DATE_TIME_FORMAT_PATTERN );
 
 		TimeZone tz = TimeZone.getTimeZone( "UTC" );
 

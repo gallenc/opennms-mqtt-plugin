@@ -4,6 +4,10 @@ import static org.junit.Assert.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
@@ -20,41 +24,51 @@ import org.opennms.netmgt.collection.api.ServiceParameters;
 import org.opennms.netmgt.rrd.RrdRepository;
 import org.opennms.plugins.messagenotifier.datanotifier.ConfigDao;
 import org.opennms.plugins.messagenotifier.datanotifier.ValuePersister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ValuePersisterJsonDateTest {
+	private static final Logger LOG = LoggerFactory.getLogger(ValuePersisterJsonDateTest.class);
 	
 	@Test
-	public void simpletestDate(){
-		String startDateString="2017-10-18T15:01:29UTC";
-		String dateTimeFormatPattern="yyyy-mm-dd'T'HH:mm:ssz";
-		String newDateString=null;
-		Date date=null;
-		try {
-			SimpleDateFormat formatter = new SimpleDateFormat(dateTimeFormatPattern);
-			date = formatter.parse(startDateString);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-		try {
-			SimpleDateFormat formatter2 = new SimpleDateFormat(dateTimeFormatPattern);
-			TimeZone zone= TimeZone.getTimeZone("UTC");
-			formatter2.setTimeZone(zone);
-			newDateString= formatter2.format(date);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-		System.out.println("startDateString "+startDateString );
-		System.out.println("newDateString "+newDateString );
+	public void simpleTestDate(){
+		LOG.debug("start of simpleTestDate()");
 		
+		//ZoneOffset zoneOffset = ZoneOffset.of("Z");
+		ZoneOffset zoneOffset = OffsetDateTime.now().getOffset();
+		LOG.debug("zoneOffset    : "+zoneOffset);
+		
+		
+		String inputtimeStr ="2017-10-19 10:15:02.854888";
+		String formatStr="yyyy-MM-dd HH:mm:ss.SSSSSS";
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatStr);
+		
+		LocalDateTime localDateTime= LocalDateTime.parse(inputtimeStr, formatter);
+		String outputStr = localDateTime.format(formatter);
+		
+		Instant instant = localDateTime.toInstant(zoneOffset);
+		Date dateFromInstant = Date.from(instant);
+		Instant instantFromDate = dateFromInstant.toInstant();
+		
+		LocalDateTime endLocalDateTime = LocalDateTime.ofInstant(instantFromDate,zoneOffset);
+		String outputStr2 = endLocalDateTime.format(formatter);
+
+		LOG.debug("formatStr    : "+formatStr);
+		LOG.debug("inputtimeStr : "+inputtimeStr);
+		LOG.debug("outputStr    : "+outputStr);
+		LOG.debug("outputStr2   : "+outputStr2);
+		LOG.debug("end of simpleTestDate()");
+
 	}
 
 
 	@Test
-	public void testDate() {
+	public void testValuePersisterDate() {
+		LOG.debug("start of testValuePersisterDate()");
 		
-		String startDateString="2017-10-18T15:01:29UTC";
-		String dateTimeFormatPattern="yyyy-mm-dd'T'HH:mm:ssZ";
+		String startDateString="2017-10-19 10:15:02.854888";
+		String dateTimeFormatPattern="yyyy-MM-dd HH:mm:ss.SSSSSS";
 		
 		ValuePersister vp = new ValuePersister();
 		PersisterFactory persisterFactory = new MockPersisterFactory();
@@ -62,16 +76,22 @@ public class ValuePersisterJsonDateTest {
 		
 		ConfigDao configDao = new ConfigDao();
 		configDao.setDateTimeFormatPattern(dateTimeFormatPattern);
+		configDao.setTimeZoneOffset(ZoneOffset.UTC.toString());
+		
 		vp.setConfigDao(configDao);
 		
 		Date date = vp.parseJsonTimestampToDate(startDateString);
 		
-		String newDateString = vp.parseDatetoJsonTimestamp(date);
+		String endDateString = vp.parseDatetoJsonTimestamp(date);
 		
-		System.out.println("startDateString "+startDateString );
-		System.out.println("newDateString "+newDateString );
+		LOG.debug("startDateString "+startDateString );
+		LOG.debug("endDateString   "+endDateString );
 
-		assertEquals(startDateString,newDateString );
+		// ignore last 3 characters because of truncated nanoseconds in Date object
+		int compareLength="yyyy-MM-dd HH:mm:ss.SSS".length();
+		assertEquals(startDateString.substring(0, compareLength-1),
+				endDateString.substring(0, compareLength-1) );
+		LOG.debug("endof testValuePersisterDate()");
 
 	}
 	

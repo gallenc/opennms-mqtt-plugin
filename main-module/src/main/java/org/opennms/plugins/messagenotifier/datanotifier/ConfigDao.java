@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 public class ConfigDao {
 	private static final Logger LOG = LoggerFactory.getLogger(ConfigDao.class);
 	
-	// works with 2017-10-18T15:01:29UTC
-	private static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-mm-dd'T'HH:mm:ssz";
+	// works with 2017-10-19 10:15:02.854888
+	private static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
 
 	private final List<String> _DEFAULT_RRAS = Arrays.asList(
 			// Use the default list of RRAs we provide in our stock configuration files
@@ -30,8 +30,9 @@ public class ConfigDao {
 
 	private Map<String,AttributeType> dataDefinition= new LinkedHashMap<String,AttributeType>();
 
-
 	private String m_dateTimeFormatPattern=DEFAULT_DATE_TIME_FORMAT_PATTERN;
+	
+	private String timeZoneOffset= null;
 
 	private String foreignSource;
 
@@ -166,7 +167,8 @@ public class ConfigDao {
 	public String toString() {
 		StringBuffer msg = new StringBuffer("ConfigDao [foreignSource=" + foreignSource + ", foreignIdKey="
 				+ foreignIdKey + ", timeStampKey=" + timeStampKey + ", group="
-				+ group + ", intervalInSeconds=" + intervalInSeconds+", m_dateTimeFormatPattern=" + m_dateTimeFormatPattern);
+				+ group + ", intervalInSeconds=" + intervalInSeconds+", m_dateTimeFormatPattern=" + m_dateTimeFormatPattern
+				+", timeZoneOffset=" + timeZoneOffset);
 		msg.append("\n dataDefinition");
 		for (String attributeName :dataDefinition.keySet()){
 			msg.append("   attributeName:"+attributeName+" dataType:"+dataDefinition.get(attributeName).getName()+"\n");
@@ -179,5 +181,14 @@ public class ConfigDao {
 		return msg.toString();
 		
 	}
+
+	public String getTimeZoneOffset() {
+		return timeZoneOffset;
+	}
+
+	public void setTimeZoneOffset(String timeZoneOffset) {
+		this.timeZoneOffset = timeZoneOffset;
+	}
+
 
 }

@@ -31,6 +31,11 @@ package org.opennms.plugins.messagenotifier.datanotifier;
 import java.net.InetAddress;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -69,63 +74,81 @@ import org.slf4j.LoggerFactory;
 public class ValuePersister  {
 	private static final Logger LOG = LoggerFactory.getLogger(ValuePersister.class);
 
-	private ServiceParameters params;
+	private ServiceParameters m_params;
 
-	private RrdRepository repository;
+	private RrdRepository m_repository;
 
-	private PersisterFactory persisterFactory;
+	private PersisterFactory m_persisterFactory;
 
-	private Persister persister;
-	
-	// works with 2017-10-18T15:01:29UTC
-	private String dateTimeFormatPattern="yyyy-mm-dd'T'HH:mm:ssz";
+	private Persister m_persister;
+
+	// works with 2017-10-19 10:15:02.854888";
+	private String m_dateTimeFormatPattern="yyyy-MM-dd HH:mm:ss.SSSSSS";
 
 	// default 5 minutes
-	private List<String> rras = Arrays.asList("RRA:AVERAGE:0.5:1:2016",
+	private List<String> m_rras = Arrays.asList("RRA:AVERAGE:0.5:1:2016",
 			"RRA:AVERAGE:0.5:12:1488",
 			"RRA:AVERAGE:0.5:288:366",
 			"RRA:MAX:0.5:288:366",
 			"RRA:MIN:0.5:288:366");
 
-	private int intervalInSeconds = 300;
+	private int m_intervalInSeconds = 300;
 
-	private String foreignSource;
+	private String m_foreignSource;
 
-	private ConfigDao configDao;
+	private ConfigDao m_configDao;
 
-	private NodeByForeignSourceCache nodeByForeignSourceCache;
+	private NodeByForeignSourceCache m_nodeByForeignSourceCache;
+
+	// default to local time offset
+	private ZoneOffset m_zoneOffset = OffsetDateTime.now().getOffset(); 
+
+	public void setTimeZoneOffset(String timeZoneOffset) {
+		ZoneOffset zo = OffsetDateTime.now().getOffset();
+		if(timeZoneOffset==null || "".equals(timeZoneOffset.trim())){
+			LOG.info("mqtt zone offset not supplied. Using local default zone offset "+zo);
+		} else {
+			try {
+				zo = ZoneOffset.of(timeZoneOffset);
+			} catch (Exception e){
+				LOG.warn("Cannot parse supplied timeZoneOffset="+timeZoneOffset+" Using local default zone offset "+zo, e);
+			}
+		}
+		m_zoneOffset=zo;
+	}
 
 	public void setConfigDao(ConfigDao configDao) {
-		this.configDao = configDao;
+		this.m_configDao = configDao;
 	}
 
 	public void setPersisterFactory(PersisterFactory persisterFactory) {
-		this.persisterFactory = persisterFactory;
+		this.m_persisterFactory = persisterFactory;
 	}
 
 	public void setNodeByForeignSourceCache(NodeByForeignSourceCache nodeByForeignSourceCache) {
-		this.nodeByForeignSourceCache = nodeByForeignSourceCache;
+		this.m_nodeByForeignSourceCache = nodeByForeignSourceCache;
 	}
 
 
 	// init method to be called by blueprint after all parameters set
 	public void init(){
-		LOG.info("initialising value persitor with configDao values:"+configDao.toString());
+		LOG.info("initialising value persitor with m_configDao values:"+m_configDao.toString());
 
-		rras = configDao.getRras();
-		intervalInSeconds=configDao.getIntervalInSeconds();
-		foreignSource=configDao.getForeignSource();
-		dateTimeFormatPattern=configDao.getDateTimeFormatPattern();
+		m_rras = m_configDao.getRras();
+		m_intervalInSeconds=m_configDao.getIntervalInSeconds();
+		m_foreignSource=m_configDao.getForeignSource();
+		m_dateTimeFormatPattern=m_configDao.getDateTimeFormatPattern();
+		setTimeZoneOffset(m_configDao.getTimeZoneOffset());
 
-		// Setup auxiliary objects needed by the persister
-		params = new ServiceParameters(Collections.emptyMap());
-		repository = new RrdRepository();
-		repository.setRraList(rras);
-		repository.setStep(Math.max(intervalInSeconds, 1));
-		repository.setHeartBeat(repository.getStep() * 2);
-		repository.setRrdBaseDir(Paths.get(System.getProperty("opennms.home"),"share","rrd","snmp").toFile());
+		// Setup auxiliary objects needed by the m_persister
+		m_params = new ServiceParameters(Collections.emptyMap());
+		m_repository = new RrdRepository();
+		m_repository.setRraList(m_rras);
+		m_repository.setStep(Math.max(m_intervalInSeconds, 1));
+		m_repository.setHeartBeat(m_repository.getStep() * 2);
+		m_repository.setRrdBaseDir(Paths.get(System.getProperty("opennms.home"),"share","rrd","snmp").toFile());
 
-		persister = persisterFactory.createPersister(params, repository);
+		m_persister = m_persisterFactory.createPersister(m_params, m_repository);
 	}
 
 	// destroy method to be called by blueprint
@@ -153,10 +176,10 @@ public class ValuePersister  {
 
 	public void persistAttributeMap(Map<String,Object> attributeMap){
 
-		String foreignIdKey = configDao.getForeignIdKey();
-		String timeStampKey = configDao.getTimeStampKey();
-		String group = configDao.getGroup();
-		Map<String,AttributeType> dataDefinition = configDao.getDataDefinition();
+		String foreignIdKey = m_configDao.getForeignIdKey();
+		String timeStampKey = m_configDao.getTimeStampKey();
+		String group = m_configDao.getGroup();
+		Map<String,AttributeType> dataDefinition = m_configDao.getDataDefinition();
 
 		Date timeStamp;
 		String foreignId;
@@ -188,27 +211,27 @@ public class ValuePersister  {
 		attributeMap.remove(foreignIdKey);
 
 		//find node id (if exists) from foreign source and foreign id
-		String lookupCriteria= foreignSource+":"+foreignId;
-		Map<String, String> nodeData = nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria);
+		String lookupCriteria= m_foreignSource+":"+foreignId;
+		Map<String, String> nodeData = m_nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria);
 
 		if(nodeData==null){
-			LOG.warn("no node exists for foreignSource="+foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap));
+			LOG.warn("no node exists for m_foreignSource="+m_foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap));
 		} else {
 			Integer nodeId;
 			try {
 				nodeId = Integer.parseInt(nodeData.get("nodeId"));
 			} catch (Exception e){
-				throw new RuntimeException("Cannot parse nodeId from node cash data for foreignSource="
-						+foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap),e);
+				throw new RuntimeException("Cannot parse nodeId from node cash data for m_foreignSource="
+						+m_foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap),e);
 			}
 
 			NodeLevelResource nodelevelResource = new NodeLevelResource(nodeId);
-			
+
 			// Build the interface resource
 			InterfaceLevelResource interfaceLevelResource = new InterfaceLevelResource(nodelevelResource, "mqtt");
-			
+
 			// Generate the collection set
-			CollectionAgent agent = new MockCollectionAgent(foreignSource, foreignId, nodeId);
+			CollectionAgent agent = new MockCollectionAgent(m_foreignSource, foreignId, nodeId);
 			CollectionSetBuilder builder = new CollectionSetBuilder(agent);
 			builder.withTimestamp(timeStamp);
 
@@ -234,36 +257,39 @@ public class ValuePersister  {
 			CollectionSet collectionSet =  builder.build();
 
 			// Persist
-			collectionSet.visit(persister);
+			collectionSet.visit(m_persister);
 		}
 	}
 
-	//TODO look at using java.time
 	public Date parseJsonTimestampToDate(String dateStr){
 		Date date;
-		
+
 		try {
-			SimpleDateFormat formatter = new SimpleDateFormat(dateTimeFormatPattern);
-			date = formatter.parse(dateStr);
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(m_dateTimeFormatPattern);
+			LocalDateTime localDateTime= LocalDateTime.parse(dateStr, formatter);
+			Instant instant = localDateTime.toInstant(m_zoneOffset);
+			date = Date.from(instant);
 		} catch (Exception e) {
 			LOG.warn("using current date because cannot parse supplied json date string :"+dateStr
-					+" with supplied dateTimeFormatPattern: "+dateTimeFormatPattern, e);
+					+" with m_zoneOffset"+m_zoneOffset
+					+ " and supplied m_dateTimeFormatPattern: "+m_dateTimeFormatPattern, e);
 			date = new Date();
 		} 
+
 		return date;
 	}
-	
-	//TODO look at using java.time
+
 	public String parseDatetoJsonTimestamp(Date date){
 		String dateStr;
+		
 		try {
-			SimpleDateFormat formatter = new SimpleDateFormat(dateTimeFormatPattern);
-			TimeZone zone= TimeZone.getTimeZone("UTC");
-			formatter.setTimeZone(zone);
-			dateStr = formatter.format(date);
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(m_dateTimeFormatPattern);
+			Instant instantFromDate = date.toInstant();
+			LocalDateTime endLocalDateTime = LocalDateTime.ofInstant(instantFromDate,m_zoneOffset);
+			dateStr = endLocalDateTime.format(formatter);
 		} catch (Exception e) {
 			throw new RuntimeException("cannot format supplied date :"+date
-					+" with supplied dateTimeFormatPattern: "+dateTimeFormatPattern, e);
+					+" with supplied m_dateTimeFormatPattern: "+m_dateTimeFormatPattern, e);
 		}
 		return dateStr;
 	}
@@ -288,7 +314,7 @@ public class ValuePersister  {
 		private final String foreignSource;
 
 
-		// use for store by foreignSource
+		// use for store by m_foreignSource
 		public MockCollectionAgent(String foreignSource, String foreignId, int nodeId) {
 			this.nodeId = nodeId; //0 ?
 			this.foreignId =foreignId;
