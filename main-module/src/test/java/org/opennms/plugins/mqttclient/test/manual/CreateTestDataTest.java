@@ -28,10 +28,13 @@ public class CreateTestDataTest {
 	// works with 2017-10-19 10:15:02.854888
 	private static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
 	
+	//private static final String LATITUDE = "0";
+	//private static final String LONGITUDE = "0";
 	private static final String LATITUDE = "50.9246217";
 	private static final String LONGITUDE = "-1.374114";
 	
-	int MINUTE_INTERVAL_MS = 60 * 1000;
+	//private static final int MINUTE_INTERVAL_MS = 60 * 1000;
+	private static final int MINUTE_INTERVAL_MS = 60 * 1000 * 5;
 
 	public static final String jsonTestMessage="{"
 			+ " \"time\": \""+ jsonTime(new Date())+ "\","
@@ -69,8 +72,13 @@ public class CreateTestDataTest {
 			}
 			
 			// new data each 5 minute interval
-			int offsetms = MINUTE_INTERVAL_MS * n;
-			String timeStr = jsonTime(new Date(timems-offsetms));
+			long offsetms = MINUTE_INTERVAL_MS * n;
+			long actualTime = timems-offsetms;
+			
+			// round to minutes
+			actualTime = 60 * 1000 * Math.round(actualTime / (60.0 * 1000.0));
+			
+			String timeStr = jsonTime(new Date(actualTime));
 
 			jsonObject.put("time", timeStr);
 			

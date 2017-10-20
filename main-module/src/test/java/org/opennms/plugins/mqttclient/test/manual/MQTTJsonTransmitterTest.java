@@ -31,24 +31,23 @@ package org.opennms.plugins.mqttclient.test.manual;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.io.InputStream;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.Properties;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
-import org.opennms.plugins.messagenotifier.MessageNotification;
-import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
-import org.opennms.plugins.messagenotifier.NotificationClient;
-import org.opennms.plugins.messagenotifier.VerySimpleMessageNotificationClient;
-import org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient;
 import org.opennms.plugins.mqttclient.MQTTClientImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,25 +56,27 @@ public class MQTTJsonTransmitterTest {
 	private static final Logger LOG = LoggerFactory.getLogger(MQTTJsonTransmitterTest.class);
 
 	// works with 2017-10-19 10:15:02.854888
-	private static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
-	
-	//public static final String TEST_JSON_FILE="./src/test/resources/testData.json";
+	public static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
+
+	//public static final String jsonTestFile="./src/test/resources/testData.json";
 	public static final String TEST_JSON_FILE="./src/test/resources/testData2.json";
-	
+
+	public static final String MAIN_PROPERTIES_FILE="./src/test/resources/mqttclienttest.properties";
+
 	//public static final String SERVER_URL = "tcp://localhost:1883"; 172.18.0.4
 	//public static final String SERVER_URL = "tcp://192.168.202.1:1883";
 	//public static final String SERVER_URL = "tcp://172.18.0.4:1883"; // karaf1
 	public static final String SERVER_URL = "tcp://139.162.227.142:1883"; // linode
 	public static final String MQTT_USERNAME = "mqtt-user";
 	public static final String MQTT_PASSWORD = "mqtt-password";
-	
+
 	public static final String CLIENT_ID = "transmitter1";
 	public static final String TOPIC_NAME = "mqtt-data"; // mqtt-data
 	//public static final String TOPIC_NAME = "mqtt-events"; // mqtt-events
 	public static final int QOS_LEVEL = 0;
 
 	public static final String jsonTestMessage="{"
-			+ " \"time\": \""+ jsonTime(new Date())+ "\","
+			+ " \"time\": \"2017-10-19 10:15:02.854888\","
 			+ " \"id\": \"monitorID\","
 			+ " \"cityName\": \"Southampton\","
 			+ " \"stationName\": \"Common#1\","
@@ -86,6 +87,24 @@ public class MQTTJsonTransmitterTest {
 			+ " \"PM25\": 100,"
 			+ " \"PM10\": 1000"
 			+ "}";
+
+	// set up transmitter
+	private String brokerUrl = SERVER_URL;
+	private String clientId = CLIENT_ID;
+	private String userName =MQTT_USERNAME;
+	private String password =MQTT_PASSWORD;
+	private String connectionRetryInterval= "1000" ;
+	private String topic=TOPIC_NAME;
+	private int qos=QOS_LEVEL;
+
+	private long persistInterval = 1000 * 60; // 1 minute // 5 * 1000 * 60; // 5 MINUTES
+	private boolean useRepeatTimer=true;
+	private boolean useJsonFile = true;
+	private String jsonTestFile=TEST_JSON_FILE;
+	private String dateTimeFormatPattern = DEFAULT_DATE_TIME_FORMAT_PATTERN;
+	// default to local time offset
+	private ZoneOffset zoneOffset = OffsetDateTime.now().getOffset();
+
 
 	@Test
 	public void testJsonMessage(){
@@ -100,28 +119,24 @@ public class MQTTJsonTransmitterTest {
 		}
 		LOG.debug("end testJsonMessage()");
 	}
-
-	public static String jsonTime(Date date){
-		SimpleDateFormat df = new SimpleDateFormat( DEFAULT_DATE_TIME_FORMAT_PATTERN );
-
-		TimeZone tz = TimeZone.getTimeZone( "UTC" );
-
-		df.setTimeZone( tz );
-
-		String output = df.format( date );
-		return output;
+	
+	@Test
+	public void testReadProperties(){
+		LOG.debug("start testReadProperties()");
+		MQTTJsonTransmitterTest mqttTest = new MQTTJsonTransmitterTest();
+		mqttTest.readProperties(MAIN_PROPERTIES_FILE);
+		LOG.debug("testReadProperties = properties read from file"+mqttTest.toString());
+		LOG.debug("end testReadProperties()");
 	}
+
 
 	@Test
 	public void testMqttJsonTransmitter() {
 		LOG.debug("start of test testMqttJsonTransmitter() ");
+		LOG.debug("   usejsonFile="+useJsonFile
+				+ "   useRepeatTimer="+useRepeatTimer
+				+ "   persistInterval="+persistInterval);
 
-		// set up transmitter
-		String brokerUrl = SERVER_URL;
-		String clientId = CLIENT_ID;
-		String userName =MQTT_USERNAME;
-		String password =MQTT_PASSWORD;
-		String connectionRetryInterval= "1000" ;
 
 		// will connect
 
@@ -142,33 +157,80 @@ public class MQTTJsonTransmitterTest {
 		}
 
 		// try sending messages
-		String topic=TOPIC_NAME;
-		int qos=QOS_LEVEL;
 
-		// send json message
-		//		try{
-		//			JSONObject jsonobj = parseJson(jsonTestMessage);
-		//			String message=jsonobj.toJSONString();
-		//			byte[] payload = message.getBytes();
-		//			client.publishSynchronous(topic, qos, payload);
-		//		} catch(Exception e){
-		//			LOG.debug("problem publishing json message", e);
-		//		}
+		boolean repeat= true;
 
-		// send json messages from file
-		JSONArray jsonArray= this.readJsonFile();
-		for (Object obj : jsonArray){
-			try{
-				JSONObject jsonobj = (JSONObject) obj;
-				
-				LOG.debug("sending json message"+jsonobj.toJSONString());
-				
-				String message=jsonobj.toJSONString();
-				byte[] payload = message.getBytes();
-				client.publishSynchronous(topic, qos, payload);
-				LOG.debug("message sent");
-			} catch(Exception e){
-				LOG.debug("problem publishing json message", e);
+		if (!useJsonFile){
+			//send json message
+			while(repeat){
+				repeat=false;
+				try{
+					JSONObject jsonobj = parseJson(jsonTestMessage);
+
+					String message=jsonobj.toJSONString();
+					// change time to now
+					// round to minutes
+					long actualTime = new Date().getTime();
+					actualTime = 60 * 1000 * Math.round(actualTime / (60.0 * 1000.0));
+					String timeStr = jsonTime(new Date(actualTime));
+					jsonobj.put("time", timeStr);
+
+					LOG.debug("sending single json message:"+message);
+					byte[] payload = message.getBytes();
+					client.publishSynchronous(topic, qos, payload);
+				} catch(Exception e){
+					LOG.debug("problem publishing json message", e);
+				}
+
+				if(useRepeatTimer){
+					LOG.debug("waiting "+persistInterval + " ms before next message");
+					repeat= true;
+					try {
+						Thread.sleep(persistInterval);
+					} catch(InterruptedException ex) {
+						Thread.currentThread().interrupt();
+					}
+				}
+			}
+		} else { // use json file
+			LOG.debug("sending json messagees from file "+jsonTestFile);
+			// send json messages from file
+			JSONArray jsonArray= this.readJsonFile();
+
+			while(repeat){ 
+				for (Object obj : jsonArray){
+					try{
+						JSONObject jsonobj = (JSONObject) obj;
+
+						if(useRepeatTimer){
+							// set absolute times
+							String timeStr = jsonTime(new Date());
+							jsonobj.put("time", timeStr);
+						}
+
+						String message=jsonobj.toJSONString();
+						LOG.debug("sending json message"+message);
+						byte[] payload = message.getBytes();
+						client.publishSynchronous(topic, qos, payload);
+						LOG.debug("message sent");
+					} catch(Exception e){
+						LOG.debug("problem publishing json message", e);
+					}
+					if(useRepeatTimer){
+						// wait between sending
+						LOG.debug("waiting "+persistInterval + " ms before next message");
+						try {
+							Thread.sleep(persistInterval);
+						} catch(InterruptedException ex) {
+							Thread.currentThread().interrupt();
+						}
+					}
+				}
+				if(useRepeatTimer){
+					LOG.debug("useRepeatTimer=true. Starting again at beginning of file");
+					repeat = useRepeatTimer;
+				}
+
 			}
 		}
 
@@ -176,6 +238,17 @@ public class MQTTJsonTransmitterTest {
 		client.destroy();
 
 		LOG.debug("end of test testMqttJsonTransmitter() ");
+	}
+	
+
+
+	public String jsonTime(Date date){
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateTimeFormatPattern);
+		Instant instantFromDate = date.toInstant();
+		LocalDateTime endLocalDateTime = LocalDateTime.ofInstant(instantFromDate,zoneOffset);
+		String outputStr2 = endLocalDateTime.format(formatter);
+
+		return outputStr2;
 	}
 
 
@@ -195,7 +268,7 @@ public class MQTTJsonTransmitterTest {
 	private JSONArray readJsonFile(){
 		JSONParser parser = new JSONParser();
 		try {
-			File f = new File(TEST_JSON_FILE);
+			File f = new File(jsonTestFile);
 			LOG.debug("reading test data from file:"+f.getAbsolutePath());
 			JSONArray array = (JSONArray) parser.parse(new FileReader(f));
 			return array;
@@ -203,6 +276,97 @@ public class MQTTJsonTransmitterTest {
 			throw new RuntimeException("could not parse json file ",e);
 		}
 	}
+
+
+	public void readProperties(String propFileName){
+		Properties prop = new Properties();
+		InputStream input = null;
+
+		try {
+
+			input = new FileInputStream(propFileName);
+			prop.load(input);
+
+			//Configuration for the mqtt test client client
+			//mqttclienttest.properties
+			//
+			//useRepeatTimer If true the test will use a timer to send data. 
+			//The timer is repeats at the number of seconds set by "org.opennms.plugin.mqttclient.message.persist.interval
+			useRepeatTimer = Boolean.valueOf(prop.getProperty("org.opennms.plugin.mqttclient.test.useRepeatTimer", "false"));
+			//
+			//useJsonFile if true the data is taken from a supplied json file
+			useJsonFile = Boolean.valueOf(prop.getProperty("org.opennms.plugin.mqttclient.test.useJsonFile", "false"));
+
+			jsonTestFile=prop.getProperty("org.opennms.plugin.mqttclient.test.jsonFileName",TEST_JSON_FILE);
+
+			//These interval and RRA definitions are always needed but primarily apply if data is stored in rrd files
+			//As with rrd definitions the interval sets the time interval in seconds between collections (300 = 5 mins) 
+			persistInterval = 1000 * Long.parseLong(prop.getProperty("org.opennms.plugin.mqttclient.message.persist.interval","300"));
+
+			// brokerUrl. url of broker to connect to. the Paho client supports two types of connection 
+			// tcp:// for a TCP connection and ssl:// for a TCP connection secured by SSL/TLS. 
+			// For example: tcp://localhost:1883 or ssl://localhost:8883
+
+			brokerUrl= prop.getProperty("org.opennms.plugin.mqttclient.brokerUrl",SERVER_URL);
+
+			// clientId. Note that this must be a unique id from the point of view of the broker
+			//"org.opennms.plugin.mqttclient.clientId=testclient
+			clientId = prop.getProperty("org.opennms.plugin.mqttclient.clientId",CLIENT_ID);
+			//userName to connect to the broker. If left empty anonymous connection will be attempted
+			//			"org.opennms.plugin.mqttclient.userName=mqtt-user
+			userName = prop.getProperty("org.opennms.plugin.mqttclient.userName",MQTT_USERNAME);
+			//password to connect to the broker. If left empty a password will not be sent
+			//			"org.opennms.plugin.mqttclient.password=mqtt-password
+			password = prop.getProperty("org.opennms.plugin.mqttclient.password",MQTT_PASSWORD);
+
+			//  topic on which to send data or events
+			// org.opennms.plugin.mqttclient.test.topic=mqtt-data
+			topic= prop.getProperty("org.opennms.plugin.mqttclient.test.topic",TOPIC_NAME);
+
+			//Qos of connection to event and data topics
+			//"org.opennms.plugin.mqttclient.qos=0
+
+			qos= Integer.parseInt(prop.getProperty("org.opennms.plugin.mqttclient.qos",Integer.toString(QOS_LEVEL)));
+
+			//If client fails to connect to the broker, interval (ms) before re attempting connection
+			connectionRetryInterval= prop.getProperty("org.opennms.plugin.mqttclient.connectionRetryInterval","1000");
+
+			//time format pattern. Determines how json date time is interpreted  
+			//yyyy-MM-dd HH:mm:ss.SSSSSS works with 2017-10-19 10:15:02.854888
+			//see https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#patterns for other examples
+			//"org.opennms.plugin.mqttclient.message.time-format-pattern=yyyy-MM-dd HH:mm:ss.SSSSSS
+			dateTimeFormatPattern = prop.getProperty("org.opennms.plugin.mqttclient.message.time-format-pattern",DEFAULT_DATE_TIME_FORMAT_PATTERN);
+
+			//time zone offset used by time received in message
+			//see https://docs.oracle.com/javase/8/docs/api/java/time/ZoneOffset.html#of-java.lang.String-  for other examples
+			//set to empty property = use local time zone
+
+			String offsetId = prop.getProperty("org.opennms.plugin.mqttclient.message.time-zone-offset","");
+			if(! "".equals(offsetId.trim())) zoneOffset=ZoneOffset.of(offsetId);
+		} catch (IOException ex) {
+			throw new RuntimeException("problem loading properties file:"+propFileName,ex);
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) { }
+			}
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "MQTTJsonTransmitterTest [brokerUrl=" + brokerUrl
+				+ ", clientId=" + clientId + ", userName=" + userName
+				+ ", password=" + password + ", connectionRetryInterval="
+				+ connectionRetryInterval + ", topic=" + topic + ", qos=" + qos
+				+ ", persistInterval=" + persistInterval + ", useRepeatTimer="
+				+ useRepeatTimer + ", useJsonFile=" + useJsonFile
+				+ ", jsonTestFile=" + jsonTestFile + ", dateTimeFormatPattern="
+				+ dateTimeFormatPattern + ", zoneOffset=" + zoneOffset + "]";
+	}
+
+
 
 
 }
