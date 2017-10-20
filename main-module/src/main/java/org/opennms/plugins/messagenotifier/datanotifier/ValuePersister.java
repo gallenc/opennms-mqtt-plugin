@@ -30,7 +30,6 @@ package org.opennms.plugins.messagenotifier.datanotifier;
 
 import java.net.InetAddress;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -56,8 +55,6 @@ import org.opennms.netmgt.collection.api.ServiceParameters;
 import org.opennms.netmgt.collection.support.builder.CollectionSetBuilder;
 import org.opennms.netmgt.collection.support.builder.InterfaceLevelResource;
 import org.opennms.netmgt.collection.support.builder.NodeLevelResource;
-import org.opennms.netmgt.dao.api.NodeDao;
-import org.opennms.netmgt.model.OnmsNode;
 import org.opennms.netmgt.model.ResourcePath;
 import org.opennms.netmgt.model.ResourceTypeUtils;
 import org.opennms.netmgt.rrd.RrdRepository;
@@ -242,7 +239,7 @@ public class ValuePersister  {
 				if(dataDefinition.containsKey(attributeName)){
 					AttributeType attributeType = dataDefinition.get(attributeName);
 					if(LOG.isDebugEnabled()) LOG.debug("ValuePersistor at json timeStampValue:"+timeStampValue
-							+" timeStamp:"+parseDatetoJsonTimestamp(timeStamp)
+							+" timeStamp:"+timeStamp.getTime()+"  "+parseDatetoJsonTimestamp(timeStamp)
 							+" adding attribute:"+attributeName
 							+" attributeValue:"+attributeValue
 							+" attributeType:"+attributeType.toString()
@@ -395,9 +392,7 @@ public class ValuePersister  {
 
 			final ResourcePath dir;
 			if(isStoreByForeignSource() && foreignSource != null && foreignId != null) {
-				dir = ResourcePath.get(ResourceTypeUtils.FOREIGN_SOURCE_DIRECTORY,
-						foreignSource,
-						foreignId);
+				dir = ResourcePath.get(ResourceTypeUtils.FOREIGN_SOURCE_DIRECTORY,foreignSource,foreignId);
 			} else {
 				dir = ResourcePath.get(String.valueOf(getNodeId()));
 			}
