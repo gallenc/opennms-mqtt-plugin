@@ -42,6 +42,7 @@
     <module>feature</module>
     <module>kar-descriptor</module>
     <module>kar-package</module>
+    <module>test-onejar</module>
   </modules>
 
   <build>

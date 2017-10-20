@@ -1,9 +1,11 @@
 package org.opennms.plugins.mqttclient.test.manual;
 
+import java.io.File;
+
 public class Main {
 
 	 public static void main(String[] args) {
-		 System.out.println("mqtt tester");
+		 System.out.println("mqtt tester starting up");
 		 if (args.length==0) {
 			 System.out.println("please supply path and name of properties file");
 			 System.exit(0);
@@ -13,7 +15,8 @@ public class Main {
 		 String filename=null;
 		 try {
 			 filename = args[0];
-			 System.out.println("loading properties file: "+filename);	
+			 File f = new File(filename);
+			 System.out.println("loading properties file: "+f.getAbsolutePath());
 			 mqttTest.readProperties(filename);
 			 
 		 } catch (Exception ex){
@@ -24,7 +27,7 @@ public class Main {
 		 System.out.println("loaded the following properties from supplied filename: "+filename+"\n"+mqttTest.toString());
 		 System.out.println("starting transmitter use ctrl-c to exit");
 		 mqttTest.testMqttJsonTransmitter();
-		 
+		 System.out.println("mqtt tester shutting down");
 	 }
 
 }

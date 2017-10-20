@@ -276,15 +276,22 @@ public class MQTTJsonTransmitterTest {
 			throw new RuntimeException("could not parse json file ",e);
 		}
 	}
-
+	
 
 	public void readProperties(String propFileName){
+		File propFile = new File(propFileName);
+		LOG.debug("reading properties from file:"+propFile.getAbsolutePath());
+		if (!propFile.canRead()) throw new RuntimeException("cannot read file"+propFileName);
+		readProperties(propFile);
+	}
+
+	public void readProperties(File propFile){
 		Properties prop = new Properties();
 		InputStream input = null;
 
 		try {
 
-			input = new FileInputStream(propFileName);
+			input = new FileInputStream(propFile);
 			prop.load(input);
 
 			//Configuration for the mqtt test client client
@@ -292,10 +299,10 @@ public class MQTTJsonTransmitterTest {
 			//
 			//useRepeatTimer If true the test will use a timer to send data. 
 			//The timer is repeats at the number of seconds set by "org.opennms.plugin.mqttclient.message.persist.interval
-			useRepeatTimer = Boolean.valueOf(prop.getProperty("org.opennms.plugin.mqttclient.test.useRepeatTimer", "false"));
+			useRepeatTimer = Boolean.valueOf(prop.getProperty("org.opennms.plugin.mqttclient.test.useRepeatTimer", "false").trim());
 			//
 			//useJsonFile if true the data is taken from a supplied json file
-			useJsonFile = Boolean.valueOf(prop.getProperty("org.opennms.plugin.mqttclient.test.useJsonFile", "false"));
+			useJsonFile = Boolean.valueOf(prop.getProperty("org.opennms.plugin.mqttclient.test.useJsonFile", "false").trim());
 
 			jsonTestFile=prop.getProperty("org.opennms.plugin.mqttclient.test.jsonFileName",TEST_JSON_FILE);
 
@@ -344,7 +351,7 @@ public class MQTTJsonTransmitterTest {
 			String offsetId = prop.getProperty("org.opennms.plugin.mqttclient.message.time-zone-offset","");
 			if(! "".equals(offsetId.trim())) zoneOffset=ZoneOffset.of(offsetId);
 		} catch (IOException ex) {
-			throw new RuntimeException("problem loading properties file:"+propFileName,ex);
+			throw new RuntimeException("problem loading properties file:"+propFile.getName(),ex);
 		} finally {
 			if (input != null) {
 				try {
