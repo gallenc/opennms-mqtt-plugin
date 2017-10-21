@@ -1,0 +1,7 @@
+[Unit]
+Description=OpenNMS Mqtt Client Test
+
+[Service]
+Type=Simple
+WorkingDirectory=/opt/mqtt-client-test/
+ExecStart=/usr/bin/java -jar MqttClient.test-onejar-0.0.1-SNAPSHOT.one-jar.jar mqttclienttest.properties
