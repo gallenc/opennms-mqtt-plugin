@@ -31,8 +31,10 @@ package org.opennms.plugins.mqttclient.test.manual;
 import static org.junit.Assert.*;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TimeZone;
@@ -43,6 +45,7 @@ import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
+import org.opennms.plugins.messagenotifier.MessageNotifier;
 import org.opennms.plugins.messagenotifier.NotificationClient;
 import org.opennms.plugins.messagenotifier.VerySimpleMessageNotificationClient;
 import org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient;
@@ -56,7 +59,7 @@ public class MQTTJsonReceiverTests {
 	// works with 2017-10-19 10:15:02.854888
 	private static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
 
-	public static final String SERVER_URL = "tcp://localhost:1883";
+	public static final String SERVER_URL = "tcp://0.0.0.0:1883";
 
 	public static final String MQTT_USERNAME = "mqtt-user";
 	public static final String MQTT_PASSWORD = "mqtt-password";
@@ -168,7 +171,9 @@ public class MQTTJsonReceiverTests {
 
 			messageNotificationClientQueueImpl = new MessageNotificationClientQueueImpl();
 
-			messageNotificationClientQueueImpl.setMessageNotifier(client);
+			List<MessageNotifier> mqttClientList = new ArrayList<MessageNotifier>();
+			mqttClientList.add(client);
+			messageNotificationClientQueueImpl.setMessageNotifiers(mqttClientList);
 
 			messageNotificationClientQueueImpl.setMaxQueueLength(100);
 

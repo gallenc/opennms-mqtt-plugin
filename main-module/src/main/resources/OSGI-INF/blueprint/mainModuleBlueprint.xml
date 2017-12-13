@@ -50,7 +50,7 @@
       <cm:property name="org.opennms.plugin.mqttclient.message.foreignidkey" value="id" />
       <cm:property name="org.opennms.plugin.mqttclient.message.timestampkey" value="time" />
 
-      <cm:property name="org.opennms.plugin.mqttclient.message.time-format-pattern" value="yyyy-MM-dd HH:mm:ss.SSSSSS" /> <!--  works with works with 2017-10-19 10:15:02.854888 -->
+      <cm:property name="org.opennms.plugin.mqttclient.message.time-format-pattern" value="yyyy-MM-dd HH:mm:ss.SSSSSS" /> <!-- works with works with 2017-10-19 10:15:02.854888 -->
       <cm:property name="org.opennms.plugin.mqttclient.message.time-zone-offset" value="" /> <!-- "" = use local time zone -->
 
       <cm:property name="org.opennms.plugin.mqttclient.message.persist.guagekeys" value="PM1,PM25,PM10,latitude,longitude,averaging" />
@@ -87,7 +87,13 @@
   </bean>
 
   <bean id="messageNotifierClient" class="org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl" init-method="init" destroy-method="destroy">
-    <property name="messageNotifier" ref="mqttClientMessageNotifier" />
+    <property name="messageNotifiers">
+      <list>
+        <ref component-id="mqttClientMessageNotifier" /> <!-- Mqtt Client -->
+        <ref component-id="mqttRxService" /> <!-- ReST Client -->
+      </list>
+    </property>
+
     <property name="maxQueueLength" value="1000" />
 
     <property name="topicHandlingClients">
@@ -149,6 +155,51 @@
     <property name="intervalInSecondsStr" value="${org.opennms.plugin.mqttclient.message.persist.interval}" />
     <property name="rrasProperty" value="${org.opennms.plugin.mqttclient.message.persist.rras}" />
 
+  </bean>
+  
+  <!-- ReST Servelet configuration for jersey service will be at /opennms/plugin/mqtt/v1-0/receive/mqtt-events/0/ -->
+  <service interface="javax.servlet.http.HttpServlet">
+    <service-properties>
+      <entry key="alias" value="/plugin/mqtt/v1-0" />
+    </service-properties>
+    <bean class="com.sun.jersey.spi.container.servlet.ServletContainer">
+      <argument ref="mqttRestApplication" />
+    </bean>
+  </service>
+
+  <!-- ReST Servelet configuration for jersey -->
+<!--   <bean id="mqttRestServlet" class="com.sun.jersey.spi.container.servlet.ServletContainer"> -->
+<!--     <argument ref="mqttRestApplication" /> -->
+<!--   </bean> -->
+
+  <!-- service will be at service will be at /opennms/plugin/mqtt/v1-0/receive/mqtt-events/0/ -->
+<!--   <service interface="javax.servlet.Servlet" ref="mqttRestServlet"> -->
+<!--     <service-properties> -->
+<!--       <entry key="alias" value="/rest/mqtt/v1-0" /> -->
+<!--     </service-properties> -->
+<!--   </service> -->
+
+  <bean id="mqttRestApplication" class="org.opennms.plugins.messagenotifier.rest.MqttRestApplication" destroy-method="destroyMethod" />
+
+  <!-- constructor public ServiceLoader(MqttService mqttService) -->
+  <bean id="serviceLoader" class="org.opennms.plugins.messagenotifier.rest.ServiceLoader">
+    <argument index="0" ref="mqttRxService" />
+  </bean>
+
+  <bean id="mqttRxService" class="org.opennms.plugins.messagenotifier.rest.MqttRxServiceImpl">
+    <!-- TODO MAKE SAME AS ABOVE -->
+    <property name="topicList">
+      <list>
+        <bean class="org.opennms.plugins.mqttclient.MQTTTopicSubscription">
+          <property name="qos" value="${org.opennms.plugin.mqttclient.qos}" />
+          <property name="topic" value="${org.opennms.plugin.mqttclient.eventtopic}" />
+        </bean>
+        <bean class="org.opennms.plugins.mqttclient.MQTTTopicSubscription">
+          <property name="qos" value="${org.opennms.plugin.mqttclient.qos}" />
+          <property name="topic" value="${org.opennms.plugin.mqttclient.datatopic}" />
+        </bean>
+      </list>
+    </property>
   </bean>
 
 </blueprint>

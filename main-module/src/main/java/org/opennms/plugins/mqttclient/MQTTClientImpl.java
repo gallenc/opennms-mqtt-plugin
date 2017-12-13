@@ -163,7 +163,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			m_clientConnected.set(true);
 			return true;
 		}
-		LOG.debug("Connecting to "+m_brokerUrl + " with m_client ID "+m_client.getClientId()
+		LOG.info("Connecting to "+m_brokerUrl + " with m_client ID "+m_client.getClientId()
 				+" (number of connection attempts since start="
 				+ reconnectionCount.incrementAndGet()+")");
 		IMqttToken conToken;
@@ -176,7 +176,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			m_clientConnected.set(false);
 			return false;
 		}
-		LOG.debug("Connected to MQTT broker");
+		LOG.info("Connected to MQTT broker");
 		m_clientConnected.set(true);
 		return true;
 	}

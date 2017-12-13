@@ -63,10 +63,10 @@ public class MQTTJsonTransmitterTest {
 
 	public static final String MAIN_PROPERTIES_FILE="./src/test/resources/mqttclienttest.properties";
 
-	//public static final String SERVER_URL = "tcp://localhost:1883"; 172.18.0.4
+	public static final String SERVER_URL = "tcp://localhost:1883"; //172.18.0.4
 	//public static final String SERVER_URL = "tcp://192.168.202.1:1883";
 	//public static final String SERVER_URL = "tcp://172.18.0.4:1883"; // karaf1
-	public static final String SERVER_URL = "tcp://139.162.227.142:1883"; // linode
+	//public static final String SERVER_URL = "tcp://139.162.227.142:1883"; // linode
 	public static final String MQTT_USERNAME = "mqtt-user";
 	public static final String MQTT_PASSWORD = "mqtt-password";
 

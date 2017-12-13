@@ -41,6 +41,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
+import org.opennms.plugins.messagenotifier.MessageNotifier;
 import org.opennms.plugins.messagenotifier.NotificationClient;
 import org.opennms.plugins.messagenotifier.VerySimpleMessageNotificationClient;
 import org.opennms.plugins.mqttclient.MQTTClientImpl;
@@ -106,7 +107,9 @@ public class MQTTClientTopicListTests {
 
 			messageNotificationClientQueueImpl = new MessageNotificationClientQueueImpl();
 
-			messageNotificationClientQueueImpl.setMessageNotifier(client);
+			List<MessageNotifier> mqttClientList = new ArrayList<MessageNotifier>();
+			mqttClientList.add(client);
+			messageNotificationClientQueueImpl.setMessageNotifiers(mqttClientList);
 
 			messageNotificationClientQueueImpl.setMaxQueueLength(100);
 

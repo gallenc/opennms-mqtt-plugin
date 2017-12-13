@@ -40,7 +40,7 @@ public class VerySimpleMessageNotificationClient implements NotificationClient {
 	private static 	final Logger LOG = LoggerFactory.getLogger(MessageNotificationClientQueueImpl.class);
 
 	public VerySimpleMessageNotificationClient(){
-		LOG.debug("VerySimpleMessageNotificationClient initialised");
+		
 	}
 	
 	
@@ -55,13 +55,13 @@ public class VerySimpleMessageNotificationClient implements NotificationClient {
 
 	@Override
 	public void init() {
-		// TODO Auto-generated method stub
+		LOG.debug("VerySimpleMessageNotificationClient initialised");
 
 	}
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
+		LOG.debug("VerySimpleMessageNotificationClient destroyed");
 
 	}
 

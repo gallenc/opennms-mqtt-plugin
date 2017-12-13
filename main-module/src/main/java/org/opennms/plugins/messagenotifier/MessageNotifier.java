@@ -28,7 +28,6 @@
 
 package org.opennms.plugins.messagenotifier;
 
-import java.util.Set;
 
 public interface MessageNotifier {
 

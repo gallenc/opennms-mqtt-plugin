@@ -18,7 +18,7 @@ org.opennms.plugin.mqttclient.message.persist.interval=300
 # tcp:// for a TCP connection and ssl:// for a TCP connection secured by SSL/TLS. 
 # For example: tcp://localhost:1883 or ssl://localhost:8883
 
-org.opennms.plugin.mqttclient.brokerUrl=tcp://0.0.0.0:1883
+org.opennms.plugin.mqttclient.brokerUrl=tcp://139.162.227.142:1883
 
 # clientId. Note that this must be a unique id from the point of view of the broker
 org.opennms.plugin.mqttclient.clientId=testclient

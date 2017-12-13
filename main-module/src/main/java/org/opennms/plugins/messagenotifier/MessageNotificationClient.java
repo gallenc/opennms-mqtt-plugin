@@ -28,16 +28,17 @@
 
 package org.opennms.plugins.messagenotifier;
 
+import java.util.List;
+
 /**
- * Client interface used to register with MessageChangeNotifier to receive MessageNotifications
+ * Client interface used to register with list of MessageChangeNotifiers to receive MessageNotifications
  * @author admin
  *
  */
-public interface MessageNotificationClient extends NotificationClient{
+public interface MessageNotificationClient extends NotificationClient {
 
-	public void setMessageNotifier(MessageNotifier messageNotifier);
-	
-	public MessageNotifier getMessageNotifier();
+	public List<MessageNotifier> getMessageNotifiers();
 
+	public void setMessageNotifiers(List<MessageNotifier> messageNotifiers);
 	
 }

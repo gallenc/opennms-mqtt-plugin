@@ -31,8 +31,10 @@ package org.opennms.plugins.mqttclient.test.manual;
 import static org.junit.Assert.*;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -42,6 +44,7 @@ import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
+import org.opennms.plugins.messagenotifier.MessageNotifier;
 import org.opennms.plugins.messagenotifier.NotificationClient;
 import org.opennms.plugins.messagenotifier.VerySimpleMessageNotificationClient;
 import org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient;
@@ -232,8 +235,10 @@ public class MQTTClientJsonEventTests {
 			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval);
 
 			messageNotificationClientQueueImpl = new MessageNotificationClientQueueImpl();
-
-			messageNotificationClientQueueImpl.setMessageNotifier(client);
+						
+			List<MessageNotifier> mqttClientList = new ArrayList<MessageNotifier>();
+			mqttClientList.add(client);
+			messageNotificationClientQueueImpl.setMessageNotifiers(mqttClientList);
 
 			messageNotificationClientQueueImpl.setMaxQueueLength(100);
 
