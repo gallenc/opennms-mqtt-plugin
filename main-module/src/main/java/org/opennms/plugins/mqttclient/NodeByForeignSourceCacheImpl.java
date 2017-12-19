@@ -428,7 +428,6 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 							if(node==null) throw new RuntimeException("node should not be null"); //should not happen
 
 							// create a dummy interface for node if required
-
 							if(m_createDummyInterfaces){
 								if(node.getIpInterfaces()==null || node.getIpInterfaces().isEmpty()) {
 									LOG.debug("Mqtt cache creating new dummy interface");
@@ -458,16 +457,14 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 								}
 							}
 
+							// only updating geolocation for asset data
 							if(m_createNodeAssetData){
 								if(assetRecord!=null){
-									LOG.debug("Mqtt cache creating node asset record");
-									assetRecord.setNode(node);
-									Integer assetId = m_assetRecordDao.save(assetRecord);
-									OnmsAssetRecord newAsset= m_assetRecordDao.get(assetId);
-									if(newAsset==null) throw new RuntimeException("newAsset should not be null"); //should not happen
-									node.setAssetRecord(newAsset);
-									m_nodeDao.update(node);
-									LOG.debug("Mqtt cache added asset record {} to node {}",newAsset,node);
+									LOG.debug("Mqtt cache creating geolocation for nodeid:"+node.getNodeId());
+									OnmsAssetRecord currentAssetRecord = node.getAssetRecord();
+									currentAssetRecord.setGeolocation(assetRecord.getGeolocation());		
+					                m_assetRecordDao.saveOrUpdate(currentAssetRecord);
+					                LOG.debug("Mqtt cache updated asset record {} to node {}",currentAssetRecord,node);
 								}
 							}
 

@@ -39,6 +39,10 @@ public class ConfigDao {
 	private String foreignIdKey;
 
 	private String timeStampKey;
+	
+	private String latitudeKey;
+	
+	private String longitudeKey;
 
 	private String group;
 
@@ -95,6 +99,22 @@ public class ConfigDao {
 		this.timeStampKey = timeStampKey;
 	}
 
+	public String getLatitudeKey() {
+		return latitudeKey;
+	}
+
+	public void setLatitudeKey(String latitudeKey) {
+		this.latitudeKey = latitudeKey;
+	}
+
+	public String getLongitudeKey() {
+		return longitudeKey;
+	}
+
+	public void setLongitudeKey(String longitudeKey) {
+		this.longitudeKey = longitudeKey;
+	}
+
 	public void setGroup(String group) {
 		this.group = group;
 	}
@@ -102,7 +122,6 @@ public class ConfigDao {
 	public String getGroup() {
 		return group;
 	}
-	
 	
 	public String getDateTimeFormatPattern() {
 		return m_dateTimeFormatPattern;
@@ -115,11 +134,14 @@ public class ConfigDao {
 		}
 		try{
 			new SimpleDateFormat(dateTimeFormatPattern);
+			this.m_dateTimeFormatPattern = dateTimeFormatPattern;
+			LOG.info("using supplied dateTimeFormatPattern:"+dateTimeFormatPattern);
 		} catch (Exception e){
+			this.m_dateTimeFormatPattern =DEFAULT_DATE_TIME_FORMAT_PATTERN;
 			LOG.error("using default "+DEFAULT_DATE_TIME_FORMAT_PATTERN
 					+ " because cannot parse supplied dateTimeFormatPattern: "+dateTimeFormatPattern);
 		}
-		this.m_dateTimeFormatPattern = dateTimeFormatPattern;
+		
 	}
 
 	// methods to convert comma separated lists into List<string>
@@ -162,24 +184,16 @@ public class ConfigDao {
 		return csvList;
 	}
 
-
 	@Override
 	public String toString() {
-		StringBuffer msg = new StringBuffer("ConfigDao [foreignSource=" + foreignSource + ", foreignIdKey="
-				+ foreignIdKey + ", timeStampKey=" + timeStampKey + ", group="
-				+ group + ", intervalInSeconds=" + intervalInSeconds+", m_dateTimeFormatPattern=" + m_dateTimeFormatPattern
-				+", timeZoneOffset=" + timeZoneOffset);
-		msg.append("\n dataDefinition");
-		for (String attributeName :dataDefinition.keySet()){
-			msg.append("   attributeName:"+attributeName+" dataType:"+dataDefinition.get(attributeName).getName()+"\n");
-		}
-		msg.append("\n rras");
-		for (String rra :rras){
-			msg.append("   "+rra+"\n");
-		}
-		msg.append("]");
-		return msg.toString();
-		
+		return "ConfigDao [dataDefinition=" + dataDefinition
+				+ ", m_dateTimeFormatPattern=" + m_dateTimeFormatPattern
+				+ ", timeZoneOffset=" + timeZoneOffset + ", foreignSource="
+				+ foreignSource + ", foreignIdKey=" + foreignIdKey
+				+ ", timeStampKey=" + timeStampKey + ", latitudeKey="
+				+ latitudeKey + ", longitudeKey=" + longitudeKey + ", group="
+				+ group + ", intervalInSeconds=" + intervalInSeconds
+				+ ", rras=" + rras + "]";
 	}
 
 	public String getTimeZoneOffset() {

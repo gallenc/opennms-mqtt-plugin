@@ -56,6 +56,7 @@ import org.opennms.netmgt.collection.support.builder.CollectionSetBuilder;
 import org.opennms.netmgt.collection.support.builder.InterfaceLevelResource;
 import org.opennms.netmgt.collection.support.builder.NodeLevelResource;
 import org.opennms.netmgt.model.OnmsAssetRecord;
+import org.opennms.netmgt.model.OnmsGeolocation;
 import org.opennms.netmgt.model.ResourcePath;
 import org.opennms.netmgt.model.ResourceTypeUtils;
 import org.opennms.netmgt.rrd.RrdRepository;
@@ -94,12 +95,17 @@ public class ValuePersister  {
 
 	private String m_foreignSource;
 
+	private String foreignIdKey = null;
+	private String timeStampKey = null;
+	private String latitudeKey  = null;
+	private String longitudeKey = null;
+
 	private ConfigDao m_configDao;
 
 	private NodeByForeignSourceCache m_nodeByForeignSourceCache;
 
 	// default to local time offset
-	private ZoneOffset m_zoneOffset = OffsetDateTime.now().getOffset(); 
+	private ZoneOffset m_zoneOffset = OffsetDateTime.now().getOffset();
 
 	public void setTimeZoneOffset(String timeZoneOffset) {
 		ZoneOffset zo = OffsetDateTime.now().getOffset();
@@ -138,6 +144,16 @@ public class ValuePersister  {
 		m_dateTimeFormatPattern=m_configDao.getDateTimeFormatPattern();
 		setTimeZoneOffset(m_configDao.getTimeZoneOffset());
 
+		foreignIdKey = m_configDao.getForeignIdKey();
+		timeStampKey = m_configDao.getTimeStampKey();
+
+		latitudeKey  = m_configDao.getLatitudeKey();
+		longitudeKey = m_configDao.getLongitudeKey();
+		if(latitudeKey==null || latitudeKey.isEmpty() || longitudeKey==null || longitudeKey.isEmpty()){
+			LOG.warn("latitude and longitude keys undefined. latitudeKey:{} longitudeKey:{}",latitudeKey,longitudeKey);
+			latitudeKey = null;
+			longitudeKey = null;
+		}
 		// Setup auxiliary objects needed by the m_persister
 		m_params = new ServiceParameters(Collections.emptyMap());
 		m_repository = new RrdRepository();
@@ -174,8 +190,6 @@ public class ValuePersister  {
 
 	public void persistAttributeMap(Map<String,Object> attributeMap){
 
-		String foreignIdKey = m_configDao.getForeignIdKey();
-		String timeStampKey = m_configDao.getTimeStampKey();
 		String group = m_configDao.getGroup();
 		Map<String,AttributeType> dataDefinition = m_configDao.getDataDefinition();
 
@@ -210,8 +224,32 @@ public class ValuePersister  {
 
 		//find node id (if exists) from foreign source and foreign id
 		String lookupCriteria= m_foreignSource+":"+foreignId;
-		
-		OnmsAssetRecord assetRecord=null; //TODO ADD ASSET RECORD 
+
+		OnmsAssetRecord assetRecord=null;
+		String latStr=null;
+		String lonStr=null;
+
+		if(latitudeKey!=null) {
+			try {
+				latStr = attributeMap.get(latitudeKey).toString();
+				lonStr = attributeMap.get(longitudeKey).toString();
+
+				Float latitude = Float.valueOf(latStr);
+				Float longitude = Float.valueOf(lonStr);
+
+				OnmsGeolocation geolocation = new OnmsGeolocation();
+				geolocation.setLatitude(latitude); 
+				geolocation.setLongitude(longitude);
+				assetRecord= new OnmsAssetRecord();
+				assetRecord.setGeolocation(geolocation);
+			} catch (Exception e){
+                LOG.warn("Could not parse geolocation latitudeKey:"+latitudeKey
+                		+ " latValue:"+latStr
+                		+ " longitudeKey:"+longitudeKey
+                		+ " lonValue:"+lonStr,e);
+			}
+		}
+
 		Map<String, String> nodeData = m_nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria, assetRecord);
 
 		if(nodeData==null){
@@ -281,7 +319,7 @@ public class ValuePersister  {
 
 	public String parseDatetoJsonTimestamp(Date date){
 		String dateStr;
-		
+
 		try {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(m_dateTimeFormatPattern);
 			Instant instantFromDate = date.toInstant();
