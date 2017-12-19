@@ -141,7 +141,7 @@ public class MqttEventNotificationClient implements NotificationClient {
 					String foreignId = fidobj.toString();
 					//find node id (if exists) from foreign source and foreign id
 					String lookupCriteria= foreignSource+":"+foreignId;
-					Map<String, String> nodeData = nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria);
+					Map<String, String> nodeData = nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria, null); //TODO add location?
 					String nodeIdStr=null;
 					if(nodeData==null) {
 						LOG.debug("cannot find node for lookupCriteria="+lookupCriteria);

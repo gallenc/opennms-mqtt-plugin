@@ -55,6 +55,7 @@ import org.opennms.netmgt.collection.api.ServiceParameters;
 import org.opennms.netmgt.collection.support.builder.CollectionSetBuilder;
 import org.opennms.netmgt.collection.support.builder.InterfaceLevelResource;
 import org.opennms.netmgt.collection.support.builder.NodeLevelResource;
+import org.opennms.netmgt.model.OnmsAssetRecord;
 import org.opennms.netmgt.model.ResourcePath;
 import org.opennms.netmgt.model.ResourceTypeUtils;
 import org.opennms.netmgt.rrd.RrdRepository;
@@ -209,7 +210,9 @@ public class ValuePersister  {
 
 		//find node id (if exists) from foreign source and foreign id
 		String lookupCriteria= m_foreignSource+":"+foreignId;
-		Map<String, String> nodeData = m_nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria);
+		
+		OnmsAssetRecord assetRecord=null; //TODO ADD ASSET RECORD 
+		Map<String, String> nodeData = m_nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria, assetRecord);
 
 		if(nodeData==null){
 			LOG.warn("no node exists for m_foreignSource="+m_foreignSource+" foreignId:"+foreignId+" in received attribute map:"+objectMapToString(attributeMap));

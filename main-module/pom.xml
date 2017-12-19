@@ -61,7 +61,7 @@
           </execution>
         </executions>
       </plugin>
-     
+
 
     </plugins>
 
@@ -226,8 +226,8 @@
     <!-- <version>4.1.1</version>jest version -->
     <!-- <scope>provided</scope> -->
     <!-- </dependency> -->
-    
-        <!-- Jersey Dependencies -->
+
+    <!-- Jersey Dependencies -->
     <dependency>
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-server</artifactId>
@@ -249,6 +249,12 @@
     <dependency>
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-json</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-jxpath</groupId>
+      <artifactId>commons-jxpath</artifactId>
       <scope>provided</scope>
     </dependency>
 

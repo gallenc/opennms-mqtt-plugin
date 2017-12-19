@@ -30,6 +30,8 @@ package org.opennms.plugins.mqttclient;
 
 import java.util.Map;
 
+import org.opennms.netmgt.model.OnmsAssetRecord;
+
 public interface NodeByForeignSourceCache {
 	
 	/**
@@ -44,8 +46,9 @@ public interface NodeByForeignSourceCache {
 	 * Try to retrieve node entry for nodeCriteria from cache or database
 	 * If not in cache or database creation of new node is attempted
 	 * @param nodeCriteria nodeid or foreignSource:foreignId
+	 * @param assetRecord optional asset record entry to create with this node. Can be null.
 	 */
-    Map<String,String> createOrUpdateNode(String nodeCriteria);
+    Map<String,String> createOrUpdateNode(String nodeCriteria, OnmsAssetRecord assetRecord);
 
 	/**
 	 * removes the entry for a given nodeCriteria

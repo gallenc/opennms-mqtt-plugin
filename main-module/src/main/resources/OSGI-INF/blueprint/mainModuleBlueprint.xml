@@ -18,6 +18,10 @@
 
   <!-- opennms node dao -->
   <reference id="nodeDao" interface="org.opennms.netmgt.dao.api.NodeDao" availability="mandatory" />
+  
+  <reference id="ipInterfaceDao" interface="org.opennms.netmgt.dao.api.IpInterfaceDao" availability="mandatory"/>
+  
+  <reference id="assetRecordDao" interface="org.opennms.netmgt.dao.api.AssetRecordDao" availability="mandatory" />
 
   <reference id="transactionOperations" interface="org.springframework.transaction.support.TransactionOperations" availability="mandatory" />
 
@@ -42,7 +46,9 @@
       <cm:property name="org.opennms.plugin.mqttclient.eventtopic" value="mqtt-events" />
       <cm:property name="org.opennms.plugin.mqttclient.datatopic" value="mqtt-data" />
 
-      <cm:property name="org.opennms.plugin.mqttclient.create-mssing-nodes" value="true" />
+      <cm:property name="org.opennms.plugin.mqttclient.create-missing-nodes" value="true" />
+      <cm:property name="org.opennms.plugin.mqttclient.create-dummy-interfaces" value="true" />
+      <cm:property name="org.opennms.plugin.mqttclient.create-node-asset-data" value="false" /> <!-- TODO -->
       <cm:property name="org.opennms.plugin.mqttclient.cache_max_ttl" value="0" /> <!-- Set to zero to disable TTL -->
       <cm:property name="org.opennms.plugin.mqttclient.cache_max_size" value="10000" /> <!-- Set to zero to disable max size -->
 
@@ -124,12 +130,16 @@
   <bean id="nodeByForeignSourceCache" class="org.opennms.plugins.mqttclient.NodeByForeignSourceCacheImpl" init-method="init" destroy-method="destroy">
     <property name="nodeDao" ref="nodeDao" />
     <property name="monitoringLocationDao" ref="monitoringLocationDao" />
+    <property name="ipInterfaceDao" ref="ipInterfaceDao" />
+    <property name="assetRecordDao" ref="assetRecordDao" />
     <property name="eventProxy" ref="eventProxy" />
     <property name="eventIpcManager" ref="eventIpcManager" />
     <property name="transactionOperations" ref="transactionOperations" />
     <property name="MAX_TTL" value="${org.opennms.plugin.mqttclient.cache_max_ttl}" />
     <property name="MAX_SIZE" value="${org.opennms.plugin.mqttclient.cache_max_size}" />
-    <property name="createMissingNodes" value="${org.opennms.plugin.mqttclient.create-mssing-nodes}" />
+    <property name="createMissingNodes" value="${org.opennms.plugin.mqttclient.create-missing-nodes}" />
+    <property name="createDummyInterfaces" value="${org.opennms.plugin.mqttclient.create-dummy-interfaces}" />
+    <property name="createNodeAssetData" value="${org.opennms.plugin.mqttclient.create-node-asset-data}" />
   </bean>
 
 

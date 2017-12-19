@@ -28,6 +28,8 @@
 
 package org.opennms.plugins.mqttclient;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -36,6 +38,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.opennms.netmgt.dao.api.AssetRecordDao;
+import org.opennms.netmgt.dao.api.IpInterfaceDao;
 import org.opennms.netmgt.dao.api.MonitoringLocationDao;
 import org.opennms.netmgt.dao.api.NodeDao;
 import org.opennms.netmgt.events.api.EventConstants;
@@ -46,8 +50,10 @@ import org.opennms.netmgt.events.api.EventProxyException;
 import org.opennms.netmgt.model.OnmsAssetRecord;
 import org.opennms.netmgt.model.OnmsCategory;
 import org.opennms.netmgt.model.OnmsGeolocation;
+import org.opennms.netmgt.model.OnmsIpInterface;
 import org.opennms.netmgt.model.OnmsNode;
 import org.opennms.netmgt.model.OnmsNode.NodeType;
+import org.opennms.netmgt.model.PrimaryType;
 import org.opennms.netmgt.model.events.EventBuilder;
 import org.opennms.netmgt.model.monitoringLocations.OnmsMonitoringLocation;
 import org.opennms.netmgt.xml.event.Event;
@@ -75,12 +81,16 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 
 	private volatile NodeDao m_nodeDao;
 	private volatile MonitoringLocationDao m_monitoringLocationDao;
+	private volatile IpInterfaceDao m_ipInterfaceDao;
+	private volatile AssetRecordDao m_assetRecordDao;
 	private volatile TransactionOperations m_transactionOperations;
 	private volatile EventIpcManager m_eventIpcManager;
 
 	private volatile EventProxy m_eventProxy;
 
 	private boolean m_createMissingNodes = true;
+	private boolean m_createDummyInterfaces = true;
+	private boolean m_createNodeAssetData = true;
 
 	// contains list of nodes pending persisting
 	private ConcurrentHashMap<String, String> m_persistMap = new ConcurrentHashMap<String, String>();
@@ -131,10 +141,10 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 		m_eventIpcManager.addEventListener(this);
 
 	}
-	
+
 	public void destroy(){
 		if (m_eventIpcManager!=null) m_eventIpcManager.removeEventListener(this);
-		
+
 	}
 
 	private Map<String, String> getNodeAndCategoryInfo(String nodeCriteria) {
@@ -167,7 +177,7 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 			}
 			LOG.debug(sb.toString());
 		}
-		
+
 		return result;
 	}
 
@@ -360,7 +370,7 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 	 * @param nodeCriteria nodeid or foreignSource:foreignId
 	 */
 	@Override
-	public Map<String, String> createOrUpdateNode(String nodeCriteria) {
+	public Map<String, String> createOrUpdateNode(String nodeCriteria, OnmsAssetRecord assetRecord) {
 
 		Map<String, String> nodeData = getEntry(nodeCriteria);
 		if (nodeData != null) return nodeData;
@@ -373,8 +383,8 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 
 		// try to create new node if not already scheduled for creation by another thread
 		// this stops rapid messages from same new node trying to create several new nodes in a race
-		// m_persistMap prevents attempts to create the node if already requested. The
-		// m_persistMap entry is cleared next time the node is actually loaded from the database by the cache
+		// m_persistMap prevents attempts to create the node if already requested.
+		//  The m_persistMap entry is cleared next time the node is actually loaded from the database by the cache
 		if (!m_persistMap.containsKey(nodeCriteria)) {
 			synchronized (this) {
 				// check another mqtt thread is not trying to create this node
@@ -401,12 +411,73 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 					} else {
 						onmsNode.setLabel(nodeCriteria);
 					}
+
 					LOG.debug("Mqtt cache Adding node {}", onmsNode);
 
-					//using save or update in case the node has just been created by an external process
-					m_nodeDao.saveOrUpdate(onmsNode);
+					// wrap in a transaction so that Hibernate session is bound and
+					// getIpInterfaces works
+					m_transactionOperations.execute(new TransactionCallbackWithoutResult() {
+						@Override
+						protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+
+							//using save or update in case the node has just been created by an external process
+							m_nodeDao.saveOrUpdate(onmsNode);
+
+							//retrieve saved node
+							OnmsNode node = m_nodeDao.get(nodeCriteria);
+							if(node==null) throw new RuntimeException("node should not be null"); //should not happen
+
+							// create a dummy interface for node if required
+
+							if(m_createDummyInterfaces){
+								if(node.getIpInterfaces()==null || node.getIpInterfaces().isEmpty()) {
+									LOG.debug("Mqtt cache creating new dummy interface");
+									// use illegal ip address 254.0.0.1 and set as unmanaged
+									// issnmpprimary='N'  Not eligible (does not support SNMP or or has no ifIndex)
+									// ipstatus=1 Up 9 if node is responding
+									// ismanaged 'U' - Unmanaged
+									// iphostname - set this to the mqtt device name
+									// ifindex null
+									// nodeid ( not nullable ) set to node id  of the mqtt node
+									OnmsIpInterface ipIf = new OnmsIpInterface();
+									try {
+										ipIf.setIpAddress(InetAddress.getByName("254.0.0.1"));
+									} catch (UnknownHostException e) {
+										throw new RuntimeException("problem creating IP address",e); // should never happen
+									}
+									ipIf.setIsSnmpPrimary(PrimaryType.NOT_ELIGIBLE);
+									ipIf.setIsManaged("U");
+									ipIf.setIpHostName(onmsNode.getLabel());
+									ipIf.setNode(node);
+									Integer ipIfId = m_ipInterfaceDao.save(ipIf);
+									OnmsIpInterface createdipIf=m_ipInterfaceDao.get(ipIfId);
+									if(createdipIf==null) throw new RuntimeException("createdipIf should not be null"); //should not happen
+									node.addIpInterface(createdipIf);
+									m_nodeDao.update(node);
+									LOG.debug("Mqtt cache added dummy interface {} to node {}",createdipIf,node);
+								}
+							}
+
+							if(m_createNodeAssetData){
+								if(assetRecord!=null){
+									LOG.debug("Mqtt cache creating node asset record");
+									assetRecord.setNode(node);
+									Integer assetId = m_assetRecordDao.save(assetRecord);
+									OnmsAssetRecord newAsset= m_assetRecordDao.get(assetId);
+									if(newAsset==null) throw new RuntimeException("newAsset should not be null"); //should not happen
+									node.setAssetRecord(newAsset);
+									m_nodeDao.update(node);
+									LOG.debug("Mqtt cache added asset record {} to node {}",newAsset,node);
+								}
+							}
+
+							LOG.debug("Mqtt cache node added {}", node);
+						}
+					});
+
 					m_nodeDao.flush();
-					LOG.debug("Mqtt cache node added {}", onmsNode);
+					m_ipInterfaceDao.flush();
+					m_assetRecordDao.flush();
 
 					// retrieve added node to and sends node added event 
 					// this updates the cache which clears entry in m_persistMap 
@@ -476,6 +547,14 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 		this.m_createMissingNodes = createMissingNodes;
 	}
 
+	public void setCreateDummyInterfaces(boolean createDummyInterfaces) {
+		this.m_createDummyInterfaces = createDummyInterfaces;
+	}
+
+	public void setcreateNodeAssetData(boolean createNodeAssetData) {
+		this.m_createNodeAssetData = createNodeAssetData;
+	}
+
 	public void setNodeDao(NodeDao nodeDao) {
 		this.m_nodeDao = nodeDao;
 	}
@@ -493,7 +572,6 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 		this.MAX_TTL = MAX_TTL;
 	}
 
-
 	public void setEventProxy(EventProxy eventProxy) {
 		this.m_eventProxy = eventProxy;
 	}
@@ -501,9 +579,18 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 	public void setEventIpcManager(EventIpcManager eventIpcManager) {
 		this.m_eventIpcManager = eventIpcManager;
 	}
-	
+
 	public void setMonitoringLocationDao(MonitoringLocationDao monitoringLocationDao) {
 		this.m_monitoringLocationDao = monitoringLocationDao;
 	}
+
+	public void setIpInterfaceDao(IpInterfaceDao ipInterfaceDao) {
+		this.m_ipInterfaceDao = ipInterfaceDao;
+	}
+
+	public void setAssetRecordDao(AssetRecordDao assetRecordDao) {
+		this.m_assetRecordDao = assetRecordDao;
+	}
+
 
 }
