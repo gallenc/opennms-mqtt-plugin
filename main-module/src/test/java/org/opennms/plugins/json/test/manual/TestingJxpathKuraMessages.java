@@ -27,7 +27,7 @@
  *******************************************************************************/
 
 
-package org.opennms.plugins.mqttclient.test.manual;
+package org.opennms.plugins.json.test.manual;
 
 import static org.junit.Assert.*;
 
@@ -39,6 +39,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
+import org.opennms.plugins.mqttclient.test.manual.MQTTJsonTransmitterTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

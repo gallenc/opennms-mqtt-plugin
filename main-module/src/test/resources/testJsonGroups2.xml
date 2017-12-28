@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xml-groups>
+    <xml-group name="solaris-zone-stats" resource-type="solarisZone"
+                resource-xpath="/zones/zone"
+                key-xpath="@name">
+      <xml-object name="zoneName" type="string" xpath="@name" />
+      <xml-object name="nproc" type="GAUGE" xpath="parameter[@key='nproc']/@value" />
+      <xml-object name="nlwp" type="GAUGE" xpath="parameter[@key='nlwp']/@value" />
+      <xml-object name="pr_size" type="GAUGE" xpath="parameter[@key='pr_size']/@value" />
+      <xml-object name="pr_rssize" type="GAUGE" xpath="parameter[@key='pr_rssize']/@value" />
+      <xml-object name="pctmem" type="GAUGE" xpath="parameter[@key='pctmem']/@value" />
+      <xml-object name="pctcpu" type="GAUGE" xpath="parameter[@key='pctcpu']/@value" />
+    </xml-group>
+</xml-groups>
+
+<xml-datacollection-config rrdRepository="/opt/opennms/share/rrd/snmp/"
+    xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+    <xml-collection name="Solaris-Zones">
+        <rrd step="300">
+            <rra>RRA:AVERAGE:0.5:1:2016</rra>
+            <rra>RRA:AVERAGE:0.5:12:1488</rra>
+            <rra>RRA:AVERAGE:0.5:288:366</rra>
+            <rra>RRA:MAX:0.5:288:366</rra>
+            <rra>RRA:MIN:0.5:288:366</rra>
+        </rrd>
+        <xml-source url="http://{ipaddr}/zone-stats">
+            <import-groups>xml-datacollection/solaris-zones.xml</import-groups>
+        </xml-source>
+    </xml-collection>
+ </xml-datacollection-config>
