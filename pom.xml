@@ -326,6 +326,12 @@
       </dependency>
 
       <dependency>
+        <groupId>org.opennms.protocols</groupId>
+        <artifactId>org.opennms.protocols.xml</artifactId>
+        <version>${org.opennms.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>com.googlecode.json-simple</groupId>
         <artifactId>json-simple</artifactId>
         <version>${json-simpleVersion}</version>

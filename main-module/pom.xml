@@ -187,6 +187,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.opennms.protocols</groupId>
+      <artifactId>org.opennms.protocols.xml</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.opennms</groupId>
       <artifactId>opennms-model</artifactId>
       <scope>provided</scope>

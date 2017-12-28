@@ -9,9 +9,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 //import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -24,7 +22,7 @@ import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import org.opennms.plugins.json.OnmsCollectionAttributeMap;
 import org.opennms.plugins.json.OnmsAttributeJsonHandler;
-import org.opennms.plugins.json.config.XmlGroups;
+import org.opennms.protocols.xml.config.XmlGroups;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

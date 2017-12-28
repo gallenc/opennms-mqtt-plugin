@@ -44,9 +44,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.opennms.plugins.json.OnmsCollectionAttributeMap;
 import org.opennms.plugins.json.OnmsCollectionAttribute;
-import org.opennms.plugins.json.config.XmlGroup;
-import org.opennms.plugins.json.config.XmlGroups;
-import org.opennms.plugins.json.config.XmlObject;
+import org.opennms.protocols.xml.config.XmlGroup;
+import org.opennms.protocols.xml.config.XmlGroups;
+import org.opennms.protocols.xml.config.XmlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

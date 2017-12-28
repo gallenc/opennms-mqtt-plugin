@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xml-groups>
+<xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
     <xml-group name="solaris-zone-stats" resource-type="solarisZone"
                 resource-xpath="/zones/zone"
                 key-xpath="@name">
