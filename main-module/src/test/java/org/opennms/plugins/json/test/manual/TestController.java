@@ -26,30 +26,38 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.mqttclient;
+package org.opennms.plugins.json.test.manual;
 
-public class MQTTTopicSubscription {
+import static org.junit.Assert.*;
 
-	private String topic=null;
-	private String qos=null;
+import org.junit.Test;
+import org.opennms.plugins.messagenotifier.Controller;
+import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class TestController {
+	private static final Logger LOG = LoggerFactory.getLogger(TestController.class);
 	
-	public MQTTTopicSubscription(){};
-	
-	public MQTTTopicSubscription(String topic,String qos ){
-		this.topic=topic;
-		this.qos=qos;
+	public static final String TEST_CONFIG_FILE = "src/test/resources/testConfig.xml";
+
+	@Test
+	public void testLoadConfig() {
+		Controller controller = new Controller();
+		controller.setConfigFile(TEST_CONFIG_FILE);
+		MQTTReceiverConfig mqttReceiverConfig = controller.loadConfigFile();
+		assertNotNull(mqttReceiverConfig);
 	}
 	
-	public String getTopic() {
-		return topic;
+	@Test
+	public void testLoadClients() {
+		Controller controller = new Controller();
+		controller.setConfigFile(TEST_CONFIG_FILE);
+		controller.init();
+		
+		
+		controller.destroy();
+
 	}
-	public void setTopic(String topic) {
-		this.topic = topic;
-	}
-	public String getQos() {
-		return qos;
-	}
-	public void setQos(String qos) {
-		this.qos = qos;
-	}
+
 }

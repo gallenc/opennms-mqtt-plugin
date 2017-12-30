@@ -81,11 +81,11 @@
 
     <property name="topicList">
       <list>
-        <bean class="org.opennms.plugins.mqttclient.MQTTTopicSubscription">
+        <bean class="org.opennms.plugins.mqtt.config.MQTTTopicSubscription">
           <property name="qos" value="${org.opennms.plugin.mqttclient.qos}" />
           <property name="topic" value="${org.opennms.plugin.mqttclient.eventtopic}" />
         </bean>
-        <bean class="org.opennms.plugins.mqttclient.MQTTTopicSubscription">
+        <bean class="org.opennms.plugins.mqtt.config.MQTTTopicSubscription">
           <property name="qos" value="${org.opennms.plugin.mqttclient.qos}" />
           <property name="topic" value="${org.opennms.plugin.mqttclient.datatopic}" />
         </bean>

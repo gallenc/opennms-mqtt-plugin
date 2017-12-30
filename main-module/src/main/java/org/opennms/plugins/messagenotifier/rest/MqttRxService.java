@@ -5,7 +5,7 @@ import java.util.Set;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClient;
 import org.opennms.plugins.messagenotifier.MessageNotifier;
-import org.opennms.plugins.mqttclient.MQTTTopicSubscription;
+import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
 
 public interface MqttRxService extends MessageNotifier {
 	

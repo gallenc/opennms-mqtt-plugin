@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mqtt-receiver xmlns="http://xmlns.opennms.org/xsd/config/mqtt-datacollection">
+    <jsonparser/>
+    <mqttClients>
+        <client clientInstanceId="opennms">
+            <brokerUrl>tcp://localhost:1883</brokerUrl>
+            <clientName>opennms</clientName>
+            <clientId>opennms</clientId>
+            <connectionRetryInterval>10</connectionRetryInterval>
+            <password>xxx</password>
+            <topicList>
+                <topic qos="0" topic="topic1"/>
+                <topic qos="1" topic="topic2"/>
+            </topicList>
+            <userName>yyy</userName>
+        </client>
+    </mqttClients>
+</mqtt-receiver>

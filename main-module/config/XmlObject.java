@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.json.config;
+package org.opennms.plugins.mqtt.config;
 
 import java.io.Serializable;
 

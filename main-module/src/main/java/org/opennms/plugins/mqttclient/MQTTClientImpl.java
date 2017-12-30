@@ -48,6 +48,8 @@ import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClient;
 import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
 import org.opennms.plugins.messagenotifier.MessageNotifier;
+import org.opennms.plugins.mqtt.config.MQTTClientConfig;
+import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +61,8 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	private String m_brokerUrl;
 	private String m_password;
 	private String m_userName;
+	
+	private String m_instanceId = "instanceId_Not_Set";
 
 	private AtomicInteger reconnectionCount = new AtomicInteger(0);
 
@@ -81,7 +85,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 */
 	@Override
 	public void addMessageNotificationClient(MessageNotificationClient messageNotificationClient){
-		LOG.debug("adding messageNotificationClient:"+messageNotificationClient.toString());
+		LOG.debug("client instanceId:"+m_instanceId+": adding messageNotificationClient:"+messageNotificationClient.toString());
 		messageNotificationClientList.add(messageNotificationClient);
 	}
 
@@ -91,7 +95,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 */
 	@Override
 	public void removeMessageNotificationClient(MessageNotificationClient messageNotificationClient){
-		LOG.debug("removing messageNotificationClient:"+messageNotificationClient.toString());
+		LOG.debug("client instanceId:"+m_instanceId+": removing messageNotificationClient:"+messageNotificationClient.toString());
 		messageNotificationClientList.remove(messageNotificationClient);
 	}
 
@@ -106,6 +110,8 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	public boolean isClientConnected() {
 		return m_clientConnected.get();
 	}
+	
+
 
 	/**
 	 * @param brokerUrl the url to connect to
@@ -147,9 +153,26 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			m_client.setCallback(this);
 
 		} catch (MqttException e) {
-			LOG.error("Unable to set up MQTT m_client",e);
-			throw new RuntimeException("Unable to set up MQTT m_client",e);
+			LOG.error("client instanceId:"+m_instanceId+": Unable to set up MQTT m_client",e);
+			throw new RuntimeException("client instanceId:"+m_instanceId+": Unable to set up MQTT m_client",e);
 		}
+	}
+	
+	/**
+	 * constructor using MQTTClientConfig
+	 * @param mQTTClientConfig
+	 */
+	public MQTTClientImpl(MQTTClientConfig mQTTClientConfig){
+		this(mQTTClientConfig.getBrokerUrl(), 
+				mQTTClientConfig.getClientId(), 
+				mQTTClientConfig.getUserName(), 
+				mQTTClientConfig.getPassword(), 
+				mQTTClientConfig.getConnectionRetryInterval());
+		
+		m_instanceId = mQTTClientConfig.getClientInstanceId();
+		setTopicList(mQTTClientConfig.getTopicList());
+
+		
 	}
 
 	/**
@@ -163,7 +186,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			m_clientConnected.set(true);
 			return true;
 		}
-		LOG.info("Connecting to "+m_brokerUrl + " with m_client ID "+m_client.getClientId()
+		LOG.info("client instanceId:"+m_instanceId+": Connecting to "+m_brokerUrl + " with m_client ID "+m_client.getClientId()
 				+" (number of connection attempts since start="
 				+ reconnectionCount.incrementAndGet()+")");
 		IMqttToken conToken;
@@ -172,11 +195,11 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			conToken.waitForCompletion();
 		} catch (MqttException e1) {
 			// An exception is thrown if connect fails.
-			LOG.error("failed to connect to MQTT broker:"+ m_brokerUrl ,e1);
+			LOG.error("client instanceId:"+m_instanceId+": failed to connect to MQTT broker:"+ m_brokerUrl ,e1);
 			m_clientConnected.set(false);
 			return false;
 		}
-		LOG.info("Connected to MQTT broker");
+		LOG.info("client instanceId:"+m_instanceId+": Connected to MQTT broker");
 		m_clientConnected.set(true);
 		return true;
 	}
@@ -189,7 +212,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 */
 	public void publishSynchronous(String topicName, int qos, byte[] payload) {
 		if(! m_clientConnected.get()){
-			if (LOG.isDebugEnabled()) LOG.debug("m_client disconnected. not publishing message");
+			if (LOG.isDebugEnabled()) LOG.debug("client instanceId:"+m_instanceId+": m_client disconnected. not publishing message");
 			return; 
 		}
 
@@ -199,7 +222,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 
 		if (LOG.isDebugEnabled()){
 			String time = new Timestamp(System.currentTimeMillis()).toString();
-			LOG.debug("Publishing synchronous message at: "+time+ " to topic \""+topicName+"\" qos "+qos);
+			LOG.debug("client instanceId:"+m_instanceId+": Publishing synchronous message at: "+time+ " to topic \""+topicName+"\" qos "+qos);
 		}	
 		// Send the message to the server, control is returned as soon
 		// as the MQTT m_client has accepted to deliver the message.
@@ -209,10 +232,10 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 		try {
 			IMqttDeliveryToken pubToken = m_client.publish(topicName, message, null, null);
 			pubToken.waitForCompletion();
-		} catch (MqttException e) {
-			throw new RuntimeException("problem synchronously publishing message.",e);
+		} catch (MqttException  e) {
+			throw new RuntimeException("client instanceId:"+m_instanceId+"problem synchronously publishing message.",e);
 		} 	
-		LOG.debug("Published");
+		LOG.debug("client instanceId:"+m_instanceId+": Published");
 
 	}
 
@@ -224,13 +247,13 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 */
 	public void publishAsynchronous(String topicName, int qos, byte[] payload) {
 		if(! m_clientConnected.get()){
-			if (LOG.isDebugEnabled()) LOG.debug("m_client disconnected. not publishing message");
+			if (LOG.isDebugEnabled()) LOG.debug("client instanceId:"+m_instanceId+": m_client disconnected. not publishing message");
 			return; 
 		}
 
 		if (LOG.isDebugEnabled()){
 			String time = new Timestamp(System.currentTimeMillis()).toString();
-			LOG.debug("Publishing asynchronous message at: "+time+ " to topic \""+topicName+"\" qos "+qos);
+			LOG.debug("client instanceId:"+m_instanceId+": Publishing asynchronous message at: "+time+ " to topic \""+topicName+"\" qos "+qos);
 		}
 
 		// Construct the message to send
@@ -240,7 +263,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 		try {
 			IMqttDeliveryToken pubToken = m_client.publish(topicName, message, null, null);
 		} catch (MqttException e) {
-			throw new RuntimeException("problem synchronously publishing message",e);
+			throw new RuntimeException("client instanceId:"+m_instanceId+": problem synchronously publishing message",e);
 		} 	
 	}
 
@@ -253,7 +276,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 		try {
 			m_client.subscribe(topic,qos);
 		} catch (MqttException e) {
-			throw new RuntimeException("problem subscribing to topic:"+topic+ " qos "+qos,e);
+			throw new RuntimeException("client instanceId:"+m_instanceId+": problem subscribing to topic:"+topic+ " qos "+qos,e);
 		}
 	}
 
@@ -264,10 +287,10 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 		try {
 			m_clientConnected.set(false);
 			stopConnectionRetryThead();
-			m_client.disconnect();
+			if(m_client.isConnected()) m_client.disconnect();
 			m_client.close();
 		} catch (MqttException e) {
-			LOG.error("problem closing m_client",e);
+			LOG.error("client instanceId:"+m_instanceId+": problem closing m_client",e);
 		}
 	}
 
@@ -285,17 +308,17 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 * the disconnect completes.
 	 */
 	public synchronized void disconnect(){
-		LOG.debug("Disconnecting from MQTT broker");
+		LOG.debug("client instanceId:"+m_instanceId+": Disconnecting from MQTT broker");
 		if(m_clientConnected.getAndSet(false)){
 			try {
 				IMqttToken discToken = m_client.disconnect(null, null);
 				discToken.waitForCompletion();
 			} catch (MqttException e1) {
 				// An exception is thrown if connect fails.
-				LOG.error("error when disconnecting from MQTT broker:",e1);
+				LOG.error("client instanceId:"+m_instanceId+": error when disconnecting from MQTT broker:",e1);
 			}
 		}
-		LOG.debug("Disconnected from MQTT broker");
+		LOG.debug("client instanceId:"+m_instanceId+": Disconnected from MQTT broker");
 	}
 
 	/**
@@ -305,7 +328,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	private synchronized void startConnectionRetryThead(){
 		if (m_connectionRetryThread==null){
 
-			if(m_connectionRetryInterval==null) throw new RuntimeException("connectionretryInterval cannot be null");
+			if(m_connectionRetryInterval==null) throw new RuntimeException("client instanceId:"+m_instanceId+": connectionretryInterval cannot be null");
 
 			m_connectionRetryThread = new Thread(new Runnable() {
 
@@ -314,41 +337,41 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 					try {
 						while (!Thread.currentThread().isInterrupted()) {
 
-							LOG.debug("trying to connect to Mqtt broker");
+							LOG.debug("client instanceId:"+m_instanceId+": trying to connect to Mqtt broker");
 							boolean success = false;
 							try{
 								success = connect();
 							} catch(Exception e){
-								LOG.error("exception thrown when trying to start MQTT connection.",e);
+								LOG.error("client instanceId:"+m_instanceId+": exception thrown when trying to start MQTT connection.",e);
 								throw new InterruptedException();
 							}
 							if(success) {
 								// if connected then try to subscribe to topics. Try all topics and log failures
-								LOG.debug("connected to Mqtt broker. Trying to subscribe to pre-set topics "+topicList.size());
+								LOG.debug("client instanceId:"+m_instanceId+": connected to Mqtt broker. Trying to subscribe to pre-set topics "+topicList.size());
 								for(MQTTTopicSubscription subscription:topicList){
 									try{
-										LOG.debug(" subscribing to topic:"+subscription.getTopic()+" qos:"+subscription.getQos());
+										LOG.debug("client instanceId:"+m_instanceId+":  subscribing to topic:"+subscription.getTopic()+" qos:"+subscription.getQos());
 										subscribe(subscription.getTopic(), Integer.parseInt(subscription.getQos()));
 									} catch(Exception e){
-										LOG.error("exception thrown when trying to subscribe to topic.",e);
+										LOG.error("client instanceId:"+m_instanceId+": exception thrown when trying to subscribe to topic.",e);
 									}
 								}
 
 								throw new InterruptedException();
 							}
-							LOG.debug("waiting "+m_connectionRetryInterval
+							LOG.debug("client instanceId:"+m_instanceId+": waiting "+m_connectionRetryInterval
 									+ "ms before retrying to connect to Mqtt broker");
 							Thread.sleep(m_connectionRetryInterval);
 						}
 					} catch (InterruptedException e) {
 						Thread.currentThread().interrupt();
 					}
-					LOG.debug("connection retry thread complete.");
+					LOG.debug("client instanceId:"+m_instanceId+": connection retry thread complete.");
 				}
 			});
 
 			m_connectionRetryThread.start();
-			LOG.info("connection retry thread started: retryInterval="+m_connectionRetryInterval);
+			LOG.info("client instanceId:"+m_instanceId+": connection retry thread started: retryInterval="+m_connectionRetryInterval);
 		}
 	}
 
@@ -357,7 +380,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 		if (m_connectionRetryThread!=null){
 			m_connectionRetryThread.interrupt();
 			m_connectionRetryThread=null;
-			LOG.info("connection retry thread stopped");
+			LOG.info("client instanceId:"+m_instanceId+": connection retry thread stopped");
 		}
 		disconnect();
 	}
@@ -375,7 +398,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	@Override
 	public void connectionLost(Throwable cause) {
 		m_clientConnected.set(false);
-		LOG.debug("Connection to " + m_brokerUrl + " lost!" + cause);
+		LOG.debug("client instanceId:"+m_instanceId+": Connection to " + m_brokerUrl + " lost!" + cause);
 		startConnectionRetryThead();
 	}
 
@@ -391,7 +414,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 		// subscription made by the m_client
 		if(LOG.isDebugEnabled()){
 			String time = new Timestamp(System.currentTimeMillis()).toString();
-			LOG.debug("Time:\t" +time +
+			LOG.debug("client instanceId:"+m_instanceId+": Time:\t" +time +
 					"  Topic:\t" + topic +
 					"  Message:\t" + new String(message.getPayload()) +
 					"  QoS:\t" + message.getQos());
@@ -409,7 +432,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 				try{
 					i.next().sendMessageNotification(dbn);
 				} catch (Exception e){
-					LOG.error("Problem actioning message notification.",e);
+					LOG.error("client instanceId:"+m_instanceId+": Problem actioning message notification.",e);
 				}
 			}         
 		}

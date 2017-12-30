@@ -38,7 +38,7 @@ import java.util.Set;
 
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClient;
-import org.opennms.plugins.mqttclient.MQTTTopicSubscription;
+import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
