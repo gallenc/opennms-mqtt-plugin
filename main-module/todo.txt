@@ -1,0 +1,7 @@
+1. add tests of json marshalling; kura, sniffy examples and
+ examples of multiple timestamp values
+2. add remaining config for clients to controller
+3. change event parser to use jxpath config
+4. change data parser to use jxpath config
+5. change wiring to wire in controller
+5. add thread pool to queueImpl (optional)
