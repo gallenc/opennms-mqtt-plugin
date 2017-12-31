@@ -43,20 +43,24 @@ public class TestController {
 
 	@Test
 	public void testLoadConfig() {
+		LOG.debug("start testLoadConfig()");
 		Controller controller = new Controller();
 		controller.setConfigFile(TEST_CONFIG_FILE);
 		MQTTReceiverConfig mqttReceiverConfig = controller.loadConfigFile();
 		assertNotNull(mqttReceiverConfig);
+		LOG.debug("end testLoadConfig()");
 	}
 	
 	@Test
 	public void testLoadClients() {
+		LOG.debug("start testLoadClients()");
 		Controller controller = new Controller();
 		controller.setConfigFile(TEST_CONFIG_FILE);
 		controller.init();
 		
 		
 		controller.destroy();
+		LOG.debug("end testLoadClients()");
 
 	}
 

@@ -31,7 +31,9 @@ import static org.junit.Assert.*;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
@@ -40,10 +42,14 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.junit.Test;
-import org.opennms.plugins.mqtt.config.JsonParserConfig;
+import org.opennms.netmgt.collection.api.AttributeType;
+import org.opennms.plugins.mqtt.config.JsonEventParserConfig;
+import org.opennms.plugins.mqtt.config.JsonDataParserConfig;
 import org.opennms.plugins.mqtt.config.MQTTClientConfig;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
 import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
+import org.opennms.protocols.xml.config.XmlGroup;
+import org.opennms.protocols.xml.config.XmlObject;
 import org.opennms.protocols.xml.config.XmlRrd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,10 +59,27 @@ public class TestMqttConfigMarshalling {
 	
 	private String brokerUrl="tcp://localhost:1883";
 	private String clientId="opennms";
-	private String clientInstanceId="opennms";
+	private String clientInstanceId="client1";
 	private String connectionRetryInterval="10";
 	private String password="xxx";
 	private String userName="yyy";
+	
+	private List<String> eventSubscriptionTopics= Arrays.asList("mqtt-events","mqtt-events2");
+	
+	private List<String> pmSubscriptionTopics= Arrays.asList("mqtt-data","mqtt-data2");
+	// set RRAS values
+	// default 5 minutes
+	private Integer step=300;
+	
+	private List<String> m_rras = Arrays.asList("RRA:AVERAGE:0.5:1:2016",
+			"RRA:AVERAGE:0.5:12:1488",
+			"RRA:AVERAGE:0.5:288:366",
+			"RRA:MAX:0.5:288:366",
+			"RRA:MIN:0.5:288:366");
+
+	private Integer maxQueueLength=1001;
+
+	private String timestampFormat="yyyy-MM-dd HH:mm:ss.SSSSSS";
 
 
 
@@ -64,17 +87,33 @@ public class TestMqttConfigMarshalling {
 	public void testMQTTClientConfig() {
 		LOG.debug("start testMQTTClientConfig()");
 		
+		//define xmlgroup
+		XmlGroup xmlGroup=new XmlGroup();
+		xmlGroup.setName("name");
+		xmlGroup.setResourceType("resourceType");
+		xmlGroup.setResourceXpath("resourceXpath");
+		xmlGroup.setTimestampXpath("timestampXpath");
+		xmlGroup.setTimestampFormat(timestampFormat);
+		xmlGroup.setKeyXpath("keyXpath");
+		
+		XmlObject xmlObject=new XmlObject();
+		AttributeType dataType=AttributeType.GAUGE;
+		xmlObject.setDataType(dataType);
+		xmlObject.setName("name");
+		xmlObject.setXpath("xpath");
+		xmlGroup.addXmlObject(xmlObject);
+		
 		// create clients and topics
 		Set<MQTTTopicSubscription> topicList =  new LinkedHashSet<MQTTTopicSubscription>();
 		
 		MQTTTopicSubscription msub1= new MQTTTopicSubscription();
 		msub1.setQos("0");
-		msub1.setTopic("topic1");
+		msub1.setTopic("mqtt-events");
 		topicList.add(msub1);
 		
 		MQTTTopicSubscription msub2= new MQTTTopicSubscription();
 		msub2.setQos("1");
-		msub2.setTopic("topic2");
+		msub2.setTopic("mqtt-data");
 		topicList.add(msub2);
 		
 		MQTTClientConfig mConfig = new MQTTClientConfig();
@@ -89,17 +128,38 @@ public class TestMqttConfigMarshalling {
 		mConfig.setUserName(userName);
 		
 		MQTTReceiverConfig rxconfig =new MQTTReceiverConfig();
+		rxconfig.setMaxQueueLength(maxQueueLength);
+
 		Set<MQTTClientConfig> mqttClients = new LinkedHashSet<MQTTClientConfig>();
 		mqttClients.add(mConfig);
 		rxconfig.setMqttClients(mqttClients);
 		
-		// create processors
-		JsonParserConfig jsonparser= new JsonParserConfig();
-
-//		XmlRrd rra= new XmlRrd();
-//		rra.addRra("xxx");
-//		jsonparser.setRra(rra);
-		rxconfig.setJsonparser(jsonparser);
+		// create event processors
+		Set<JsonEventParserConfig> jsonEventParsers= new LinkedHashSet<JsonEventParserConfig>();
+		rxconfig.setJsonEventParsers(jsonEventParsers);
+		
+		JsonEventParserConfig eventconfig = new JsonEventParserConfig();
+		jsonEventParsers.add(eventconfig);
+		
+		eventconfig.setXmlGroup(xmlGroup);
+		
+		eventconfig.setSubscriptionTopics(eventSubscriptionTopics);
+		
+		// create pm processors
+        Set<JsonDataParserConfig> jsonDataParsers = new LinkedHashSet<JsonDataParserConfig>();
+		rxconfig.setJsonDataParsers(jsonDataParsers);
+		
+		JsonDataParserConfig dataconfig= new JsonDataParserConfig();
+		jsonDataParsers.add(dataconfig);
+		
+		dataconfig.setXmlGroup(xmlGroup);
+		
+		dataconfig.setSubscriptionTopics(pmSubscriptionTopics);
+		
+		XmlRrd xmlRrd= new XmlRrd();
+		xmlRrd.setStep(step);
+		xmlRrd.setXmlRras(m_rras);
+		dataconfig.setXmlRrd(xmlRrd);
 
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(MQTTClientConfig.class,MQTTReceiverConfig.class);

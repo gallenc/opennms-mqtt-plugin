@@ -1,18 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<mqtt-receiver xmlns="http://xmlns.opennms.org/xsd/config/mqtt-datacollection">
-    <jsonparser/>
-    <mqttClients>
-        <client clientInstanceId="opennms">
-            <brokerUrl>tcp://localhost:1883</brokerUrl>
-            <clientName>opennms</clientName>
-            <clientId>opennms</clientId>
-            <connectionRetryInterval>10</connectionRetryInterval>
-            <password>xxx</password>
-            <topicList>
-                <topic qos="0" topic="topic1"/>
-                <topic qos="1" topic="topic2"/>
-            </topicList>
-            <userName>yyy</userName>
-        </client>
-    </mqttClients>
+<mqtt-receiver xmlns="http://xmlns.opennms.org/xsd/config/mqtt-datacollection" xmlns:ns2="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+  <jsonDataParsers>
+    <jsonDataParser>
+      <subscriptionTopics>
+        <topic>mqtt-data</topic>
+        <topic>mqtt-data2</topic>
+      </subscriptionTopics>
+      <xmlGroup name="name" resource-type="resourceType" resource-xpath="resourceXpath" key-xpath="keyXpath" timestamp-xpath="timestampXpath"
+        timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+        <ns2:xml-object name="name" type="gauge" xpath="xpath" />
+      </xmlGroup>
+      <xmlRrd step="300">
+        <ns2:rra>RRA:AVERAGE:0.5:1:2016</ns2:rra>
+        <ns2:rra>RRA:AVERAGE:0.5:12:1488</ns2:rra>
+        <ns2:rra>RRA:AVERAGE:0.5:288:366</ns2:rra>
+        <ns2:rra>RRA:MAX:0.5:288:366</ns2:rra>
+        <ns2:rra>RRA:MIN:0.5:288:366</ns2:rra>
+      </xmlRrd>
+    </jsonDataParser>
+  </jsonDataParsers>
+  <jsonEventParsers>
+    <jsonEventParser>
+      <subscriptionTopics>
+        <topic>mqtt-events</topic>
+        <topic>mqtt-events2</topic>
+      </subscriptionTopics>
+      <xmlGroup name="name" resource-type="resourceType" resource-xpath="resourceXpath" key-xpath="keyXpath" timestamp-xpath="timestampXpath"
+        timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+        <ns2:xml-object name="name" type="gauge" xpath="xpath" />
+      </xmlGroup>
+    </jsonEventParser>
+  </jsonEventParsers>
+  <maxQueueLength>1001</maxQueueLength>
+  <mqttClients>
+    <client clientInstanceId="client1">
+      <brokerUrl>tcp://localhost:1883</brokerUrl>
+      <clientId>opennms</clientId>
+      <connectionRetryInterval>10</connectionRetryInterval>
+      <password>xxx</password>
+      <topicList>
+        <topic qos="0" topic="mqtt-events" />
+        <topic qos="1" topic="mqtt-data" />
+      </topicList>
+      <userName>yyy</userName>
+    </client>
+  </mqttClients>
 </mqtt-receiver>

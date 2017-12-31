@@ -41,7 +41,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class MQTTReceiverConfig {
 
 
-	Set<MQTTClientConfig> mqttClients=null;
+	private Set<MQTTClientConfig> mqttClients=null;
+	
+	private Set<JsonDataParserConfig> jsonDataParsers=null;
+	
+	private Set<JsonEventParserConfig> jsonEventParsers=null;
+	
+	private Integer maxQueueLength = 1000; // default message queue length
 	
 	public Set<MQTTClientConfig> getMqttClients() {
 		return mqttClients;
@@ -53,16 +59,34 @@ public class MQTTReceiverConfig {
 		this.mqttClients = mqttClients;
 	}
 
-	
-	JsonParserConfig jsonparser =null; //TODO REMOVE
-	
-	public JsonParserConfig getJsonparser() {
-		return jsonparser;
+
+	public Set<JsonDataParserConfig> getJsonDataParsers() {
+		return jsonDataParsers;
+	}
+
+	@XmlElementWrapper
+	@XmlElement(name="jsonDataParser")
+	public void setJsonDataParsers(Set<JsonDataParserConfig> jsonDataParsers) {
+		this.jsonDataParsers = jsonDataParsers;
+	}
+
+	public Set<JsonEventParserConfig> getJsonEventParsers() {
+		return jsonEventParsers;
+	}
+
+	@XmlElementWrapper
+	@XmlElement(name="jsonEventParser")
+	public void setJsonEventParsers(Set<JsonEventParserConfig> jsonEventParsers) {
+		this.jsonEventParsers = jsonEventParsers;
+	}
+
+	public Integer getMaxQueueLength() {
+		return maxQueueLength;
 	}
 
 	@XmlElement
-	public void setJsonparser(JsonParserConfig jsonparser) {
-		this.jsonparser = jsonparser;
+	public void setMaxQueueLength(Integer macQueueLength) {
+		this.maxQueueLength = macQueueLength;
 	}
 
 	

@@ -51,11 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The Abstract Class JSON Collection Handler.
- * <p>All JsonCollectionHandler should extend this class.</p>
- * 
- * @author <a href="mailto:ronald.roskens@gmail.com">Ronald Roskens</a>
- * @author <a href="mailto:agalue@opennms.org">Alejandro Galue</a>
  */
 public class OnmsAttributeJsonHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OnmsAttributeJsonHandler.class);
