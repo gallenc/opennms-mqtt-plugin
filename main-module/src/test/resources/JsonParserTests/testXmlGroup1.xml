@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+  <xml-group name="solaris-zone-stats" resource-type="solarisZone" resource-xpath="/zones/zone" key-xpath="@name" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+    <!-- timestamp-xpath="" -->
+    <xml-object name="zoneName" type="string" xpath="@name" />
+    <xml-object name="timestamp" type="GAUGE" xpath="@timestamp" />
+    <xml-object name="nproc" type="GAUGE" xpath="parameter[@key='nproc']/@value" />
+    <xml-object name="nlwp" type="GAUGE" xpath="parameter[@key='nlwp']/@value" />
+    <xml-object name="pr_size" type="GAUGE" xpath="parameter[@key='pr_size']/@value" />
+    <xml-object name="pr_rssize" type="GAUGE" xpath="parameter[@key='pr_rssize']/@value" />
+    <xml-object name="pctmem" type="GAUGE" xpath="parameter[@key='pctmem']/@value" />
+    <xml-object name="pctcpu" type="GAUGE" xpath="parameter[@key='pctcpu']/@value" />
+  </xml-group>
+</xml-groups>
+

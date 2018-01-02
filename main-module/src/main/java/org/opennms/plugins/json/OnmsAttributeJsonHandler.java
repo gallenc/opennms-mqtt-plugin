@@ -28,6 +28,9 @@
 
 package org.opennms.plugins.json;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.JXPathException;
 import org.apache.commons.jxpath.Pointer;
@@ -54,8 +58,40 @@ import org.slf4j.LoggerFactory;
  */
 public class OnmsAttributeJsonHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OnmsAttributeJsonHandler.class);
-
     
+    private XmlGroups source=null;
+    
+    public OnmsAttributeJsonHandler(XmlGroups source){
+    	this.source = source;
+    }
+    
+    public OnmsAttributeJsonHandler(){
+    	super();
+    }
+    
+    public List<OnmsCollectionAttributeMap> jsonToAttributeMap(String jsonStr){
+		JSONObject jsonObject=null;
+		JSONParser parser = new JSONParser();
+		Object obj;
+		try {
+			obj = parser.parse(new StringReader(jsonStr));
+			jsonObject = (JSONObject) obj;
+			return jsonToAttributeMap(jsonObject);
+		} catch (Exception ex) {
+			throw new RuntimeException("problem parsing attributemap from json message:"+jsonStr, ex);
+		}
+    }
+    
+    public List<OnmsCollectionAttributeMap> jsonToAttributeMap(JSONObject json){
+    	List<OnmsCollectionAttributeMap> attributeMapList = new ArrayList<OnmsCollectionAttributeMap>();
+    	try {
+			fillAttributeMap(attributeMapList, source, json);
+		} catch (Exception ex) {
+			throw new RuntimeException("problem parsing attributeMap from json message:"+json.toJSONString(), ex);
+		}
+    	return attributeMapList;
+    }
+
     public void fillAttributeMap(List<OnmsCollectionAttributeMap> attributeMapList, XmlGroups source, JSONObject json) throws ParseException {
         JXPathContext context = JXPathContext.newContext(json);
         for (XmlGroup group : source.getXmlGroups()) {
@@ -78,14 +114,20 @@ public class OnmsAttributeJsonHandler {
                 for (XmlObject object : group.getXmlObjects()) {
                 	LOG.debug("fillAttributeMap: XmlObject object.getXpath():"+ object.getXpath());
                     try {
-                        Object obj = relativeContext.getValue(object.getXpath());
-                        if (obj != null) {
-                        	LOG.debug("fillAttributeMap: obj:"+ obj.toString());
-                        	
+                        Object valueObj = relativeContext.getValue(object.getXpath());
+                        if (valueObj != null) {
+                        	String name=object.getName();
                         	OnmsCollectionAttribute attr = new OnmsCollectionAttribute();
-                        	attr.setOnmsType(object.getDataType().toString());
-                        	attr.setValue(obj.toString());
-                        	onmsCollectionAttributeMap.getAttributeMap().put(object.getName(), attr);
+                        	String type=object.getDataType().toString();
+							attr.setOnmsType(type);
+                        	String value=valueObj.toString();
+							attr.setValue(value);
+							onmsCollectionAttributeMap.getAttributeMap().put(name, attr);
+                        	LOG.debug("fillAttributeMap: "
+                        			+ " name:"+ name
+                        			+ " type:"+ type
+                        			+ " value:"+ value
+                        			);
 
                             //builder.withAttribute(collectionResource, group.getName(), object.getName(), obj.toString(), object.getDataType());
                         }
