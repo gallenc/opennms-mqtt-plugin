@@ -24,8 +24,8 @@
     <xml-object name="distance" type="GAUGE" xpath="metrics/distance" />
     <xml-object name="temperature" type="GAUGE" xpath="metrics/temperature" />
     <xml-object name="count" type="GAUGE" xpath="metrics/count" />
-    <xml-object name="timestamp" type="GAUGE" xpath="metrics/timestamp" />
-    <xml-object name="enable" type="GAUGE" xpath="metrics/enable" />
+    <xml-object name="timestamp" type="string" xpath="metrics/timestamp" />
+    <xml-object name="enable" type="string" xpath="metrics/enable" />
     <xml-object name="rawBuffer" type="GAUGE" xpath="metrics/rawBuffer" />
 
     <!-- body -->
