@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.apache.commons.jxpath.JXPathContext;
@@ -57,141 +58,153 @@ import org.slf4j.LoggerFactory;
 /**
  */
 public class OnmsAttributeJsonHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(OnmsAttributeJsonHandler.class);
-    
-    private XmlGroups source=null;
-    
-    public OnmsAttributeJsonHandler(XmlGroups source){
-    	this.source = source;
-    }
-    
-    public OnmsAttributeJsonHandler(){
-    	super();
-    }
-    
-    public List<OnmsCollectionAttributeMap> jsonToAttributeMap(String jsonStr){
+	private static final Logger LOG = LoggerFactory.getLogger(OnmsAttributeJsonHandler.class);
+
+	private XmlGroups source=null;
+
+	public OnmsAttributeJsonHandler(XmlGroups source){
+		this.source = source;
+	}
+
+	public OnmsAttributeJsonHandler(){
+		super();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<OnmsCollectionAttributeMap> jsonToAttributeMap(String jsonStr){
 		JSONObject jsonObject=null;
 		JSONParser parser = new JSONParser();
 		Object obj;
 		try {
 			obj = parser.parse(new StringReader(jsonStr));
-			jsonObject = (JSONObject) obj;
-			return jsonToAttributeMap(jsonObject);
+			
+			if (obj instanceof JSONObject) {
+				jsonObject = (JSONObject) obj;
+				return jsonToAttributeMap(jsonObject);
+			} else if (obj instanceof JSONArray) {
+				// handle json starting with unnamed array e.g. [{ "id": "monitorID", "PM10": 1000 },{ "id": "monitorID2", "PM10": 1000 }]
+				// creating a named array object to specifically parse
+				// e.g. {array: [{ "id": "monitorID", "PM10": 1000 },{ "id": "monitorID2", "PM10": 1000 }]}
+				JSONArray array = (JSONArray) obj;
+				jsonObject = new JSONObject();
+				jsonObject.put("array", array); 
+				return jsonToAttributeMap(jsonObject);
+			} else throw new RuntimeException("unexpected type returned from jsonsimple parser:"+ obj.getClass());
 		} catch (Exception ex) {
 			throw new RuntimeException("problem parsing attributemap from json message:"+jsonStr, ex);
 		}
-    }
-    
-    public List<OnmsCollectionAttributeMap> jsonToAttributeMap(JSONObject json){
-    	List<OnmsCollectionAttributeMap> attributeMapList = new ArrayList<OnmsCollectionAttributeMap>();
-    	try {
+	}
+
+	public List<OnmsCollectionAttributeMap> jsonToAttributeMap(JSONObject json){
+		List<OnmsCollectionAttributeMap> attributeMapList = new ArrayList<OnmsCollectionAttributeMap>();
+		try {
 			fillAttributeMap(attributeMapList, source, json);
 		} catch (Exception ex) {
 			throw new RuntimeException("problem parsing attributeMap from json message:"+json.toJSONString(), ex);
 		}
-    	return attributeMapList;
-    }
+		return attributeMapList;
+	}
 
-    public void fillAttributeMap(List<OnmsCollectionAttributeMap> attributeMapList, XmlGroups source, JSONObject json) throws ParseException {
-        JXPathContext context = JXPathContext.newContext(json);
-        for (XmlGroup group : source.getXmlGroups()) {
-            LOG.debug("fillAttributeMap: getting resources for XML group {} using XPATH {}", group.getName(), group.getResourceXpath());
-            
-            @SuppressWarnings("unchecked")
+	public void fillAttributeMap(List<OnmsCollectionAttributeMap> attributeMapList, XmlGroups source, JSONObject json) throws ParseException {
+		JXPathContext context = JXPathContext.newContext(json);
+		for (XmlGroup group : source.getXmlGroups()) {
+			LOG.debug("fillAttributeMap: getting resources for XML group {} using XPATH {}", group.getName(), group.getResourceXpath());
+
+			@SuppressWarnings("unchecked")
 			Iterator<Pointer> itr = context.iteratePointers(group.getResourceXpath());
-            
-            while (itr.hasNext()) {
-                JXPathContext relativeContext = context.getRelativeContext(itr.next());
-                
-                Date timestamp = getTimeStamp(relativeContext, group);
-                LOG.debug("fillAttributeMap: timestamp {}", timestamp);
 
-                String resourceName = getResourceName(relativeContext, group);
-                LOG.debug("fillAttributeMap: processing XML resource {} of type {}", resourceName, group.getResourceType());
-                //final Resource collectionResource = getCollectionResource(agent, resourceName, group.getResourceType(), timestamp);
-                //LOG.debug("fillCollectionSet: processing resource {}", collectionResource);
-                OnmsCollectionAttributeMap onmsCollectionAttributeMap= new OnmsCollectionAttributeMap(); 
-                for (XmlObject object : group.getXmlObjects()) {
-                	LOG.debug("fillAttributeMap: XmlObject object.getXpath():"+ object.getXpath());
-                    try {
-                        Object valueObj = relativeContext.getValue(object.getXpath());
-                        if (valueObj != null) {
-                        	String name=object.getName();
-                        	OnmsCollectionAttribute attr = new OnmsCollectionAttribute();
-                        	String type=object.getDataType().toString();
+			while (itr.hasNext()) {
+				JXPathContext relativeContext = context.getRelativeContext(itr.next());
+
+				Date timestamp = getTimeStamp(relativeContext, group);
+				LOG.debug("fillAttributeMap: timestamp {}", timestamp);
+
+				String resourceName = getResourceName(relativeContext, group);
+				LOG.debug("fillAttributeMap: processing XML resource {} of type {}", resourceName, group.getResourceType());
+				//final Resource collectionResource = getCollectionResource(agent, resourceName, group.getResourceType(), timestamp);
+				//LOG.debug("fillCollectionSet: processing resource {}", collectionResource);
+				OnmsCollectionAttributeMap onmsCollectionAttributeMap= new OnmsCollectionAttributeMap(); 
+				for (XmlObject object : group.getXmlObjects()) {
+					LOG.debug("fillAttributeMap: XmlObject object.getXpath():"+ object.getXpath());
+					try {
+						Object valueObj = relativeContext.getValue(object.getXpath());
+						if (valueObj != null) {
+							String name=object.getName();
+							OnmsCollectionAttribute attr = new OnmsCollectionAttribute();
+							String type=object.getDataType().toString();
 							attr.setOnmsType(type);
-                        	String value=valueObj.toString();
+							String value=valueObj.toString();
 							attr.setValue(value);
 							onmsCollectionAttributeMap.getAttributeMap().put(name, attr);
-                        	LOG.debug("fillAttributeMap: "
-                        			+ " name:"+ name
-                        			+ " type:"+ type
-                        			+ " value:"+ value
-                        			);
+							LOG.debug("fillAttributeMap: "
+									+ " name:"+ name
+									+ " type:"+ type
+									+ " value:"+ value
+									);
 
-                            //builder.withAttribute(collectionResource, group.getName(), object.getName(), obj.toString(), object.getDataType());
-                        }
-                    } catch (JXPathException ex) {
-                        LOG.warn("fillAttributeMap Unable to get value for {}: {}", object.getXpath(), ex.getMessage());
-                    }
-                }
-                attributeMapList.add(onmsCollectionAttributeMap);
-                //processXmlResource(builder, collectionResource, resourceName, group.getName());
-            }
-        }
-    }
+							//builder.withAttribute(collectionResource, group.getName(), object.getName(), obj.toString(), object.getDataType());
+						}
+					} catch (JXPathException ex) {
+						LOG.warn("fillAttributeMap Unable to get value for {}: {}", object.getXpath(), ex.getMessage());
+					}
+				}
+				attributeMapList.add(onmsCollectionAttributeMap);
+				//processXmlResource(builder, collectionResource, resourceName, group.getName());
+			}
+		}
+	}
 
-    /**
-     * Gets the resource name.
-     *
-     * @param context the JXpath context
-     * @param group the group
-     * @return the resource name
-     */
-    private String getResourceName(JXPathContext context, XmlGroup group) {
-        // Processing multiple-key resource name.
-        if (group.hasMultipleResourceKey()) {
-            List<String> keys = new ArrayList<String>();
-            for (String key : group.getXmlResourceKey().getKeyXpathList()) {
-                LOG.debug("getResourceName: getting key for resource's name using {}", key);
-                String keyName = (String)context.getValue(key);
-                keys.add(keyName);
-            }
-            return StringUtils.join(keys, "_");
-        }
-        // If key-xpath doesn't exist or not found, a node resource will be assumed.
-        if (group.getKeyXpath() == null) {
-            return "node";
-        }
-        // Processing single-key resource name.
-        LOG.debug("getResourceName: getting key for resource's name using {}", group.getKeyXpath());
-        return (String)context.getValue(group.getKeyXpath());
-    }
+	/**
+	 * Gets the resource name.
+	 *
+	 * @param context the JXpath context
+	 * @param group the group
+	 * @return the resource name
+	 */
+	private String getResourceName(JXPathContext context, XmlGroup group) {
+		// Processing multiple-key resource name.
+		if (group.hasMultipleResourceKey()) {
+			List<String> keys = new ArrayList<String>();
+			for (String key : group.getXmlResourceKey().getKeyXpathList()) {
+				LOG.debug("getResourceName: getting key for resource's name using {}", key);
+				String keyName = (String)context.getValue(key);
+				keys.add(keyName);
+			}
+			return StringUtils.join(keys, "_");
+		}
+		// If key-xpath doesn't exist or not found, a node resource will be assumed.
+		if (group.getKeyXpath() == null) {
+			return "node";
+		}
+		// Processing single-key resource name.
+		LOG.debug("getResourceName: getting key for resource's name using {}", group.getKeyXpath());
+		return (String)context.getValue(group.getKeyXpath());
+	}
 
-    /**
-     * Gets the time stamp.
-     * 
-     * @param context the JXPath context
-     * @param group the group
-     * @return the time stamp
-     */
-   protected Date getTimeStamp(JXPathContext context, XmlGroup group) {
-        if (group.getTimestampXpath() == null) {
-            LOG.debug("getTimeStamp: getTimestampXpath() = null");
-            return null;
-        }
-        String pattern = group.getTimestampFormat() == null ? "yyyy-MM-dd HH:mm:ss" : group.getTimestampFormat();
-        LOG.debug("getTimeStamp: retrieving custom timestamp to be used when updating RRDs using XPATH {} and pattern {}", group.getTimestampXpath(), pattern);
-        Date date = null;
-        String value = (String)context.getValue(group.getTimestampXpath());
-        try {
-            DateTimeFormatter dtf = DateTimeFormat.forPattern(pattern);
-            DateTime dateTime = dtf.parseDateTime(value);
-            date = dateTime.toDate();
-        } catch (Exception e) {
-            LOG.warn("getTimeStamp: can't convert custom timestamp {} using pattern {}", value, pattern);
-        }
-        return date;
-    }
+	/**
+	 * Gets the time stamp.
+	 * 
+	 * @param context the JXPath context
+	 * @param group the group
+	 * @return the time stamp
+	 */
+	protected Date getTimeStamp(JXPathContext context, XmlGroup group) {
+		if (group.getTimestampXpath() == null) {
+			LOG.debug("getTimeStamp: getTimestampXpath() = null");
+			return null;
+		}
+		String pattern = group.getTimestampFormat() == null ? "yyyy-MM-dd HH:mm:ss" : group.getTimestampFormat();
+		LOG.debug("getTimeStamp: retrieving custom timestamp to be used when updating RRDs using XPATH {} and pattern {}", group.getTimestampXpath(), pattern);
+		Date date = null;
+		String value = (String)context.getValue(group.getTimestampXpath());
+		try {
+			DateTimeFormatter dtf = DateTimeFormat.forPattern(pattern);
+			DateTime dateTime = dtf.parseDateTime(value);
+			date = dateTime.toDate();
+		} catch (Exception e) {
+			LOG.warn("getTimeStamp: can't convert custom timestamp {} using pattern {}", value, pattern);
+		}
+		return date;
+	}
 
 }

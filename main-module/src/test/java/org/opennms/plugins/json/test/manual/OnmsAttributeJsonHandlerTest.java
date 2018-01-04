@@ -28,13 +28,29 @@ import org.slf4j.LoggerFactory;
 public class OnmsAttributeJsonHandlerTest {
 	private static final Logger LOG = LoggerFactory.getLogger(OnmsAttributeJsonHandlerTest.class);
 
+	// complex parsing - based upon opennms xml collector example 
+	// https://wiki.opennms.org/wiki/XML_Collector
 	private static final String TEST_JSON_1 = "src/test/resources/JsonParserTests/testJson1.json";
 	private static final String TEST_XMLGROUP_1 = "src/test/resources/JsonParserTests/testXmlGroup1.xml";
 	
+	// sniffy format parsing
 	private static final String TEST_JSON_2 = "src/test/resources/JsonParserTests/testJson2.json";
 	private static final String TEST_XMLGROUP_2 = "src/test/resources/JsonParserTests/testXmlGroup2.xml";
+	
+	// array of sniffy format data parsing
+	private static final String TEST_JSON_3 = "src/test/resources/JsonParserTests/testJson3.json";
+	private static final String TEST_XMLGROUP_3 = "src/test/resources/JsonParserTests/testXmlGroup3.xml";
 
-
+	// SEE Kura format https://github.com/eclipse/kapua/wiki/K-Payload-JSON-Format
+	// typed json encoding
+	private static final String TEST_JSON_4 = "src/test/resources/JsonParserTests/testJson4.json";
+	private static final String TEST_XMLGROUP_4 = "src/test/resources/JsonParserTests/testXmlGroup4.xml";
+	
+	// SEE Kura format https://github.com/eclipse/kapua/wiki/K-Payload-JSON-Format
+	// simple json encoding
+	private static final String TEST_JSON_5 = "src/test/resources/JsonParserTests/testJson5.json";
+	private static final String TEST_XMLGROUP_5 = "src/test/resources/JsonParserTests/testXmlGroup5.xml";
+	
 	@Test
 	public void test1() {
 		LOG.debug("start OnmsAttributeJsonHandlerTest test1");
@@ -59,6 +75,42 @@ public class OnmsAttributeJsonHandlerTest {
 		LOG.debug("end OnmsAttributeJsonHandlerTest test2");
 	}
 	
+	@Test
+	public void test3() {
+		LOG.debug("start OnmsAttributeJsonHandlerTest test3");
+		
+		String xmlGroupFile = TEST_XMLGROUP_3;
+		String jsonFile = TEST_JSON_3;
+		
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
+		
+		LOG.debug("end OnmsAttributeJsonHandlerTest test3");
+	}
+	
+	@Test
+	public void test4() {
+		LOG.debug("start OnmsAttributeJsonHandlerTest test4");
+		
+		String xmlGroupFile = TEST_XMLGROUP_4;
+		String jsonFile = TEST_JSON_4;
+		
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
+		
+		LOG.debug("end OnmsAttributeJsonHandlerTest test4");
+	}
+	
+	@Test
+	public void test5() {
+		LOG.debug("start OnmsAttributeJsonHandlerTest test5");
+		
+		String xmlGroupFile = TEST_XMLGROUP_5;
+		String jsonFile = TEST_JSON_5;
+		
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
+		
+		LOG.debug("end OnmsAttributeJsonHandlerTest test5");
+	}
+	
 	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String jsonFile){
 		// read xpath configuration
 		XmlGroups xmlGroups = unmarshalXmlGroups(xmlGroupFile);
@@ -70,7 +122,7 @@ public class OnmsAttributeJsonHandlerTest {
 		OnmsAttributeJsonHandler onmsAttributeJsonHandler = new OnmsAttributeJsonHandler(xmlGroups);
 		List<OnmsCollectionAttributeMap> attributeMapList = onmsAttributeJsonHandler.jsonToAttributeMap(jsonString);
 
-		LOG.debug("attributeMap.size: "+attributeMapList.size()+" attributeMap.toString: "+attributeMapList.toString().replaceAll("],", "],\n"));
+		LOG.debug("attributeMap: \n    attributeMap.size: "+attributeMapList.size()+"\n    attributeMap.toString: "+attributeMapList.toString().replaceAll("],", "],\n    "));
 
 		return attributeMapList;
 	}

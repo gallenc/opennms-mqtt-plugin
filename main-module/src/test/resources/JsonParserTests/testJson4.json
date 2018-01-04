@@ -1,0 +1,24 @@
+{
+  "sentOn" : 1491298822,
+  "position" : {
+    "latitude" : 45.234,
+    "longitude" : -7.3456,
+    "altitude" : 1.0,
+    "heading" : 5.4,
+    "precision" : 0.1,
+    "speed" : 23.5,
+    "timestamp" : 1191292288,
+    "satellites" : 3,
+    "status" : 2
+  },
+  "metrics": {
+    "code" : { "string" : "A23D44567Q" },
+    "distance" : { "double" : 0.26456E+4 },
+    "temperature" : { "float" : 27.5 },
+    "count" : { "int32" : 12354 },
+    "timestamp" : { "int64" : 23412334545 },
+    "enable" : { "bool" : true },
+    "rawBuffer" : { "bytes" : "cGlwcG8gcGx1dG8gcGFwZXJpbm8=" }
+  },
+  "body": "UGlwcG8sIHBsdXRvLCBwYXBlcmlubywgcXVpLCBxdW8gZSBxdWEu"
+}

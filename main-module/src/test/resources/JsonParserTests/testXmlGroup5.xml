@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- see TEST DATA - SEE Kura format https://github.com/eclipse/kapua/wiki/K-Payload-JSON-Format -->
+<!-- kura simple json encoding -->
+
+<xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+  <xml-group name="kura-typed" resource-type="kura" resource-xpath="/" key-xpath="metrics/code" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+    <!-- timestamp-xpath="" -->
+    <xml-object name="sentOn" type="string" xpath="sentOn" />
+
+    <!-- position -->
+    <xml-object name="latitude" type="GAUGE" xpath="position/latitude" />
+    <xml-object name="longitude" type="GAUGE" xpath="position/longitude" />
+    <xml-object name="altitude" type="GAUGE" xpath="position/altitude" />
+    <xml-object name="heading" type="GAUGE" xpath="position/heading" />
+    <xml-object name="precision" type="GAUGE" xpath="position/precision" />
+    <xml-object name="speed" type="GAUGE" xpath="position/speed" />
+    <xml-object name="timestamp" type="GAUGE" xpath="position/timestamp" />
+    <xml-object name="satellites" type="GAUGE" xpath="position/satellites" />
+    <xml-object name="status" type="GAUGE" xpath="position/status" />
+
+    <!-- metrics -->
+    <xml-object name="code" type="string" xpath="metrics/code" />
+    <xml-object name="distance" type="GAUGE" xpath="metrics/distance" />
+    <xml-object name="temperature" type="GAUGE" xpath="metrics/temperature" />
+    <xml-object name="count" type="GAUGE" xpath="metrics/count" />
+    <xml-object name="timestamp" type="GAUGE" xpath="metrics/timestamp" />
+    <xml-object name="enable" type="GAUGE" xpath="metrics/enable" />
+    <xml-object name="rawBuffer" type="GAUGE" xpath="metrics/rawBuffer" />
+
+    <!-- body -->
+    <xml-object name="body" type="string" xpath="body" />
+
+  </xml-group>
+</xml-groups>
+
+<!-- { -->
+<!--   "sentOn" : 1491298822, -->
+<!--   "position" : { -->
+<!--     "latitude" : 45.234, -->
+<!--     "longitude" : -7.3456, -->
+<!--     "altitude" : 1.0, -->
+<!--     "heading" : 5.4, -->
+<!--     "precision" : 0.1, -->
+<!--     "speed" : 23.5, -->
+<!--     "timestamp" : 1191292288, -->
+<!--     "satellites" : 3, -->
+<!--     "status" : 2 -->
+<!--   }, -->
+<!--   "metrics": { -->
+<!--     "code" : "A23D44567Q", -->
+<!--     "distance" : 0.26456E+4, -->
+<!--     "temperature" : 27.5, -->
+<!--     "count" : 12354, -->
+<!--     "timestamp" : 23412334545, -->
+<!--     "enable" : true, -->
+<!--     "rawBuffer" : "cGlwcG8gcGx1dG8gcGFwZXJpbm8=" -->
+<!--   }, -->
+<!--   "body": "UGlwcG8sIHBsdXRvLCBwYXBlcmlubywgcXVpLCBxdW8gZSBxdWEu" -->
+<!-- } -->
