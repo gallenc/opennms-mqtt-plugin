@@ -49,6 +49,7 @@ import org.opennms.plugins.mqtt.config.MQTTClientConfig;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
 import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
 import org.opennms.protocols.xml.config.XmlGroup;
+import org.opennms.protocols.xml.config.XmlGroups;
 import org.opennms.protocols.xml.config.XmlObject;
 import org.opennms.protocols.xml.config.XmlResourceKey;
 import org.opennms.protocols.xml.config.XmlRrd;
@@ -108,6 +109,9 @@ public class TestMqttConfigMarshalling {
 		xmlObject.setXpath("xpath");
 		xmlGroup.addXmlObject(xmlObject);
 		
+		XmlGroups xmlGroups = new XmlGroups();
+		xmlGroups.addXmlGroup(xmlGroup);
+		
 		// create clients and topics
 		Set<MQTTTopicSubscription> topicList =  new LinkedHashSet<MQTTTopicSubscription>();
 		
@@ -146,7 +150,7 @@ public class TestMqttConfigMarshalling {
 		JsonEventParserConfig eventconfig = new JsonEventParserConfig();
 		jsonEventParsers.add(eventconfig);
 		
-		eventconfig.setXmlGroup(xmlGroup);
+		eventconfig.setXmlGroups(xmlGroups);
 		
 		eventconfig.setSubscriptionTopics(eventSubscriptionTopics);
 		
@@ -157,7 +161,7 @@ public class TestMqttConfigMarshalling {
 		JsonDataParserConfig dataconfig= new JsonDataParserConfig();
 		jsonDataParsers.add(dataconfig);
 		
-		dataconfig.setXmlGroup(xmlGroup);
+		dataconfig.setXmlGroups(xmlGroups);
 		
 		dataconfig.setSubscriptionTopics(pmSubscriptionTopics);
 		

@@ -40,7 +40,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public class MQTTReceiverConfig {
 
-
 	private Set<MQTTClientConfig> mqttClients=null;
 	
 	private Set<JsonDataParserConfig> jsonDataParsers=null;
