@@ -28,8 +28,6 @@
 
 package org.opennms.plugins.json;
 
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -77,7 +75,7 @@ public class OnmsAttributeJsonHandler {
 		Object obj;
 		try {
 			obj = parser.parse(new StringReader(jsonStr));
-			
+
 			if (obj instanceof JSONObject) {
 				jsonObject = (JSONObject) obj;
 				return jsonToAttributeMap(jsonObject);
@@ -108,7 +106,7 @@ public class OnmsAttributeJsonHandler {
 	public void fillAttributeMap(List<OnmsCollectionAttributeMap> attributeMapList, XmlGroups source, JSONObject json) throws ParseException {
 		JXPathContext context = JXPathContext.newContext(json);
 		for (XmlGroup group : source.getXmlGroups()) {
-			LOG.debug("fillAttributeMap: getting resources for XML group {} using XPATH {}", group.getName(), group.getResourceXpath());
+			LOG.debug("fillAttributeMap: getting resources for XML group '{}' using XPATH '{}'", group.getName(), group.getResourceXpath());
 
 			@SuppressWarnings("unchecked")
 			Iterator<Pointer> itr = context.iteratePointers(group.getResourceXpath());
@@ -120,10 +118,14 @@ public class OnmsAttributeJsonHandler {
 				LOG.debug("fillAttributeMap: timestamp {}", timestamp);
 
 				String resourceName = getResourceName(relativeContext, group);
-				LOG.debug("fillAttributeMap: processing XML resource {} of type {}", resourceName, group.getResourceType());
+				String foreignId= getForeignId(relativeContext, group);
+				LOG.debug("fillAttributeMap: processing node foreignId '{}' json/xml resourceName '{}' of type '{}'", foreignId, resourceName, group.getResourceType());
 				//final Resource collectionResource = getCollectionResource(agent, resourceName, group.getResourceType(), timestamp);
 				//LOG.debug("fillCollectionSet: processing resource {}", collectionResource);
-				OnmsCollectionAttributeMap onmsCollectionAttributeMap= new OnmsCollectionAttributeMap(); 
+				OnmsCollectionAttributeMap onmsCollectionAttributeMap= new OnmsCollectionAttributeMap();
+				onmsCollectionAttributeMap.setForeignId(foreignId);
+				onmsCollectionAttributeMap.setResourceName(resourceName);
+				onmsCollectionAttributeMap.setTimestamp(timestamp);
 				for (XmlObject object : group.getXmlObjects()) {
 					LOG.debug("fillAttributeMap: XmlObject object.getXpath():"+ object.getXpath());
 					try {
@@ -156,6 +158,7 @@ public class OnmsAttributeJsonHandler {
 
 	/**
 	 * Gets the resource name.
+	 * resource name is provided by MultipleResourceKey or is set to node
 	 *
 	 * @param context the JXpath context
 	 * @param group the group
@@ -163,6 +166,8 @@ public class OnmsAttributeJsonHandler {
 	 */
 	private String getResourceName(JXPathContext context, XmlGroup group) {
 		// Processing multiple-key resource name.
+		// If XpathList doesn't exist or not found, a node resource will be assumed.
+		String resourceName="node";
 		if (group.hasMultipleResourceKey()) {
 			List<String> keys = new ArrayList<String>();
 			for (String key : group.getXmlResourceKey().getKeyXpathList()) {
@@ -170,16 +175,27 @@ public class OnmsAttributeJsonHandler {
 				String keyName = (String)context.getValue(key);
 				keys.add(keyName);
 			}
-			return StringUtils.join(keys, "_");
+			resourceName =  StringUtils.join(keys, "_");
+			LOG.debug("getResourceName: resource's constructed from KeyXpathList: '{}'", resourceName);
+			return resourceName;
+		} else {
+			LOG.debug("getResourceName: no KeyXpathList using default resourceName '{}'", resourceName);
+			return resourceName;
 		}
-		// If key-xpath doesn't exist or not found, a node resource will be assumed.
-		if (group.getKeyXpath() == null) {
-			return "node";
-		}
+	}
+
+	/**
+	 * Node foreignId is provided by keyXpath
+	 * @param context
+	 * @param group
+	 * @return
+	 */
+	private String getForeignId(JXPathContext context, XmlGroup group) {
 		// Processing single-key resource name.
-		LOG.debug("getResourceName: getting key for resource's name using {}", group.getKeyXpath());
+		LOG.debug("getForeignId: getting key for node foreignId using {}", group.getKeyXpath());
 		return (String)context.getValue(group.getKeyXpath());
 	}
+
 
 	/**
 	 * Gets the time stamp.
@@ -190,14 +206,27 @@ public class OnmsAttributeJsonHandler {
 	 */
 	protected Date getTimeStamp(JXPathContext context, XmlGroup group) {
 		if (group.getTimestampXpath() == null) {
-			LOG.debug("getTimeStamp: getTimestampXpath() = null");
-			return null;
+			// if no timestampXpath defined use current date
+			Date date = new Date();
+			LOG.debug("getTimeStamp: getTimestampXpath() = null. Using current Date :"+date.getTime()+" ("+date+")");
+			return date ; 
 		}
 		String pattern = group.getTimestampFormat() == null ? "yyyy-MM-dd HH:mm:ss" : group.getTimestampFormat();
-		LOG.debug("getTimeStamp: retrieving custom timestamp to be used when updating RRDs using XPATH {} and pattern {}", group.getTimestampXpath(), pattern);
+
+		LOG.debug("getTimeStamp: retrieving custom timestamp to be used when updating RRDs using XPATH '{}' and pattern '{}'", group.getTimestampXpath(), pattern);
 		Date date = null;
-		String value = (String)context.getValue(group.getTimestampXpath());
-		try {
+		Object val = context.getValue(group.getTimestampXpath());
+		String value = (val==null) ? null : val.toString(); // handles json Long and json string representation of long and other values
+		
+		// if pattern is empty treat as ms long value
+		if("".equals(pattern)){
+			try {
+				long datems = Long.parseLong(value);
+				date = new Date(datems);
+			} catch (Exception e) {
+				LOG.warn("getTimeStamp: (Empty Pattern). Can't convert custom timestamp {} as long to new Date(long)", value);
+			}
+		}else try {
 			DateTimeFormatter dtf = DateTimeFormat.forPattern(pattern);
 			DateTime dateTime = dtf.parseDateTime(value);
 			date = dateTime.toDate();

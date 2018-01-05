@@ -60,6 +60,16 @@ public class OnmsAttributeJsonHandlerTest {
 		
 		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
 		
+		assertTrue(attributeMapList.size()==2);
+		
+		assertTrue("global".equals(attributeMapList.get(0).getForeignId()));
+		assertTrue(new Long(1299258888).equals(new Long(attributeMapList.get(0).getTimestamp().getTime()))); 
+		assertEquals("245",attributeMapList.get(0).getAttributeMap().get("nproc").getValue() );
+		
+		assertTrue("zone1".equals(attributeMapList.get(1).getForeignId()));
+		assertTrue(new Long(1299259999).equals(new Long(attributeMapList.get(1).getTimestamp().getTime()))); 
+		assertEquals("24",attributeMapList.get(1).getAttributeMap().get("nproc").getValue() );
+	
 		LOG.debug("end OnmsAttributeJsonHandlerTest test1");
 	}
 	

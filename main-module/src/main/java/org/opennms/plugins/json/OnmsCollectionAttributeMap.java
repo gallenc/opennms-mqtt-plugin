@@ -28,14 +28,19 @@
 
 package org.opennms.plugins.json;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class OnmsCollectionAttributeMap {
 	
-	private Map<String,OnmsCollectionAttribute> attributeMap = new HashMap<String, OnmsCollectionAttribute>();
+	private String foreignId=null;
 	
-	private String timestamp=null;
+	private String resourceName=null;
+	
+	private Date timestamp=null;
+	
+	private Map<String,OnmsCollectionAttribute> attributeMap = new HashMap<String, OnmsCollectionAttribute>();
 	
 	public Map<String,OnmsCollectionAttribute> getAttributeMap() {
 		return attributeMap;
@@ -45,19 +50,37 @@ public class OnmsCollectionAttributeMap {
 		this.attributeMap = attributeMap;
 	}
 
-	public String getTimestamp() {
+	public Date getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(String timestamp) {
+	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	public String getForeignId() {
+		return foreignId;
+	}
+
+	public void setForeignId(String foreignId) {
+		this.foreignId = foreignId;
+	}
+
+	public String getResourceName() {
+		return resourceName;
+	}
+
+	public void setResourceName(String resourceName) {
+		this.resourceName = resourceName;
 	}
 
 	@Override
 	public String toString() {
-		return "OnmsCollectionAttributeMap [attributeMap=" + attributeMap
-				+ ", timestamp=" + timestamp + "]";
+		
+		String ts = (timestamp==null) ? null : Long.toString(timestamp.getTime());
+		return "OnmsCollectionAttributeMap [foreignId=" + foreignId
+				+ ", resourceName=" + resourceName + ", timestamp=" + ts +" ("+timestamp+ ")"
+				+ ", attributeMap=" + attributeMap + "]";
 	}
-
 
 }
