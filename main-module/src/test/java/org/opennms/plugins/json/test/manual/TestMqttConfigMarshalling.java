@@ -50,6 +50,7 @@ import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
 import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
 import org.opennms.protocols.xml.config.XmlGroup;
 import org.opennms.protocols.xml.config.XmlObject;
+import org.opennms.protocols.xml.config.XmlResourceKey;
 import org.opennms.protocols.xml.config.XmlRrd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +82,7 @@ public class TestMqttConfigMarshalling {
 
 	private String timestampFormat="yyyy-MM-dd HH:mm:ss.SSSSSS";
 
-
+	private List<String> keyXpathList= Arrays.asList("@name","@id");
 
 	@Test
 	public void testMQTTClientConfig() {
@@ -95,6 +96,10 @@ public class TestMqttConfigMarshalling {
 		xmlGroup.setTimestampXpath("timestampXpath");
 		xmlGroup.setTimestampFormat(timestampFormat);
 		xmlGroup.setKeyXpath("keyXpath");
+		
+		XmlResourceKey xmlResourceKey = new XmlResourceKey();
+		xmlResourceKey.setKeyXpathList(keyXpathList);
+		xmlGroup.setXmlResourceKey(xmlResourceKey );
 		
 		XmlObject xmlObject=new XmlObject();
 		AttributeType dataType=AttributeType.GAUGE;

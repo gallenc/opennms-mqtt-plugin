@@ -4,8 +4,7 @@
 <!-- kura simple json encoding -->
 
 <xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
-  <xml-group name="kura-typed" resource-type="kura" resource-xpath="/" key-xpath="metrics/code" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
-    <!-- timestamp-xpath="" -->
+  <xml-group name="kura-typed" resource-type="kura" resource-xpath="/" key-xpath="metrics/code" timestamp-xpath="sentOn" timestamp-format="">
     <xml-object name="sentOn" type="string" xpath="sentOn" />
 
     <!-- position -->

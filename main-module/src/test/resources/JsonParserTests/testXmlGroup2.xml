@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
-  <xml-group name="solaris-zone-stats" resource-type="solarisZone" resource-xpath="/" key-xpath="@id" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
-    <!-- timestamp-xpath="" -->
+  <xml-group name="solaris-zone-stats" resource-type="solarisZone" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
     <xml-object name="time" type="string" xpath="@time" />
     <xml-object name="id" type="string" xpath="@id" />
     <xml-object name="cityName" type="string" xpath="@cityName" />

@@ -172,7 +172,8 @@ public class OnmsAttributeJsonHandler {
 			List<String> keys = new ArrayList<String>();
 			for (String key : group.getXmlResourceKey().getKeyXpathList()) {
 				LOG.debug("getResourceName: getting key for resource's name using {}", key);
-				String keyName = (String)context.getValue(key);
+				Object val = context.getValue(key);
+				String keyName = (val==null) ? null : val.toString(); // handles json Long and json string representation of long and other values
 				keys.add(keyName);
 			}
 			resourceName =  StringUtils.join(keys, "_");

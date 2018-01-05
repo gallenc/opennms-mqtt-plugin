@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+  <xml-group name="solaris-zone-stats" resource-type="solarisZone" resource-xpath="/zones/zone" key-xpath="@name" timestamp-xpath="@timestamp"
+    timestamp-format=""> <!-- empty string indicates simple timestamp from epoch (Date.toString()) -->
+    <resource-key>
+      <key-xpath>@name</key-xpath>
+      <key-xpath>@id</key-xpath>
+    </resource-key>
+    <xml-object name="zoneName" type="string" xpath="@name" />
+    <xml-object name="timestamp" type="string" xpath="@timestamp" />
+    <xml-object name="nproc" type="GAUGE" xpath="parameter[@key='nproc']/@value" />
+    <xml-object name="nlwp" type="GAUGE" xpath="parameter[@key='nlwp']/@value" />
+    <xml-object name="pr_size" type="GAUGE" xpath="parameter[@key='pr_size']/@value" />
+    <xml-object name="pr_rssize" type="GAUGE" xpath="parameter[@key='pr_rssize']/@value" />
+    <xml-object name="pctmem" type="GAUGE" xpath="parameter[@key='pctmem']/@value" />
+    <xml-object name="pctcpu" type="GAUGE" xpath="parameter[@key='pctcpu']/@value" />
+  </xml-group>
+</xml-groups>
+
+
+
+<!-- { -->
+<!--    "zones": [ { -->
+<!--      "zone" : { -->
+<!--        "id" : 0, -->
+<!--        "name" : "global", -->
+<!--        "timestamp" : 1299258742, -->
+<!--        "parameter" : [ -->
+<!--          { "key" : "nproc", "value" : "245" }, -->
+<!--          { "key" : "nlwp", "value" : "1455" }, -->
+<!--          { "key" : "pr_size", "value" : "2646864" }, -->
+<!--          { "key" : "pr_rssize", "value" : "1851072" }, -->
+<!--          { "key" : "pctmem", "value" : "0.7" }, -->
+<!--          { "key" : "pctcpu", "value" : "0.24" } -->
+<!--        ] -->
+<!--      } -->
+<!--      }, -->
+<!--      {"zone" : { -->
+<!--        "id" : 871, -->
+<!--        "name" : "zone1", -->
+<!--        "timestamp" : 1299258742, -->
+<!--        "parameter" : [ -->
+<!--          { "key" : "nproc", "value" : "24" }, -->
+<!--          { "key" : "nlwp", "value" : "328" }, -->
+<!--          { "key" : "pr_size", "value" : "1671128" }, -->
+<!--          { "key" : "pr_rssize", "value" : "1193240" }, -->
+<!--          { "key" : "pctmem", "value" : "0.4" }, -->
+<!--          { "key" : "pctcpu", "value" : "0.07" } -->
+<!--        ] -->
+<!--      } -->
+<!--      } -->
+<!--    ] -->
+<!-- } -->
