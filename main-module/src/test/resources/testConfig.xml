@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <mqtt-receiver xmlns="http://xmlns.opennms.org/xsd/config/mqtt-datacollection" xmlns:ns2="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+  <!-- optional tuning parameters -->
+  <nodeCacheMaxSize>1000</nodeCacheMaxSize>
+  <nodeCacheMaxTtl>0</nodeCacheMaxTtl>
+  <maxMessageQueueLength>1001</maxMessageQueueLength>
+
+  <createDummyInterfaces>true</createDummyInterfaces>
+  <createMissingNodes>true</createMissingNodes>
+  <createNodeAssetData>true</createNodeAssetData>
+
   <jsonDataParsers>
     <jsonDataParser>
       <subscriptionTopics>
@@ -51,7 +60,7 @@
       </xml-groups>
     </jsonEventParser>
   </jsonEventParsers>
-  <maxQueueLength>1001</maxQueueLength>
+
   <mqttClients>
     <client clientInstanceId="client1">
       <brokerUrl>tcp://localhost:1883</brokerUrl>
@@ -65,4 +74,16 @@
       <userName>yyy</userName>
     </client>
   </mqttClients>
+
+  <messageClients>
+    <message-client clientInstanceId="opennms-rest-client" clientType="opennms-rest-client">
+      <configuration>
+        <client-configuration name="TBD" value="TBD" />
+      </configuration>
+      <topicList>
+        <topic qos="0" topic="mqtt-events" />
+        <topic qos="1" topic="mqtt-data" />
+      </topicList>
+    </message-client>
+  </messageClients>
 </mqtt-receiver>

@@ -111,7 +111,7 @@ public class MQTTClientTopicListTests {
 			mqttClientList.add(client);
 			messageNotificationClientQueueImpl.setMessageNotifiers(mqttClientList);
 
-			messageNotificationClientQueueImpl.setMaxQueueLength(100);
+			messageNotificationClientQueueImpl.setMaxMessageQueueLength(100);
 
 			Map<String, NotificationClient> topicHandlingClients = new HashMap<String, NotificationClient>();
 			NotificationClient notificationClient = new VerySimpleMessageNotificationClient();

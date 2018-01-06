@@ -30,15 +30,21 @@ package org.opennms.plugins.json.test.manual;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 import org.opennms.plugins.messagenotifier.Controller;
+import org.opennms.plugins.messagenotifier.rest.MqttRxService;
+import org.opennms.plugins.messagenotifier.rest.MqttRxServiceImpl;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
+import org.opennms.plugins.mqttclient.NodeByForeignSourceCacheImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestController {
 	private static final Logger LOG = LoggerFactory.getLogger(TestController.class);
-	
+
 	public static final String TEST_CONFIG_FILE = "src/test/resources/testConfig.xml";
 
 	@Test
@@ -50,15 +56,26 @@ public class TestController {
 		assertNotNull(mqttReceiverConfig);
 		LOG.debug("end testLoadConfig()");
 	}
-	
+
 	@Test
 	public void testLoadClients() {
 		LOG.debug("start testLoadClients()");
 		Controller controller = new Controller();
 		controller.setConfigFile(TEST_CONFIG_FILE);
+
+		NodeByForeignSourceCacheImpl mockNodeByForeignSourceCacheImpl= new NodeByForeignSourceCacheImpl();
+		controller.setNodeByForeignSourceCacheImpl(mockNodeByForeignSourceCacheImpl);
+
+		MqttRxService mockMqttRxService = new MqttRxServiceImpl();
+		mockMqttRxService.setServiceType("opennms-rest-client");
+		mockMqttRxService.setServiceName("opennms-rest-client");
+		List<MqttRxService> messageReceiverServices = Arrays.asList( mockMqttRxService );
+		controller.setMessageReceiverServices(messageReceiverServices );
+
+
 		controller.init();
-		
-		
+
+
 		controller.destroy();
 		LOG.debug("end testLoadClients()");
 

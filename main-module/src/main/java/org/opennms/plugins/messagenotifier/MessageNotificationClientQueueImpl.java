@@ -49,7 +49,7 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 
 	//private MessageNotifier m_messageNotifier;
 
-	private Integer m_maxQueueLength=1000;
+	private Integer m_maxMessageQueueLength=1000;
 
 	private LinkedBlockingQueue<MessageNotification> m_queue=null;
 	private AtomicBoolean m_clientRunning = new AtomicBoolean(false);
@@ -86,20 +86,20 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 	}
 
 
-	public Integer getMaxQueueLength() {
-		return m_maxQueueLength;
+	public Integer getMaxMessageQueueLength() {
+		return m_maxMessageQueueLength;
 	}
 
-	public void setMaxQueueLength(Integer maxQueueLength) {
-		this.m_maxQueueLength = maxQueueLength;
+	public void setMaxMessageQueueLength(Integer maxMessageQueueLength) {
+		this.m_maxMessageQueueLength = maxMessageQueueLength;
 	}
 
 	public void init(){
-		LOG.debug("initialising messageNotificationClientQueue with m_queue size "+m_maxQueueLength);
+		LOG.debug("initialising messageNotificationClientQueue with m_queue size "+m_maxMessageQueueLength);
 		
 		if (m_messageNotifiers==null) throw new IllegalStateException("m_messageNotifiers list cannot be null");
 
-		m_queue= new LinkedBlockingQueue<MessageNotification>(m_maxQueueLength);
+		m_queue= new LinkedBlockingQueue<MessageNotification>(m_maxMessageQueueLength);
 
 		// start consuming thread
 		m_clientRunning.set(true);

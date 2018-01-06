@@ -48,7 +48,14 @@ public class MqttRxServiceImpl implements  MqttRxService {
 	private Set<MessageNotificationClient> messageNotificationClientList = Collections.synchronizedSet(new HashSet<MessageNotificationClient>());
 
 	// topic, MQTTTopicSubscription
-	private Map<String,MQTTTopicSubscription> topicMap = Collections.synchronizedMap(new HashMap<String,MQTTTopicSubscription>());	
+	private Map<String,MQTTTopicSubscription> topicMap = Collections.synchronizedMap(new HashMap<String,MQTTTopicSubscription>());
+	
+	// configuration properties name, value
+	private Map<String,String> configuration = Collections.synchronizedMap(new HashMap<String,String>());
+
+	private String serviceName="undefined";
+
+	private String serviceType="undefined";	
 
 	@Override
 	public Set<MQTTTopicSubscription> getTopicList() {
@@ -121,5 +128,48 @@ public class MqttRxServiceImpl implements  MqttRxService {
 				}
 			}         
 		}
+	}
+
+	@Override
+	public void setServiceName(String serviceName) {
+		this.serviceName=serviceName;
+	}
+
+	@Override
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	@Override
+	public void setServiceType(String serviceType) {
+		this.serviceType=serviceType;
+	}
+
+	@Override
+	public String getServiceType() {
+		return serviceType;
+	}
+
+	@Override
+	public void setConfiguration(Map<String, String> config) {
+		configuration.clear();
+		configuration.putAll(config);
+	}
+
+	@Override
+	public Map<String, String> getConfiguration() {
+		return configuration;
+	}
+
+	@Override
+	public void init() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+		
 	}
 }

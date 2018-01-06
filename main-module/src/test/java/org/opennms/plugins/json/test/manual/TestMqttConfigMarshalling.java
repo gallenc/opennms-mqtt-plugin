@@ -40,14 +40,18 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 
 import org.junit.Test;
 import org.opennms.netmgt.collection.api.AttributeType;
+import org.opennms.plugins.mqtt.config.ConfigProperty;
 import org.opennms.plugins.mqtt.config.JsonEventParserConfig;
 import org.opennms.plugins.mqtt.config.JsonDataParserConfig;
 import org.opennms.plugins.mqtt.config.MQTTClientConfig;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
 import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
+import org.opennms.plugins.mqtt.config.MessageClientConfig;
 import org.opennms.protocols.xml.config.XmlGroup;
 import org.opennms.protocols.xml.config.XmlGroups;
 import org.opennms.protocols.xml.config.XmlObject;
@@ -79,11 +83,21 @@ public class TestMqttConfigMarshalling {
 			"RRA:MAX:0.5:288:366",
 			"RRA:MIN:0.5:288:366");
 
-	private Integer maxQueueLength=1001;
+	private Integer maxMessageQueueLength=1001;
 
 	private String timestampFormat="yyyy-MM-dd HH:mm:ss.SSSSSS";
 
 	private List<String> keyXpathList= Arrays.asList("@name","@id");
+	
+    private Boolean createMissingNodes=true;
+    
+    private Boolean createDummyInterfaces=true;
+    
+    private Boolean createNodeAssetData=true;
+
+	private Integer nodeCacheMaxSize=1000;
+
+	private Integer nodeCacheMaxTtl=0;
 
 	@Test
 	public void testMQTTClientConfig() {
@@ -137,7 +151,28 @@ public class TestMqttConfigMarshalling {
 		mConfig.setUserName(userName);
 		
 		MQTTReceiverConfig rxconfig =new MQTTReceiverConfig();
-		rxconfig.setMaxQueueLength(maxQueueLength);
+		rxconfig.setMaxMessageQueueLength(maxMessageQueueLength);
+		rxconfig.setCreateDummyInterfaces(createDummyInterfaces);
+		rxconfig.setCreateMissingNodes(createMissingNodes);
+		rxconfig.setCreateNodeAssetData(createNodeAssetData);
+		rxconfig.setNodeCacheMaxSize(nodeCacheMaxSize);
+		rxconfig.setNodeCacheMaxTtl(nodeCacheMaxTtl);
+		
+		MessageClientConfig messageClientConfig = new MessageClientConfig();
+		messageClientConfig.setClientType("opennms-rest-client");
+		messageClientConfig.setClientInstanceId("rest-client");
+		messageClientConfig.setTopicList(topicList);
+
+		Set<ConfigProperty> configuration= new LinkedHashSet<ConfigProperty>();
+		ConfigProperty property = new ConfigProperty();
+		property.setName("TBD");
+		property.setValue("TBD");
+		configuration.add(property);
+		messageClientConfig.setConfiguration(configuration);
+
+		Set<MessageClientConfig> messageClients = new LinkedHashSet<MessageClientConfig>();
+		messageClients.add(messageClientConfig);
+		rxconfig.setMessageClients(messageClients);
 
 		Set<MQTTClientConfig> mqttClients = new LinkedHashSet<MQTTClientConfig>();
 		mqttClients.add(mConfig);

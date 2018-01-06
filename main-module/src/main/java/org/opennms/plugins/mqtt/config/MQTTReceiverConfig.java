@@ -25,8 +25,8 @@
  *     http://www.opennms.org/
  *     http://www.opennms.com/
  *******************************************************************************/
- 
- package org.opennms.plugins.mqtt.config;
+
+package org.opennms.plugins.mqtt.config;
 
 import java.util.Set;
 
@@ -42,12 +42,25 @@ public class MQTTReceiverConfig {
 
 	private Set<MQTTClientConfig> mqttClients=null;
 	
+	private Set<MessageClientConfig> messageClients=null;
+
 	private Set<JsonDataParserConfig> jsonDataParsers=null;
-	
+
 	private Set<JsonEventParserConfig> jsonEventParsers=null;
-	
-	private Integer maxQueueLength = 1000; // default message queue length
-	
+
+	private Integer maxMessageQueueLength = 1000; // default message queue length
+
+	private Boolean createMissingNodes=true;
+
+	private Boolean createDummyInterfaces=true;
+
+	private Boolean createNodeAssetData=true;
+
+	private Integer nodeCacheMaxTtl=null; // default  0 (Set to zero to disable TTL)
+
+	private Integer nodeCacheMaxSize=null; // default 10000 (Set to zero to disable max size)
+
+
 	public Set<MQTTClientConfig> getMqttClients() {
 		return mqttClients;
 	}
@@ -58,6 +71,15 @@ public class MQTTReceiverConfig {
 		this.mqttClients = mqttClients;
 	}
 
+	@XmlElementWrapper
+	@XmlElement(name="message-client")
+	public Set<MessageClientConfig> getMessageClients() {
+		return messageClients;
+	}
+
+	public void setMessageClients(Set<MessageClientConfig> messageClients) {
+		this.messageClients = messageClients;
+	}
 
 	public Set<JsonDataParserConfig> getJsonDataParsers() {
 		return jsonDataParsers;
@@ -79,15 +101,58 @@ public class MQTTReceiverConfig {
 		this.jsonEventParsers = jsonEventParsers;
 	}
 
-	public Integer getMaxQueueLength() {
-		return maxQueueLength;
+	public Integer getMaxMessageQueueLength() {
+		return maxMessageQueueLength;
 	}
 
 	@XmlElement
-	public void setMaxQueueLength(Integer macQueueLength) {
-		this.maxQueueLength = macQueueLength;
+	public void setMaxMessageQueueLength(Integer macQueueLength) {
+		this.maxMessageQueueLength = macQueueLength;
 	}
 
-	
+	public Boolean getCreateMissingNodes() {
+		return createMissingNodes;
+	}
+
+	@XmlElement
+	public void setCreateMissingNodes(Boolean createMissingNodes) {
+		this.createMissingNodes = createMissingNodes;
+	}
+
+	public Boolean getCreateDummyInterfaces() {
+		return createDummyInterfaces;
+	}
+
+	@XmlElement
+	public void setCreateDummyInterfaces(Boolean createDummyInterfaces) {
+		this.createDummyInterfaces = createDummyInterfaces;
+	}
+
+	public Boolean getCreateNodeAssetData() {
+		return createNodeAssetData;
+	}
+
+	@XmlElement
+	public void setCreateNodeAssetData(Boolean createNodeAssetData) {
+		this.createNodeAssetData = createNodeAssetData;
+	}
+
+	public Integer getNodeCacheMaxTtl() {
+		return nodeCacheMaxTtl;
+	}
+
+	@XmlElement
+	public void setNodeCacheMaxTtl(Integer nodeCacheMaxTtl) {
+		this.nodeCacheMaxTtl = nodeCacheMaxTtl;
+	}
+
+	public Integer getNodeCacheMaxSize() {
+		return nodeCacheMaxSize;
+	}
+
+	@XmlElement
+	public void setNodeCacheMaxSize(Integer nodeCacheMaxSize) {
+		this.nodeCacheMaxSize = nodeCacheMaxSize;
+	}
 
 }

@@ -77,7 +77,7 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 	private static final String MQTT_UNKNOWN_NODE_EVENT = "uei.opennms.org/plugin/MqttReceiver/unknownNodeEvent";
 
 	private long MAX_SIZE = 10000;
-	private long MAX_TTL = 5; // Minutes
+	private long MAX_TTL = 0; // Minutes
 
 	private volatile NodeDao m_nodeDao;
 	private volatile MonitoringLocationDao m_monitoringLocationDao;
