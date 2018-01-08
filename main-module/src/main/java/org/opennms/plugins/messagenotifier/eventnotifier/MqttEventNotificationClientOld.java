@@ -29,7 +29,6 @@
 package org.opennms.plugins.messagenotifier.eventnotifier;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import jline.internal.Log;
 
@@ -41,11 +40,9 @@ import org.opennms.netmgt.events.api.EventProxy;
 import org.opennms.netmgt.events.api.EventProxyException;
 import org.opennms.netmgt.model.events.EventBuilder;
 import org.opennms.netmgt.xml.event.Event;
-import org.opennms.plugins.json.OnmsAttributeMessageHandler;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.NotificationClient;
 import org.opennms.plugins.messagenotifier.datanotifier.ConfigDao;
-import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
 import org.opennms.plugins.mqttclient.NodeByForeignSourceCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +53,8 @@ import org.slf4j.LoggerFactory;
  * @author admin
  *
  */
-public class MqttEventNotificationClient implements NotificationClient {
-	private static final Logger LOG = LoggerFactory.getLogger(MqttEventNotificationClient.class);
+public class MqttEventNotificationClientOld implements NotificationClient {
+	private static final Logger LOG = LoggerFactory.getLogger(MqttEventNotificationClientOld.class);
 
 	public static final String MQTT_JSON_EVENT = "uei.opennms.org/plugin/MqttReceiver/jsonPayloadEvent";
 	public static final String MQTT_TEXT_EVENT = "uei.opennms.org/plugin/MqttReceiver/stringPayloadEvent";
@@ -67,18 +64,16 @@ public class MqttEventNotificationClient implements NotificationClient {
 	public static final String MQTT_TOPIC_PARAM = "mqtt-topic";
 	public static final String MQTT_QOS_PARAM = "mqtt-qos";
 	
-	private NodeByForeignSourceCache m_nodeByForeignSourceCache;
-		
-	private Map<String,OnmsAttributeMessageHandler> jsonHandlerMap = new ConcurrentHashMap<String,OnmsAttributeMessageHandler>();
+	private NodeByForeignSourceCache nodeByForeignSourceCache;
+	
+	private ConfigDao configDao;
 	
 	private EventProxy eventProxy = null;
 	
- //   private String foreignSource="mqtt";
+    private String foreignSource="mqtt";
     
- //   private String foreignIdKey="id";
+    private String foreignIdKey="id";
 	
-
-
 	public EventProxy getEventProxy() {
 		return eventProxy;
 	}
@@ -87,16 +82,21 @@ public class MqttEventNotificationClient implements NotificationClient {
 		this.eventProxy = eventProxy;
 	}
 
-//	public void setForeignSource(String foreignSource) {
-//		this.foreignSource = foreignSource;
-//	}
+	public void setForeignSource(String foreignSource) {
+		this.foreignSource = foreignSource;
+	}
 
-//	public void setForeignIdKey(String foreignIdKey) {
-//		this.foreignIdKey = foreignIdKey;
-//	}
+	public void setForeignIdKey(String foreignIdKey) {
+		this.foreignIdKey = foreignIdKey;
+	}
+	
+	//TODO USE THIS
+	public void setConfigDao(ConfigDao configDao) {
+		this.configDao = configDao;
+	}
 
 	public void setNodeByForeignSourceCache(NodeByForeignSourceCache nodeByForeignSourceCache) {
-		this.m_nodeByForeignSourceCache = nodeByForeignSourceCache;
+		this.nodeByForeignSourceCache = nodeByForeignSourceCache;
 	}
 	
 	@Override
@@ -141,7 +141,7 @@ public class MqttEventNotificationClient implements NotificationClient {
 					String foreignId = fidobj.toString();
 					//find node id (if exists) from foreign source and foreign id
 					String lookupCriteria= foreignSource+":"+foreignId;
-					Map<String, String> nodeData = m_nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria, null); //TODO add location?
+					Map<String, String> nodeData = nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria, null); //TODO add location?
 					String nodeIdStr=null;
 					if(nodeData==null) {
 						LOG.debug("cannot find node for lookupCriteria="+lookupCriteria);

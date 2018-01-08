@@ -45,9 +45,10 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 
 import org.junit.Test;
 import org.opennms.netmgt.collection.api.AttributeType;
+import org.opennms.plugins.messagenotifier.MessageContentTypeHandler;
 import org.opennms.plugins.mqtt.config.ConfigProperty;
-import org.opennms.plugins.mqtt.config.JsonEventParserConfig;
-import org.opennms.plugins.mqtt.config.JsonDataParserConfig;
+import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
+import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
 import org.opennms.plugins.mqtt.config.MQTTClientConfig;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
 import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
@@ -179,22 +180,25 @@ public class TestMqttConfigMarshalling {
 		rxconfig.setMqttClients(mqttClients);
 		
 		// create event processors
-		Set<JsonEventParserConfig> jsonEventParsers= new LinkedHashSet<JsonEventParserConfig>();
-		rxconfig.setJsonEventParsers(jsonEventParsers);
+		Set<MessageEventParserConfig> messageEventParsers= new LinkedHashSet<MessageEventParserConfig>();
+		rxconfig.setMessageEventParsers(messageEventParsers);
 		
-		JsonEventParserConfig eventconfig = new JsonEventParserConfig();
-		jsonEventParsers.add(eventconfig);
+		MessageEventParserConfig eventconfig = new MessageEventParserConfig();
+		eventconfig.setContentType(MessageContentTypeHandler.JSON);
+		messageEventParsers.add(eventconfig);
 		
 		eventconfig.setXmlGroups(xmlGroups);
 		
 		eventconfig.setSubscriptionTopics(eventSubscriptionTopics);
 		
 		// create pm processors
-        Set<JsonDataParserConfig> jsonDataParsers = new LinkedHashSet<JsonDataParserConfig>();
-		rxconfig.setJsonDataParsers(jsonDataParsers);
+        Set<MessageDataParserConfig> messageDataParsers = new LinkedHashSet<MessageDataParserConfig>();
+		rxconfig.setMessageDataParsers(messageDataParsers);
 		
-		JsonDataParserConfig dataconfig= new JsonDataParserConfig();
-		jsonDataParsers.add(dataconfig);
+		MessageDataParserConfig dataconfig= new MessageDataParserConfig();
+		dataconfig.setContentType(MessageContentTypeHandler.JSON);
+		
+		messageDataParsers.add(dataconfig);
 		
 		dataconfig.setXmlGroups(xmlGroups);
 		

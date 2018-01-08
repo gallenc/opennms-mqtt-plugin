@@ -21,7 +21,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import org.opennms.plugins.json.OnmsCollectionAttributeMap;
-import org.opennms.plugins.json.OnmsAttributeJsonHandler;
+import org.opennms.plugins.json.OnmsAttributeMessageHandler;
 import org.opennms.protocols.xml.config.XmlGroups;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ public class TestJsonConfig {
 			jaxbMarshaller.marshal(xmlGroups ,stringWriter);
 			LOG.info("output string xmlgroups: \n"+stringWriter.toString());
 
-			OnmsAttributeJsonHandler waj = new OnmsAttributeJsonHandler();
+			OnmsAttributeMessageHandler waj = new OnmsAttributeMessageHandler();
 
 			JSONObject json=null;
 			try {

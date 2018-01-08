@@ -44,9 +44,9 @@ public class MQTTReceiverConfig {
 	
 	private Set<MessageClientConfig> messageClients=null;
 
-	private Set<JsonDataParserConfig> jsonDataParsers=null;
+	private Set<MessageDataParserConfig> messageDataParsers=null;
 
-	private Set<JsonEventParserConfig> jsonEventParsers=null;
+	private Set<MessageEventParserConfig> messageEventParsers=null;
 
 	private Integer maxMessageQueueLength = 1000; // default message queue length
 
@@ -81,24 +81,24 @@ public class MQTTReceiverConfig {
 		this.messageClients = messageClients;
 	}
 
-	public Set<JsonDataParserConfig> getJsonDataParsers() {
-		return jsonDataParsers;
+	public Set<MessageDataParserConfig> getMessageDataParsers() {
+		return messageDataParsers;
 	}
 
 	@XmlElementWrapper
-	@XmlElement(name="jsonDataParser")
-	public void setJsonDataParsers(Set<JsonDataParserConfig> jsonDataParsers) {
-		this.jsonDataParsers = jsonDataParsers;
+	@XmlElement(name="messageDataParser")
+	public void setMessageDataParsers(Set<MessageDataParserConfig> messageDataParsers) {
+		this.messageDataParsers = messageDataParsers;
 	}
 
-	public Set<JsonEventParserConfig> getJsonEventParsers() {
-		return jsonEventParsers;
+	public Set<MessageEventParserConfig> getMessageEventParsers() {
+		return messageEventParsers;
 	}
 
 	@XmlElementWrapper
-	@XmlElement(name="jsonEventParser")
-	public void setJsonEventParsers(Set<JsonEventParserConfig> jsonEventParsers) {
-		this.jsonEventParsers = jsonEventParsers;
+	@XmlElement(name="messageEventParser")
+	public void setMessageEventParsers(Set<MessageEventParserConfig> messageEventParsers) {
+		this.messageEventParsers = messageEventParsers;
 	}
 
 	public Integer getMaxMessageQueueLength() {

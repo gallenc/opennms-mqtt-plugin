@@ -28,16 +28,13 @@
 
 package org.opennms.plugins.json;
 
-import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.JXPathException;
 import org.apache.commons.jxpath.Pointer;
@@ -52,46 +49,56 @@ import org.opennms.protocols.xml.config.XmlGroups;
 import org.opennms.protocols.xml.config.XmlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 /**
  */
-public class OnmsAttributeJsonHandler {
-	private static final Logger LOG = LoggerFactory.getLogger(OnmsAttributeJsonHandler.class);
+public class OnmsAttributeMessageHandler {
+	private static final Logger LOG = LoggerFactory.getLogger(OnmsAttributeMessageHandler.class);
 
 	private XmlGroups source=null;
 
-	public OnmsAttributeJsonHandler(XmlGroups source){
+	public OnmsAttributeMessageHandler(XmlGroups source){
 		this.source = source;
 	}
 
-	public OnmsAttributeJsonHandler(){
+	public OnmsAttributeMessageHandler(){
 		super();
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<OnmsCollectionAttributeMap> jsonToAttributeMap(String jsonStr){
-		JSONObject jsonObject=null;
-		JSONParser parser = new JSONParser();
-		Object obj;
-		try {
-			obj = parser.parse(new StringReader(jsonStr));
-
-			if (obj instanceof JSONObject) {
-				jsonObject = (JSONObject) obj;
-				return jsonToAttributeMap(jsonObject);
-			} else if (obj instanceof JSONArray) {
-				// handle json starting with unnamed array e.g. [{ "id": "monitorID", "PM10": 1000 },{ "id": "monitorID2", "PM10": 1000 }]
-				// creating a named array object to specifically parse
-				// e.g. {array: [{ "id": "monitorID", "PM10": 1000 },{ "id": "monitorID2", "PM10": 1000 }]}
-				JSONArray array = (JSONArray) obj;
-				jsonObject = new JSONObject();
-				jsonObject.put("array", array); 
-				return jsonToAttributeMap(jsonObject);
-			} else throw new RuntimeException("unexpected type returned from jsonsimple parser:"+ obj.getClass());
-		} catch (Exception ex) {
-			throw new RuntimeException("problem parsing attributemap from json message:"+jsonStr, ex);
-		}
+//	@SuppressWarnings("unchecked")
+//	public List<OnmsCollectionAttributeMap> jsonToAttributeMap(String jsonStr){
+//		JSONObject jsonObject=null;
+//		JSONParser parser = new JSONParser();
+//		Object obj;
+//		try {
+//			obj = parser.parse(new StringReader(jsonStr));
+//
+//			if (obj instanceof JSONObject) {
+//				jsonObject = (JSONObject) obj;
+//				return jsonToAttributeMap(jsonObject);
+//			} else if (obj instanceof JSONArray) {
+//				// handle json starting with unnamed array e.g. [{ "id": "monitorID", "PM10": 1000 },{ "id": "monitorID2", "PM10": 1000 }]
+//				// creating a named array object to specifically parse
+//				// e.g. {array: [{ "id": "monitorID", "PM10": 1000 },{ "id": "monitorID2", "PM10": 1000 }]}
+//				JSONArray array = (JSONArray) obj;
+//				jsonObject = new JSONObject();
+//				jsonObject.put("array", array); 
+//				return jsonToAttributeMap(jsonObject);
+//			} else throw new RuntimeException("unexpected type returned from jsonsimple parser:"+ obj.getClass());
+//		} catch (Exception ex) {
+//			throw new RuntimeException("problem parsing attributemap from json message:"+jsonStr, ex);
+//		}
+//	}
+	
+	public List<OnmsCollectionAttributeMap> payloadObjectToAttributeMap(Object payloadObject){
+		if(payloadObject instanceof JSONObject){
+			return jsonToAttributeMap((JSONObject) payloadObject);
+		} else if(payloadObject instanceof Document){
+			throw new UnsupportedOperationException("not yet implimented - parsing xml Document");
+		} else throw new UnsupportedOperationException("not yet implimented - parsing this object" +payloadObject.getClass().getName());
 	}
+
 
 	public List<OnmsCollectionAttributeMap> jsonToAttributeMap(JSONObject json){
 		List<OnmsCollectionAttributeMap> attributeMapList = new ArrayList<OnmsCollectionAttributeMap>();

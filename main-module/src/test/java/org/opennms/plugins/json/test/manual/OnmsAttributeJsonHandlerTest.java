@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -21,8 +22,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONObject;
 import org.junit.Test;
-import org.opennms.plugins.json.OnmsAttributeJsonHandler;
+import org.opennms.plugins.json.OnmsAttributeMessageHandler;
 import org.opennms.plugins.json.OnmsCollectionAttributeMap;
+import org.opennms.plugins.messagenotifier.MessageContentTypeHandler;
 import org.opennms.protocols.xml.config.XmlGroup;
 import org.opennms.protocols.xml.config.XmlGroups;
 import org.slf4j.Logger;
@@ -228,10 +230,19 @@ public class OnmsAttributeJsonHandlerTest {
 		// read json string
 		String jsonString = readFile(jsonFile);
 		LOG.debug("jsonString"+jsonString);
+		
+		// convert json string as byte array to attributeMapList
+		byte[] payload;
+		try {
+			payload = jsonString.getBytes(StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+		
+		Object payloadObj = MessageContentTypeHandler.parsePayload(payload , MessageContentTypeHandler.JSON);
 
-		// convert json string to attributeMapList
-		OnmsAttributeJsonHandler onmsAttributeJsonHandler = new OnmsAttributeJsonHandler(xmlGroups);
-		List<OnmsCollectionAttributeMap> attributeMapList = onmsAttributeJsonHandler.jsonToAttributeMap(jsonString);
+		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups);
+		List<OnmsCollectionAttributeMap> attributeMapList = onmsAttributeMessageHandler.payloadObjectToAttributeMap(payloadObj);
 
 		LOG.debug("attributeMap: \n    attributeMap.size: "+attributeMapList.size()+"\n    attributeMap.toString: "+attributeMapList.toString().replaceAll("],", "],\n    "));
 

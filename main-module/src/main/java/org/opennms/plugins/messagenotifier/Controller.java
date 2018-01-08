@@ -11,13 +11,13 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.opennms.plugins.json.OnmsAttributeJsonHandler;
+import org.opennms.plugins.json.OnmsAttributeMessageHandler;
 import org.opennms.plugins.messagenotifier.datanotifier.MqttDataNotificationClient;
 import org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient;
 import org.opennms.plugins.messagenotifier.rest.MqttRxService;
 import org.opennms.plugins.mqtt.config.ConfigProperty;
-import org.opennms.plugins.mqtt.config.JsonEventParserConfig;
-import org.opennms.plugins.mqtt.config.JsonDataParserConfig;
+import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
+import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
 import org.opennms.plugins.mqtt.config.MQTTClientConfig;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
 import org.opennms.plugins.mqtt.config.MessageClientConfig;
@@ -31,6 +31,8 @@ public class Controller {
 	private static final Logger LOG = LoggerFactory.getLogger(Controller.class);
 
 	private NodeByForeignSourceCacheImpl m_nodeByForeignSourceCacheImpl=null;
+	
+	private MqttEventNotificationClient m_mqttEventNotificationClient=null;
 
 	// m_messageReceiverServices are used to define message notifiers 
 	// within the initial blueprint. Used for ReST interface
@@ -54,6 +56,14 @@ public class Controller {
 	public void setNodeByForeignSourceCacheImpl(
 			NodeByForeignSourceCacheImpl nodeByForeignSourceCacheImpl) {
 		this.m_nodeByForeignSourceCacheImpl = nodeByForeignSourceCacheImpl;
+	}
+
+	public MqttEventNotificationClient getMqttEventNotificationClient() {
+		return m_mqttEventNotificationClient;
+	}
+
+	public void setMqttEventNotificationClient(	MqttEventNotificationClient mqttEventNotificationClient) {
+		this.m_mqttEventNotificationClient = mqttEventNotificationClient;
 	}
 
 	public List<MqttRxService> getMessageReceiverServices() {
@@ -149,16 +159,16 @@ public class Controller {
 		Map<String, NotificationClient> topicHandlingClients = new LinkedHashMap<String, NotificationClient>();
 
 		// set up event collectors
-		for(JsonEventParserConfig jsonEventParserConfig : m_MQTTReceiverConfig.getJsonEventParsers()){
+		for(MessageEventParserConfig messageEventParserConfig : m_MQTTReceiverConfig.getMessageEventParsers()){
 			// create json parser
-			XmlGroups xmlGroups = jsonEventParserConfig.getXmlGroups();
-			OnmsAttributeJsonHandler onmsAttributeJsonHandler = new OnmsAttributeJsonHandler(xmlGroups);
+			XmlGroups xmlGroups = messageEventParserConfig.getXmlGroups();
+			OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups);
 
 			MqttEventNotificationClient eventClient = new MqttEventNotificationClient();
 			//TODO SET UP CONFIG 
 			//eventClient.setOnmsAttributeJsonHandler(onmsAttributeJsonHandler);
 
-			for(String eventSubscriptionTopic:jsonEventParserConfig.getSubscriptionTopics()){
+			for(String eventSubscriptionTopic:messageEventParserConfig.getSubscriptionTopics()){
 				LOG.debug("adding handler for eventSubscriptionTopic:"+eventSubscriptionTopic);
 				if(topicHandlingClients.containsKey(eventSubscriptionTopic)) {
 					LOG.error("duplicate handler for eventSubscriptionTopic:"+eventSubscriptionTopic);
@@ -167,16 +177,16 @@ public class Controller {
 		}
 
 		// set up pm collectors
-		for( JsonDataParserConfig jsonDataParserConfig : m_MQTTReceiverConfig.getJsonDataParsers()){
+		for( MessageDataParserConfig messageDataParserConfig : m_MQTTReceiverConfig.getMessageDataParsers()){
 			// create json parser
-			XmlGroups xmlGroups = jsonDataParserConfig.getXmlGroups();
-			OnmsAttributeJsonHandler onmsAttributeJsonHandler = new OnmsAttributeJsonHandler(xmlGroups);
+			XmlGroups xmlGroups = messageDataParserConfig.getXmlGroups();
+			OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups);
 
 			MqttDataNotificationClient dataClient = new MqttDataNotificationClient();
 			//TODO SET UP CONFIG 
 			//dataClient.setOnmsAttributeJsonHandler(onmsAttributeJsonHandler);
 
-			for(String dataSubscriptionTopic:jsonDataParserConfig.getSubscriptionTopics()){
+			for(String dataSubscriptionTopic:messageDataParserConfig.getSubscriptionTopics()){
 				LOG.debug("adding handler for performanceSubscriptionTopic:"+dataSubscriptionTopic);
 				topicHandlingClients.put(dataSubscriptionTopic, dataClient);
 			}

@@ -2,31 +2,39 @@ package org.opennms.plugins.mqtt.config;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opennms.protocols.xml.config.XmlGroups;
 
+public class MessageParserConfig {
 
-@XmlRootElement(name="jsonEventParser")
-@XmlAccessorType(XmlAccessType.NONE)
-public class JsonEventParserConfig {
-	
-	private List<String> subscriptionTopics=null;
-	
-	private XmlGroups xmlGroups=null;
-	
+	private List<String> subscriptionTopics = null;
+	private String contentType = null;
+	private XmlGroups xmlGroups = null;
+
+	public MessageParserConfig() {
+		super();
+	}
+
 	public List<String> getSubscriptionTopics() {
 		return subscriptionTopics;
 	}
 
 	@XmlElementWrapper
-	@XmlElement(name="topic")
+	@XmlElement(name = "topic")
 	public void setSubscriptionTopics(List<String> subscriptionTopics) {
 		this.subscriptionTopics = subscriptionTopics;
+	}
+
+	public String getContentType() {
+		return contentType;
+	}
+
+	@XmlAttribute(required = true)
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
 	}
 
 	public XmlGroups getXmlGroups() {
@@ -37,6 +45,5 @@ public class JsonEventParserConfig {
 	public void setXmlGroups(XmlGroups xmlGroups) {
 		this.xmlGroups = xmlGroups;
 	}
-
 
 }

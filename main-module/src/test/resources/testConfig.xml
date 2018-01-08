@@ -9,8 +9,8 @@
   <createMissingNodes>true</createMissingNodes>
   <createNodeAssetData>true</createNodeAssetData>
 
-  <jsonDataParsers>
-    <jsonDataParser>
+  <messageDataParsers>
+      <messageDataParser contentType="JSON">
       <subscriptionTopics>
         <topic>mqtt-data</topic>
         <topic>mqtt-data2</topic>
@@ -36,10 +36,10 @@
         <ns2:rra>RRA:MAX:0.5:288:366</ns2:rra>
         <ns2:rra>RRA:MIN:0.5:288:366</ns2:rra>
       </xmlRrd>
-    </jsonDataParser>
-  </jsonDataParsers>
-  <jsonEventParsers>
-    <jsonEventParser>
+    </messageDataParser>
+  </messageDataParsers>
+  <messageEventParsers>
+      <messageEventParser contentType="JSON">
       <subscriptionTopics>
         <topic>mqtt-events</topic>
         <topic>mqtt-events2</topic>
@@ -58,8 +58,8 @@
           <ns2:xml-object name="PM10" type="GAUGE" xpath="@PM10" />
         </ns2:xml-group>
       </xml-groups>
-    </jsonEventParser>
-  </jsonEventParsers>
+    </messageEventParser>
+  </messageEventParsers>
 
   <mqttClients>
     <client clientInstanceId="client1">

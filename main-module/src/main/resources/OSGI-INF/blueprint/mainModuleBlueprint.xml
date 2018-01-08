@@ -116,14 +116,14 @@
   <!-- used for testing only -->
   <!-- <bean id="verySimpleClient" class="org.opennms.plugins.dbnotifier.VerySimpleNotificationClient" /> -->
 
-<!--   <bean id="mqttEventNotificationClient" class="org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient" init-method="init" -->
-<!--     destroy-method="destroy"> -->
-<!--     <property name="eventProxy" ref="eventProxy" /> -->
+  <bean id="mqttEventNotificationClient" class="org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient" init-method="init"
+    destroy-method="destroy">
+    <property name="eventProxy" ref="eventProxy" />
 <!--     <property name="foreignSource" value="${org.opennms.plugin.mqttclient.message.foreignsource}" /> -->
 <!--     <property name="foreignIdKey" value="${org.opennms.plugin.mqttclient.message.foreignidkey}" /> -->
-<!--     <property name="nodeByForeignSourceCache" ref="nodeByForeignSourceCache" /> -->
-<!--     <property name="configDao" ref="configDao" /> TODO not used yet -->
-<!--   </bean> -->
+    <property name="nodeByForeignSourceCache" ref="nodeByForeignSourceCache" />
+<!--     <property name="configDao" ref="configDao" />  -->
+  </bean>
 
 <!--   <bean id="mqttDataNotificationClient" class="org.opennms.plugins.messagenotifier.datanotifier.MqttDataNotificationClient" init-method="init" -->
 <!--     destroy-method="destroy"> -->
@@ -147,6 +147,7 @@
 
   <bean id="controller" class="org.opennms.plugins.messagenotifier.Controller" init-method="init" destroy-method="destroy">
     <property name="nodeByForeignSourceCache" ref="nodeByForeignSourceCache" />
+    <property name="mqttEventNotificationClient" ref="mqttEventNotificationClient" />
     <property name="configFile" value="$[karaf.etc]$[file.separator]mqtt-interface-config.xml" />
     <property name="messageReceiverServices" >
       <list>
