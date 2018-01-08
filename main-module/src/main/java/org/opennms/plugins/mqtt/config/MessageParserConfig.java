@@ -11,7 +11,7 @@ import org.opennms.protocols.xml.config.XmlGroups;
 public class MessageParserConfig {
 
 	private List<String> subscriptionTopics = null;
-	private String contentType = null;
+	private String payloadType = null;
 	private XmlGroups xmlGroups = null;
 
 	public MessageParserConfig() {
@@ -28,13 +28,13 @@ public class MessageParserConfig {
 		this.subscriptionTopics = subscriptionTopics;
 	}
 
-	public String getContentType() {
-		return contentType;
+	public String getPayloadType() {
+		return payloadType;
 	}
 
 	@XmlAttribute(required = true)
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
+	public void setPayloadType(String payloadType) {
+		this.payloadType = payloadType;
 	}
 
 	public XmlGroups getXmlGroups() {

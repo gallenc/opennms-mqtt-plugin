@@ -4,6 +4,7 @@
   <nodeCacheMaxSize>1000</nodeCacheMaxSize>
   <nodeCacheMaxTtl>0</nodeCacheMaxTtl>
   <maxMessageQueueLength>1001</maxMessageQueueLength>
+  <maxMessageQueueThreads>2</maxMessageQueueThreads>
 
   <createDummyInterfaces>true</createDummyInterfaces>
   <createMissingNodes>true</createMissingNodes>

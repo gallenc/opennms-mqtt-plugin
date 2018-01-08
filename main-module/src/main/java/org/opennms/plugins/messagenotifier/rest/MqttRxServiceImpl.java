@@ -131,12 +131,12 @@ public class MqttRxServiceImpl implements  MqttRxService {
 	}
 
 	@Override
-	public void setServiceName(String serviceName) {
+	public void setClientInstanceId(String serviceName) {
 		this.serviceName=serviceName;
 	}
 
 	@Override
-	public String getServiceName() {
+	public String getClientInstanceId() {
 		return serviceName;
 	}
 
@@ -146,7 +146,7 @@ public class MqttRxServiceImpl implements  MqttRxService {
 	}
 
 	@Override
-	public String getServiceType() {
+	public String getClientType() {
 		return serviceType;
 	}
 

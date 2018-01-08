@@ -15,7 +15,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-public class MessageContentTypeHandler {
+public class MessagePayloadTypeHandler {
 
 	public final static String JSON="JSON";
 
@@ -23,7 +23,7 @@ public class MessageContentTypeHandler {
 
 	public final static String PROTOBUF="PROTOBUF";
 
-	public final static List<String> supportedContentTypes= Arrays.asList(JSON,XML,PROTOBUF);
+	public final static List<String> supportedPayloadTypes= Arrays.asList(JSON,XML,PROTOBUF);
 
 	public static Object parsePayload(byte[] payload, String payloadType){
 		if(payloadType==null) throw new IllegalArgumentException("payloadType must not be null");

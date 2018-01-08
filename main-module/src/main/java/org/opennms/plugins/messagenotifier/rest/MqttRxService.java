@@ -14,13 +14,13 @@ public interface MqttRxService extends MessageNotifier {
 	
 	public void destroy();
 	
-	public void setServiceName(String serviceName);
+	public void setClientInstanceId(String clientInstanceId);
 	
-	public String getServiceName();
+	public String getClientInstanceId();
 	
-	public void setServiceType(String serviceType);
+	public void setClientType(String clientType);
 	
-	public String getServiceType();
+	public String getClientType();
 	
 	public void setConfiguration(Map<String,String> config);
 	

@@ -49,6 +49,8 @@ public class MQTTReceiverConfig {
 	private Set<MessageEventParserConfig> messageEventParsers=null;
 
 	private Integer maxMessageQueueLength = 1000; // default message queue length
+	
+	private Integer maxMessageQueueThreads=1; // default one thread
 
 	private Boolean createMissingNodes=true;
 
@@ -108,6 +110,15 @@ public class MQTTReceiverConfig {
 	@XmlElement
 	public void setMaxMessageQueueLength(Integer macQueueLength) {
 		this.maxMessageQueueLength = macQueueLength;
+	}
+
+	public Integer getMaxMessageQueueThreads() {
+		return maxMessageQueueThreads;
+	}
+
+	@XmlElement
+	public void setMaxMessageQueueThreads(Integer maxMessageQueueThreads) {
+		this.maxMessageQueueThreads = maxMessageQueueThreads;
 	}
 
 	public Boolean getCreateMissingNodes() {

@@ -45,7 +45,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 
 import org.junit.Test;
 import org.opennms.netmgt.collection.api.AttributeType;
-import org.opennms.plugins.messagenotifier.MessageContentTypeHandler;
+import org.opennms.plugins.messagenotifier.MessagePayloadTypeHandler;
 import org.opennms.plugins.mqtt.config.ConfigProperty;
 import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
 import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
@@ -85,6 +85,8 @@ public class TestMqttConfigMarshalling {
 			"RRA:MIN:0.5:288:366");
 
 	private Integer maxMessageQueueLength=1001;
+	
+	private Integer maxMessageQueueThreads=2;
 
 	private String timestampFormat="yyyy-MM-dd HH:mm:ss.SSSSSS";
 
@@ -153,6 +155,7 @@ public class TestMqttConfigMarshalling {
 		
 		MQTTReceiverConfig rxconfig =new MQTTReceiverConfig();
 		rxconfig.setMaxMessageQueueLength(maxMessageQueueLength);
+		rxconfig.setMaxMessageQueueThreads(maxMessageQueueThreads);
 		rxconfig.setCreateDummyInterfaces(createDummyInterfaces);
 		rxconfig.setCreateMissingNodes(createMissingNodes);
 		rxconfig.setCreateNodeAssetData(createNodeAssetData);
@@ -184,7 +187,7 @@ public class TestMqttConfigMarshalling {
 		rxconfig.setMessageEventParsers(messageEventParsers);
 		
 		MessageEventParserConfig eventconfig = new MessageEventParserConfig();
-		eventconfig.setContentType(MessageContentTypeHandler.JSON);
+		eventconfig.setPayloadType(MessagePayloadTypeHandler.JSON);
 		messageEventParsers.add(eventconfig);
 		
 		eventconfig.setXmlGroups(xmlGroups);
@@ -196,7 +199,7 @@ public class TestMqttConfigMarshalling {
 		rxconfig.setMessageDataParsers(messageDataParsers);
 		
 		MessageDataParserConfig dataconfig= new MessageDataParserConfig();
-		dataconfig.setContentType(MessageContentTypeHandler.JSON);
+		dataconfig.setPayloadType(MessagePayloadTypeHandler.JSON);
 		
 		messageDataParsers.add(dataconfig);
 		

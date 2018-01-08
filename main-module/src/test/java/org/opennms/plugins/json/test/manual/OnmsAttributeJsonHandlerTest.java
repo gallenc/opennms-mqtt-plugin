@@ -24,7 +24,7 @@ import org.json.simple.JSONObject;
 import org.junit.Test;
 import org.opennms.plugins.json.OnmsAttributeMessageHandler;
 import org.opennms.plugins.json.OnmsCollectionAttributeMap;
-import org.opennms.plugins.messagenotifier.MessageContentTypeHandler;
+import org.opennms.plugins.messagenotifier.MessagePayloadTypeHandler;
 import org.opennms.protocols.xml.config.XmlGroup;
 import org.opennms.protocols.xml.config.XmlGroups;
 import org.slf4j.Logger;
@@ -239,7 +239,7 @@ public class OnmsAttributeJsonHandlerTest {
 			throw new RuntimeException(e);
 		}
 		
-		Object payloadObj = MessageContentTypeHandler.parsePayload(payload , MessageContentTypeHandler.JSON);
+		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.JSON);
 
 		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups);
 		List<OnmsCollectionAttributeMap> attributeMapList = onmsAttributeMessageHandler.payloadObjectToAttributeMap(payloadObj);

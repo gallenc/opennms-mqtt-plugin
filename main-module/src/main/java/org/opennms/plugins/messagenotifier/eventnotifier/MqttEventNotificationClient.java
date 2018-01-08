@@ -135,10 +135,13 @@ public class MqttEventNotificationClient implements NotificationClient {
 				eb.addParam(MQTT_QOS_PARAM,qosStr);
 				eb.addParam(MQTT_PAYLOAD_STRING_PARAM,payloadString);
 				
+				Object foreignIdKey=null; //TODO REMOVE
+				String foreignSource=null;
 				// find foreignId from json message and find or possibly create new node for foreignid
 				Object fidobj = jsonObject.get(foreignIdKey);
 				if(fidobj!=null){
 					String foreignId = fidobj.toString();
+
 					//find node id (if exists) from foreign source and foreign id
 					String lookupCriteria= foreignSource+":"+foreignId;
 					Map<String, String> nodeData = m_nodeByForeignSourceCache.createOrUpdateNode(lookupCriteria, null); //TODO add location?

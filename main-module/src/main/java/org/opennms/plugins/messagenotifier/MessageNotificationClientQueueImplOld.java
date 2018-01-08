@@ -31,14 +31,10 @@ package org.opennms.plugins.messagenotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -47,39 +43,50 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author admin
  *
  */
-public class MessageNotificationClientQueueImpl implements MessageNotificationClient{
+public class MessageNotificationClientQueueImplOld implements MessageNotificationClient{
 
-	private static final Logger LOG = LoggerFactory.getLogger(MessageNotificationClientQueueImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MessageNotificationClientQueueImplOld.class);
 
 	//private MessageNotifier m_messageNotifier;
 
 	private Integer m_maxMessageQueueLength=1000;
-
-	private Integer m_maxMessageQueueThreads=1;
-
-	private ExecutorService executorService=null;
+	
+	private Integer maxMessageQueueThreads=1;
 
 	private LinkedBlockingQueue<MessageNotification> m_queue=null;
-
+	
 	private AtomicBoolean m_clientRunning = new AtomicBoolean(false);
 
-	private List<NotificationClient> m_notificationHandlingClients = new ArrayList<NotificationClient>();
+	private RemovingConsumer m_removingConsumer = new RemovingConsumer();
+	
+	private Thread m_removingConsumerThread = new Thread(m_removingConsumer);
 
-	private List<MessageNotifier> m_messageNotifiers = null;
+	private Map<String,NotificationClient> m_topicHandlingClients = new HashMap<String, NotificationClient>();
+	
+    private List<MessageNotifier> m_messageNotifiers = null;
 
-	@Override
+    @Override
 	public List<MessageNotifier> getMessageNotifiers() {
 		return m_messageNotifiers;
 	}
-
-	@Override
+    
+    @Override
 	public void setMessageNotifiers(List<MessageNotifier> messageNotifiers) {
 		this.m_messageNotifiers = messageNotifiers;
 	}
 
-	public void setNotificationHandlingClients(
-			List<NotificationClient> notificationHandlingClients) {
-		this.m_notificationHandlingClients = notificationHandlingClients;
+	/**
+	 * @param m_topicHandlingClients the m_topicHandlingClients to set
+	 */
+	public void setTopicHandlingClients(Map<String,NotificationClient> topicHandlingClients) {
+		this.m_topicHandlingClients.putAll(topicHandlingClients);
+		if(LOG.isDebugEnabled()){
+			StringBuffer sb = new StringBuffer("registering clients for topics: " );
+			for(String topic: this.m_topicHandlingClients.keySet()){
+				sb.append("topic:"+topic+" client:"+topicHandlingClients.get(topic)+", ");
+			}
+			LOG.debug(sb.toString());
+		}
 	}
 
 
@@ -92,59 +99,43 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 	}
 
 	public Integer getMaxMessageQueueThreads() {
-		return m_maxMessageQueueThreads;
+		return maxMessageQueueThreads;
 	}
 
 	public void setMaxMessageQueueThreads(Integer maxMessageQueueThreads) {
-		this.m_maxMessageQueueThreads = maxMessageQueueThreads;
+		this.maxMessageQueueThreads = maxMessageQueueThreads;
 	}
 
 	public void init(){
-		LOG.debug("initialising messageNotificationClientQueue with maxMessageQueueThreads:"+m_maxMessageQueueThreads
-				+ " and maxMessageQueueLength "+m_maxMessageQueueLength);
-
+		LOG.debug("initialising messageNotificationClientQueue with m_queue size "+m_maxMessageQueueLength);
+		
 		if (m_messageNotifiers==null) throw new IllegalStateException("m_messageNotifiers list cannot be null");
-		if (m_maxMessageQueueThreads==null) throw new IllegalStateException("maxMessageQueueThreads list cannot be null");
 
 		m_queue= new LinkedBlockingQueue<MessageNotification>(m_maxMessageQueueLength);
 
-		executorService = Executors.newFixedThreadPool(m_maxMessageQueueThreads);
-
-		// start consuming threads
+		// start consuming thread
 		m_clientRunning.set(true);
-
-		for(int i=0; i<m_maxMessageQueueThreads; i++){
-			executorService.execute(new RemovingConsumer());
-		}
+		m_removingConsumerThread.start();
 
 		// start listening for notifications
 		for(MessageNotifier messageNotifier: m_messageNotifiers){
 			messageNotifier.addMessageNotificationClient(this);
 		}
-
+		
 
 	}
 
 	public void destroy(){
-		LOG.debug("shutting down blockingQueue");
+		LOG.debug("shutting down client");
 
 		// stop listening for notifications
 		for(MessageNotifier messageNotifier: m_messageNotifiers){
 			messageNotifier.removeMessageNotificationClient(this);
 		}
 
-		// signal consuming threads to stop
+		// signal consuming thread to stop
 		m_clientRunning.set(false);
-		if(executorService!=null) synchronized(this) {
-			if(executorService!=null){
-				executorService.shutdown();
-				try {
-					executorService.awaitTermination(10, TimeUnit.SECONDS);
-				} catch (InterruptedException e) {
-					LOG.warn("executor service still has threads running at termination");
-				}
-			}
-		}
+		m_removingConsumerThread.interrupt();
 	}
 
 	@Override
@@ -166,7 +157,6 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 		@Override
 		public void run() {
 
-			if(LOG.isDebugEnabled()) LOG.debug("starting notification RemovingConsumer in thread");
 			// we remove elements from the m_queue until interrupted and m_clientRunning==false.
 			while (m_clientRunning.get()) {
 				try {
@@ -176,27 +166,31 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 							+ "\n qos:"+messageNotification.getQos()
 							+ "\n payload:"+new String(messageNotification.getPayload()));
 
-					// we look in list for notification handling clients to handle this received notification
-					if(m_notificationHandlingClients.isEmpty()) { 
+					// we look in hashtable for topic handling clients to handle this received notification
+					if(m_topicHandlingClients.isEmpty()) { 
 						LOG.warn("no topic handing clients have been set to receive notification");
 					} else {
-						for(NotificationClient notificationClient:m_notificationHandlingClients){
-
+						NotificationClient topicHandlingClient = m_topicHandlingClients.get(messageNotification.getTopic());
+						if (topicHandlingClient==null){
+							LOG.warn("no topic handing client has been set for topic:"+messageNotification.getTopic());
+						} else
 							try {
-								notificationClient.sendMessageNotification(messageNotification);
+								topicHandlingClient.sendMessageNotification(messageNotification);
 							} catch (Exception e){
 								LOG.error("problem processing messageNotification:",e);
 							}
-						}
 					}
 
 				} catch (InterruptedException e) { }
 
 			}
 
-			LOG.debug("shutting down notification RemovingConsumer in thread");
+			LOG.debug("shutting down notification consumer thread");
 		}
 	}
+
+
+
 
 
 }

@@ -35,6 +35,8 @@ import java.util.List;
 
 import org.junit.Test;
 import org.opennms.plugins.messagenotifier.Controller;
+import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
+import org.opennms.plugins.messagenotifier.NotificationMessageHandler;
 import org.opennms.plugins.messagenotifier.rest.MqttRxService;
 import org.opennms.plugins.messagenotifier.rest.MqttRxServiceImpl;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
@@ -67,13 +69,19 @@ public class TestController {
 		controller.setNodeByForeignSourceCacheImpl(mockNodeByForeignSourceCacheImpl);
 
 		MqttRxService mockMqttRxService = new MqttRxServiceImpl();
-		mockMqttRxService.setServiceType("opennms-rest-client");
-		mockMqttRxService.setServiceName("opennms-rest-client");
+		mockMqttRxService.setClientType("opennms-rest-client");
+		mockMqttRxService.setClientInstanceId("opennms-rest-client");
 		List<MqttRxService> messageReceiverServices = Arrays.asList( mockMqttRxService );
-		controller.setMessageReceiverServices(messageReceiverServices );
+		controller.setMessageReceiverServices(messageReceiverServices);
+		
+		MessageNotificationClientQueueImpl mockMessageNotificationClientQueueImpl=new MessageNotificationClientQueueImpl();
+		controller.setMessageNotificationClientQueueImpl(mockMessageNotificationClientQueueImpl);
+		
+        NotificationMessageHandler mockNotificationMessageHandler = new NotificationMessageHandler();
 
-
-		controller.init();
+        controller.setNotificationMessageHandler(mockNotificationMessageHandler);
+        
+		controller.loadConfig();
 
 
 		controller.destroy();
