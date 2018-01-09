@@ -204,12 +204,12 @@ public class Controller {
 		}
 		
 		Map<String, MessageParserConfig> topicEventParserMap = new HashMap<String, MessageParserConfig>();
-		for( MessageDataParserConfig messageDataParser:m_MQTTReceiverConfig.getMessageDataParsers()){
-			for(String subscription:messageDataParser.getSubscriptionTopics()){
+		for( MessageEventParserConfig messageEventParser:m_MQTTReceiverConfig.getMessageEventParsers()){
+			for(String subscription:messageEventParser.getSubscriptionTopics()){
 				if (topicEventParserMap.containsKey(subscription)) 
 					throw new RuntimeException("duplicate event topic subscription '"+subscription
 							+ "' in configuration");
-				topicEventParserMap.put(subscription, messageDataParser);
+				topicEventParserMap.put(subscription, messageEventParser);
 			}
 		}
 		

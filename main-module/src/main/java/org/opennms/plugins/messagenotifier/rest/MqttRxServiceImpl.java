@@ -141,8 +141,8 @@ public class MqttRxServiceImpl implements  MqttRxService {
 	}
 
 	@Override
-	public void setServiceType(String serviceType) {
-		this.serviceType=serviceType;
+	public void setClientType(String clientType) {
+		this.serviceType=clientType;
 	}
 
 	@Override

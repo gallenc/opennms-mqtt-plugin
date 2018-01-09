@@ -13,7 +13,7 @@
   <messageDataParsers>
       <messageDataParser contentType="JSON">
       <subscriptionTopics>
-        <topic>mqtt-data</topic>
+        <topic>mqtt-data1</topic>
         <topic>mqtt-data2</topic>
       </subscriptionTopics>
       <xml-groups>
@@ -42,8 +42,8 @@
   <messageEventParsers>
       <messageEventParser contentType="JSON">
       <subscriptionTopics>
-        <topic>mqtt-events</topic>
-        <topic>mqtt-events2</topic>
+        <topic>mqtt-events3</topic>
+        <topic>mqtt-events4</topic>
       </subscriptionTopics>
       <xml-groups>
         <ns2:xml-group name="sniffy" resource-type="sniffy" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
