@@ -47,6 +47,7 @@ public class MQTTClientConfig {
 	private String userName=null;
 	private String password=null;
 	private String connectionRetryInterval=null;
+	private String clientConnectionMaxWait=null;
 	
 	private Set<MQTTTopicSubscription> topicList=null;
 
@@ -105,7 +106,15 @@ public class MQTTClientConfig {
 		this.connectionRetryInterval = connectionRetryInterval;
 	}
 
-	
+	@XmlElement
+	public String getClientConnectionMaxWait() {
+		return clientConnectionMaxWait;
+	}
+
+	public void setClientConnectionMaxWait(String clientConnectionMaxWait) {
+		this.clientConnectionMaxWait = clientConnectionMaxWait;
+	}
+
 	public Set<MQTTTopicSubscription> getTopicList() {
 		return topicList;
 	}

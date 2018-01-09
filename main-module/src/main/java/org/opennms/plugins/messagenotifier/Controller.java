@@ -175,7 +175,7 @@ public class Controller {
 		m_messageNotificationClientQueueImpl.setMaxMessageQueueLength(m_MQTTReceiverConfig.getMaxMessageQueueLength());
 		m_messageNotificationClientQueueImpl.setMaxMessageQueueThreads(m_MQTTReceiverConfig.getMaxMessageQueueThreads());
 
-		m_messageNotificationClientQueueImpl.setNotificationHandlingClients(Arrays.asList());
+		m_messageNotificationClientQueueImpl.setOutgoingNotificationHandlingClients(Arrays.asList());
 
 		// add m_messageReceiverServices to message queue
 		// used to add rest interface
@@ -191,7 +191,7 @@ public class Controller {
 			messageNotifiers.add(m_clientMap.get(clientInstanceId));
 		}
 
-		m_messageNotificationClientQueueImpl.setMessageNotifiers(messageNotifiers);
+		m_messageNotificationClientQueueImpl.setIncommingMessageNotifiers(messageNotifiers);
 
 		Map<String, MessageParserConfig> topicDataParserMap = new HashMap<String, MessageParserConfig>();
 		for( MessageDataParserConfig messageDataParser:m_MQTTReceiverConfig.getMessageDataParsers()){

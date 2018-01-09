@@ -32,11 +32,9 @@ import static org.junit.Assert.*;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 import java.util.TimeZone;
 
 import org.json.simple.JSONObject;
@@ -47,8 +45,6 @@ import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
 import org.opennms.plugins.messagenotifier.MessageNotifier;
 import org.opennms.plugins.messagenotifier.NotificationClient;
-import org.opennms.plugins.messagenotifier.VerySimpleMessageNotificationClient;
-import org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient;
 import org.opennms.plugins.mqttclient.MQTTClientImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +56,7 @@ public class MQTTJsonReceiverTests {
 	private static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
 
 	public static final String SERVER_URL = "tcp://0.0.0.0:1883";
+//	public static final String SERVER_URL = "tcp://192.168.0.2:1883";
 
 	public static final String MQTT_USERNAME = "mqtt-user";
 	public static final String MQTT_PASSWORD = "mqtt-password";
@@ -68,49 +65,61 @@ public class MQTTJsonReceiverTests {
 	public static final String TOPIC_NAME = "mqtt-events";
 	public static final int QOS_LEVEL = 0;
 
+	public static final String CONNECTION_RETRY_INTERVAL = "60000"; 
+	public static final String CLIENT_CONNECTION_MAX_WAIT = "40000";
+
 	public static void main(String[] args){
-		
+
 		System.out.println("starting mqtt receiver "
 				+ " QOS_LEVEL="+QOS_LEVEL
-				+ " EVENT_TOPIC_NAME"+TOPIC_NAME
+				+ " EVENT_TOPIC_NAME="+TOPIC_NAME
 				+ " CLIENT_ID="+CLIENT_ID
-				+ " SERVER_URL="+SERVER_URL);
+				+ " SERVER_URL="+SERVER_URL
+				+ " CONNECTION_RETRY_INTERVAL="+CONNECTION_RETRY_INTERVAL
+				+ " CLIENT_CONNECTION_MAX_WAIT="+CLIENT_CONNECTION_MAX_WAIT);
 		MQTTJsonReceiverTests receiver = new MQTTJsonReceiverTests();
 		receiver.testMqttJsonReceiver();
 		System.out.println("mqtt receiver ended");
-		
+
 	}
-	
+
 
 
 	@Test
 	public void testMqttJsonReceiver() {
 		LOG.debug("start of test testMqttJsonReceiver() ");
 
+
 		// set up receiver
 		Receiver receiver= new Receiver();
 		Thread thread = new Thread(receiver);
-		thread.start();
 
-		try {
-			Thread.sleep(5000);
+		try{ 
+			thread.start();
+
+			try {
+				Thread.sleep(Long.parseLong(CONNECTION_RETRY_INTERVAL));
+			} catch(InterruptedException ex) {
+				Thread.currentThread().interrupt();
+			}
+
 			assertTrue(receiver.isConnected());
-		} catch(InterruptedException ex) {
-			Thread.currentThread().interrupt();
+			LOG.debug("Receiver is connected");
+
+
+			// wait for received messages
+			try {
+				Thread.sleep(5*60000); // 5 MINUTES
+			} catch(InterruptedException ex) {
+				Thread.currentThread().interrupt();
+			}
+
+		} finally {
+			//clean up
+			LOG.debug("shutting down receiver thread ");
+			receiver.close();
 		}
-		LOG.debug("Receiver is connected");
 
-
-		// wait for received messages
-		try {
-			Thread.sleep(5*60000); // 5 MINUTES
-			assertTrue(receiver.isConnected());
-		} catch(InterruptedException ex) {
-			Thread.currentThread().interrupt();
-		}
-
-		//clean up
-		receiver.close();
 
 		LOG.debug("end of test testMqttJsonReceiver() ");
 	}
@@ -160,24 +169,26 @@ public class MQTTJsonReceiverTests {
 		@Override
 		public void run() {
 			String brokerUrl = SERVER_URL;
-			String clientId = CLIENT_ID;
-			String userName =MQTT_USERNAME;
-			String password =MQTT_PASSWORD;
-			String connectionRetryInterval= "1000" ;
+			String clientId =  CLIENT_ID;
+			String userName =  MQTT_USERNAME;
+			String password =  MQTT_PASSWORD;
+			String connectionRetryInterval= CONNECTION_RETRY_INTERVAL;
+			String clientConnectionMaxWait= CLIENT_CONNECTION_MAX_WAIT;
 
 			LOG.debug("Receiver initiating connection");
 
-			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval);
+
+			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval, clientConnectionMaxWait);
 
 			messageNotificationClientQueueImpl = new MessageNotificationClientQueueImpl();
 
-			List<MessageNotifier> mqttClientList = new ArrayList<MessageNotifier>();
-			mqttClientList.add(client);
-			messageNotificationClientQueueImpl.setMessageNotifiers(mqttClientList);
-
+			messageNotificationClientQueueImpl.setMaxMessageQueueThreads(1);
 			messageNotificationClientQueueImpl.setMaxMessageQueueLength(100);
 
-			Map<String, NotificationClient> topicHandlingClients = new HashMap<String, NotificationClient>();
+			List<MessageNotifier> mqttClientList = new ArrayList<MessageNotifier>();
+			mqttClientList.add(client);
+			messageNotificationClientQueueImpl.setIncommingMessageNotifiers(mqttClientList);
+
 			NotificationClient notificationClient = new NotificationClient(){
 
 				@Override
@@ -187,7 +198,7 @@ public class MQTTJsonReceiverTests {
 						JSONObject jsonobj = parseJson(payloadString);
 						System.out.println(jsonobj.toJSONString());
 					} catch (Exception e){
-						
+
 					}
 				}
 
@@ -196,23 +207,33 @@ public class MQTTJsonReceiverTests {
 
 				@Override
 				public void destroy() {}
-				
+
 			};
 
-			topicHandlingClients.put(TOPIC_NAME, notificationClient);
-			messageNotificationClientQueueImpl.setTopicHandlingClients(topicHandlingClients);
+			List<NotificationClient> notificationHandlingClients = Arrays.asList(notificationClient);
+			messageNotificationClientQueueImpl.setOutgoingNotificationHandlingClients(notificationHandlingClients);
 
+			LOG.debug("initialising notification queue");
 			try{
 				messageNotificationClientQueueImpl.init();
-				client.init();
+				LOG.debug("notification queue initialised");
 			} catch(Exception e){
-				LOG.debug("Receiver problem initialising reliable connection", e);
+				LOG.debug("Receiver problem initialising reliable notification queue", e);
+			}
+
+			LOG.debug("initialising client");
+			try{
+				client.init();
+				LOG.debug("client initialised");
+			} catch(Exception e){
+				LOG.debug("Receiver problem initialising client reliable connection", e);
 			}
 
 			// wait for receiver to connect
 			try {
 				while (!Thread.currentThread().isInterrupted() && ! client.isClientConnected()){
-					Thread.sleep(100);
+					LOG.debug("Waiting for receiver to connect");
+					Thread.sleep(10000); // 10 secs
 				}
 			} catch(InterruptedException ex) {
 				Thread.currentThread().interrupt();
@@ -221,6 +242,7 @@ public class MQTTJsonReceiverTests {
 			// try receiving messages
 			String topic=TOPIC_NAME;
 			int qos=QOS_LEVEL;
+			LOG.debug("Receiver trying to subscribe to topic:"+topic+" qos:"+qos);
 			try{
 				client.subscribe(topic, qos);
 			} catch(Exception e){
@@ -228,7 +250,7 @@ public class MQTTJsonReceiverTests {
 			}
 			LOG.debug("Receiver connection initialised");
 
-			
+
 		}
 
 	}

@@ -69,6 +69,8 @@ public class MQTTJsonTransmitterTest {
 	//public static final String SERVER_URL = "tcp://139.162.227.142:1883"; // linode
 	public static final String MQTT_USERNAME = "mqtt-user";
 	public static final String MQTT_PASSWORD = "mqtt-password";
+	public static final String CONNECTION_RETRY_INTERVAL = "60000"; 
+	public static final String CLIENT_CONNECTION_MAX_WAIT = "40000";
 
 	public static final String CLIENT_ID = "transmitter1";
 	public static final String TOPIC_NAME = "mqtt-data"; // mqtt-data
@@ -93,7 +95,8 @@ public class MQTTJsonTransmitterTest {
 	private String clientId = CLIENT_ID;
 	private String userName =MQTT_USERNAME;
 	private String password =MQTT_PASSWORD;
-	private String connectionRetryInterval= "1000" ;
+	private String connectionRetryInterval= CONNECTION_RETRY_INTERVAL;
+	private String clientConnectionMaxWait= CLIENT_CONNECTION_MAX_WAIT;
 	private String topic=TOPIC_NAME;
 	private int qos=QOS_LEVEL;
 
@@ -140,7 +143,7 @@ public class MQTTJsonTransmitterTest {
 
 		// will connect
 
-		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval);
+		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
 
 		try{
 			client.init();

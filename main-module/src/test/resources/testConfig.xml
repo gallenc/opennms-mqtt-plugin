@@ -66,7 +66,8 @@
     <client clientInstanceId="client1">
       <brokerUrl>tcp://localhost:1883</brokerUrl>
       <clientId>opennms</clientId>
-      <connectionRetryInterval>10</connectionRetryInterval>
+      <connectionRetryInterval>3000</connectionRetryInterval>
+      <clientConnectionMaxWait>20000</clientConnectionMaxWait>
       <password>xxx</password>
       <topicList>
         <topic qos="0" topic="mqtt-events" />

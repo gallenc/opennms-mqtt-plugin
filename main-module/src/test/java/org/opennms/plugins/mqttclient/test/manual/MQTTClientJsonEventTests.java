@@ -32,6 +32,7 @@ import static org.junit.Assert.*;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -58,10 +59,12 @@ public class MQTTClientJsonEventTests {
 	// works with 2017-10-19 10:15:02.854888
 	private static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
 
-	//public static final String SERVER_URL = "tcp://localhost:1883";
-	public static final String SERVER_URL = "tcp://192.168.202.1:1883";
+	public static final String SERVER_URL = "tcp://localhost:1883";
+	//public static final String SERVER_URL = "tcp://192.168.202.1:1883";
 	public static final String MQTT_USERNAME = "mqtt-user";
 	public static final String MQTT_PASSWORD = "mqtt-password";
+	public static final String CONNECTION_RETRY_INTERVAL = "60000"; 
+	public static final String CLIENT_CONNECTION_MAX_WAIT = "40000";
 
 	public static final String CLIENT_ID = "receiver1";
 	public static final String CLIENT_ID2 = "transmitter1";
@@ -131,13 +134,12 @@ public class MQTTClientJsonEventTests {
 		String clientId = CLIENT_ID2;
 		String userName =MQTT_USERNAME;
 		String password =MQTT_PASSWORD;
-		String connectionRetryInterval= "1000" ;
-
-		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval);
+		String connectionRetryInterval= CONNECTION_RETRY_INTERVAL;
+		String clientConnectionMaxWait= CLIENT_CONNECTION_MAX_WAIT;
 
 		// will connect
 		brokerUrl = SERVER_URL;
-		client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval);
+		MQTTClientImpl client  = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
 
 		try{
 			client.init();
@@ -228,25 +230,27 @@ public class MQTTClientJsonEventTests {
 			String clientId = CLIENT_ID;
 			String userName =null;
 			String password =null;
-			String connectionRetryInterval= "1000" ;
+			String connectionRetryInterval= CONNECTION_RETRY_INTERVAL;
+			String clientConnectionMaxWait= CLIENT_CONNECTION_MAX_WAIT;
 
 			LOG.debug("Receiver initiating connection");
 
-			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval);
+			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
 
 			messageNotificationClientQueueImpl = new MessageNotificationClientQueueImpl();
 						
 			List<MessageNotifier> mqttClientList = new ArrayList<MessageNotifier>();
 			mqttClientList.add(client);
-			messageNotificationClientQueueImpl.setMessageNotifiers(mqttClientList);
+			
+			messageNotificationClientQueueImpl.setIncommingMessageNotifiers(mqttClientList);
 
+			messageNotificationClientQueueImpl.setMaxMessageQueueThreads(1);
 			messageNotificationClientQueueImpl.setMaxMessageQueueLength(100);
 
-			Map<String, NotificationClient> topicHandlingClients = new HashMap<String, NotificationClient>();
-			NotificationClient notificationClient = new MqttEventNotificationClient();
+			NotificationClient notificationClient = new VerySimpleMessageNotificationClient();
 
-			topicHandlingClients.put(TOPIC_NAME, notificationClient);
-			messageNotificationClientQueueImpl.setTopicHandlingClients(topicHandlingClients);
+			List<NotificationClient> notificationHandlingClients = Arrays.asList(notificationClient);
+			messageNotificationClientQueueImpl.setOutgoingNotificationHandlingClients(notificationHandlingClients);
 
 			try{
 				messageNotificationClientQueueImpl.init();

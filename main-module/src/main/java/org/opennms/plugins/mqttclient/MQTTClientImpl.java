@@ -56,8 +56,11 @@ import org.slf4j.LoggerFactory;
 public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	private static final Logger LOG = LoggerFactory.getLogger(MQTTClientImpl.class);
 
+	// maximum time to wait for connection
+	private long m_clientConnectionMaxWait = 30000; // 30 s wait to connect or to disconnect
+
 	// m_connectionRetryInterval   interval (ms) before re attempting connection.
-	private Integer m_connectionRetryInterval=30000;
+	private Integer m_connectionRetryInterval=40000; // 40 seconds
 	private String m_brokerUrl;
 	private String m_password;
 	private String m_userName;
@@ -120,12 +123,18 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 * @param password the password for the user
 	 * @param connectionRetryInterval interval (ms) before re attempting connection.
 	 */
-	public MQTTClientImpl(String brokerUrl, String clientId, String userName, String password, String connectionRetryInterval) {
+	public MQTTClientImpl(String brokerUrl, String clientId, String userName, String password, String connectionRetryInterval, String clientConnectionMaxWait) {
 		if ((brokerUrl == null) || (brokerUrl.trim().equals(""))) throw new IllegalArgumentException("mqtt m_brokerUrl cannot be empty or null");
 		try{
 			this.m_connectionRetryInterval=Integer.parseInt(connectionRetryInterval);
 		} catch (Exception e){
-			new IllegalArgumentException("mqtt m_connectionRetryInterval is not an integer",e);
+			new IllegalArgumentException("mqtt m_connectionRetryInterval "+connectionRetryInterval+" is not an integer value",e);
+		}
+		
+		try{
+			this.m_clientConnectionMaxWait=Long.parseLong(clientConnectionMaxWait);
+		} catch (Exception e){
+			new IllegalArgumentException("mqtt m_clientConnectionMaxWait  "+clientConnectionMaxWait+" is not an long value",e);
 		}
 
 		m_brokerUrl = brokerUrl;
@@ -167,12 +176,12 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 				mQTTClientConfig.getClientId(), 
 				mQTTClientConfig.getUserName(), 
 				mQTTClientConfig.getPassword(), 
-				mQTTClientConfig.getConnectionRetryInterval());
+				mQTTClientConfig.getConnectionRetryInterval(),
+				mQTTClientConfig.getClientConnectionMaxWait());
 		
 		m_instanceId = mQTTClientConfig.getClientInstanceId();
 		setTopicList(mQTTClientConfig.getTopicList());
 
-		
 	}
 
 	/**
@@ -192,7 +201,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 		IMqttToken conToken;
 		try {
 			conToken = m_client.connect(m_conOpt,null,null);
-			conToken.waitForCompletion();
+			conToken.waitForCompletion(m_clientConnectionMaxWait);
 		} catch (MqttException e1) {
 			// An exception is thrown if connect fails.
 			LOG.error("client instanceId:"+m_instanceId+": failed to connect to MQTT broker:"+ m_brokerUrl ,e1);
@@ -287,7 +296,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 		try {
 			m_clientConnected.set(false);
 			stopConnectionRetryThead();
-			if(m_client.isConnected()) m_client.disconnect();
+			m_client.disconnectForcibly(m_clientConnectionMaxWait,m_clientConnectionMaxWait );
 			m_client.close();
 		} catch (MqttException e) {
 			LOG.error("client instanceId:"+m_instanceId+": problem closing m_client",e);

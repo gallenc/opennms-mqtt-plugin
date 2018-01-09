@@ -67,7 +67,8 @@ public class TestMqttConfigMarshalling {
 	private String brokerUrl="tcp://localhost:1883";
 	private String clientId="opennms";
 	private String clientInstanceId="client1";
-	private String connectionRetryInterval="10";
+	private String connectionRetryInterval="30000";
+	private String clientConnectionMaxWait="20000";
 	private String password="xxx";
 	private String userName="yyy";
 	
@@ -150,6 +151,7 @@ public class TestMqttConfigMarshalling {
 		mConfig.setClientId(clientId);
 		mConfig.setClientInstanceId(clientInstanceId);
 		mConfig.setConnectionRetryInterval(connectionRetryInterval);
+		mConfig.setClientConnectionMaxWait(clientConnectionMaxWait);
 		mConfig.setPassword(password);
 		mConfig.setUserName(userName);
 		

@@ -52,10 +52,12 @@ import org.slf4j.LoggerFactory;
 public class MQTTClientTopicListTests {
 	private static final Logger LOG = LoggerFactory.getLogger(MQTTClientTopicListTests.class);
 
-	//public static final String SERVER_URL = "tcp://localhost:1883";
-	public static final String SERVER_URL = "tcp://192.168.202.1:1883";
+	public static final String SERVER_URL = "tcp://localhost:1883";
+	//public static final String SERVER_URL = "tcp://192.168.202.1:1883";
 	public static final String MQTT_USERNAME = "mqtt-user";
 	public static final String MQTT_PASSWORD = "mqtt-password";
+	public static final String CONNECTION_RETRY_INTERVAL = "60000"; 
+	public static final String CLIENT_CONNECTION_MAX_WAIT = "40000";
 
 	public static final String CLIENT_ID = "receiver1";
 	public static final String CLIENT_ID2 = "transmitter1";
@@ -93,7 +95,8 @@ public class MQTTClientTopicListTests {
 			String clientId = CLIENT_ID;
 			String userName =MQTT_USERNAME;
 			String password =MQTT_PASSWORD;
-			String connectionRetryInterval= "1000" ;
+			String connectionRetryInterval= CONNECTION_RETRY_INTERVAL;
+			String clientConnectionMaxWait= CLIENT_CONNECTION_MAX_WAIT;
 
 			LOG.debug("Receiver initiating connection");
 			
@@ -102,22 +105,23 @@ public class MQTTClientTopicListTests {
 				LOG.debug("   qos:"+sub.getQos()+"   topic:"+sub.getTopic());
 			}
 
-			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval);
+			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
 			client.setTopicList(topicList);
-
-			messageNotificationClientQueueImpl = new MessageNotificationClientQueueImpl();
-
+			
 			List<MessageNotifier> mqttClientList = new ArrayList<MessageNotifier>();
 			mqttClientList.add(client);
-			messageNotificationClientQueueImpl.setMessageNotifiers(mqttClientList);
+			
+			messageNotificationClientQueueImpl = new MessageNotificationClientQueueImpl();
+			
+			messageNotificationClientQueueImpl.setIncommingMessageNotifiers(mqttClientList);
 
+			messageNotificationClientQueueImpl.setMaxMessageQueueThreads(1);
 			messageNotificationClientQueueImpl.setMaxMessageQueueLength(100);
 
-			Map<String, NotificationClient> topicHandlingClients = new HashMap<String, NotificationClient>();
 			NotificationClient notificationClient = new VerySimpleMessageNotificationClient();
 
-			topicHandlingClients.put(EVENT_TOPIC_NAME, notificationClient);
-			messageNotificationClientQueueImpl.setTopicHandlingClients(topicHandlingClients);
+			List<NotificationClient> notificationHandlingClients = Arrays.asList(notificationClient);
+			messageNotificationClientQueueImpl.setOutgoingNotificationHandlingClients(notificationHandlingClients);
 
 			try{
 				messageNotificationClientQueueImpl.init();
@@ -170,13 +174,12 @@ public class MQTTClientTopicListTests {
 		String clientId = CLIENT_ID2;
 		String userName =MQTT_USERNAME;
 		String password =MQTT_PASSWORD;
-		String connectionRetryInterval= "1000" ;
-
-		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval);
+		String connectionRetryInterval= CONNECTION_RETRY_INTERVAL;
+		String clientConnectionMaxWait= CLIENT_CONNECTION_MAX_WAIT;
 
 		// will connect
 		brokerUrl = SERVER_URL;
-		client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval);
+		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
 
 		try{
 			client.init();

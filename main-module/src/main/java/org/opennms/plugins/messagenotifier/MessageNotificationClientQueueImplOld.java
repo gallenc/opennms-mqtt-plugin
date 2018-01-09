@@ -66,12 +66,12 @@ public class MessageNotificationClientQueueImplOld implements MessageNotificatio
     private List<MessageNotifier> m_messageNotifiers = null;
 
     @Override
-	public List<MessageNotifier> getMessageNotifiers() {
+	public List<MessageNotifier> getIncommingMessageNotifiers() {
 		return m_messageNotifiers;
 	}
     
     @Override
-	public void setMessageNotifiers(List<MessageNotifier> messageNotifiers) {
+	public void setIncommingMessageNotifiers(List<MessageNotifier> messageNotifiers) {
 		this.m_messageNotifiers = messageNotifiers;
 	}
 

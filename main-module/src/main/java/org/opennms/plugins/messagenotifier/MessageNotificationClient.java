@@ -37,8 +37,8 @@ import java.util.List;
  */
 public interface MessageNotificationClient extends NotificationClient {
 
-	public List<MessageNotifier> getMessageNotifiers();
+	public List<MessageNotifier> getIncommingMessageNotifiers();
 
-	public void setMessageNotifiers(List<MessageNotifier> messageNotifiers);
+	public void setIncommingMessageNotifiers(List<MessageNotifier> messageNotifiers);
 	
 }
