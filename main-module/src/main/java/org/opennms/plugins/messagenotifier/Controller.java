@@ -112,12 +112,15 @@ public class Controller {
 	 * business methods
 	 */
 	
+	/**
+	 * called by init to load configuration and set up controlled classes before init();
+	 */
 	public void loadConfig(){
 
 		m_MQTTReceiverConfig = loadConfigFile();
 
 		//set up node cache
-		if (m_nodeByForeignSourceCacheImpl==null) throw new RuntimeException("nodeByForeignSourceCacheImpl must be set");
+		if (m_nodeByForeignSourceCacheImpl==null) throw new IllegalStateException("nodeByForeignSourceCacheImpl must be set");
 		if(m_MQTTReceiverConfig.getNodeCacheMaxSize()!=null) m_nodeByForeignSourceCacheImpl.setMAX_SIZE(m_MQTTReceiverConfig.getNodeCacheMaxSize());
 		if(m_MQTTReceiverConfig.getNodeCacheMaxTtl()!=null) m_nodeByForeignSourceCacheImpl.setMAX_TTL(m_MQTTReceiverConfig.getNodeCacheMaxTtl());
 		if(m_MQTTReceiverConfig.getCreateDummyInterfaces()!=null) m_nodeByForeignSourceCacheImpl.setCreateDummyInterfaces(m_MQTTReceiverConfig.getCreateDummyInterfaces());
@@ -128,29 +131,46 @@ public class Controller {
 		// Set Up mqtt clients and message receivers
 		
 		// set up mqtt receivers
+		// m_clientMap will contain a list of all the mqtt clients 
 		for(MQTTClientConfig mqttConfig:m_MQTTReceiverConfig.getMqttClients()){
+			if(mqttConfig.getClientInstanceId()==null || "".equals(mqttConfig.getClientInstanceId())) 
+				throw new IllegalArgumentException("clientInstanceId value is not defined for a MQTTClientConfig");
 			if (m_clientMap.containsKey(mqttConfig.getClientInstanceId())) 
-				throw new RuntimeException("duplicate mqtt receiver ClientInstanceId '"+mqttConfig.getClientInstanceId()
+				throw new IllegalArgumentException("duplicate mqtt receiver ClientInstanceId '"+mqttConfig.getClientInstanceId()
 						+ "' in configuration");
+			
 			MQTTClientImpl client = new MQTTClientImpl(mqttConfig);
+			
 			m_clientMap.put(mqttConfig.getClientInstanceId(), client);
 		}
-
+		
 		// set up message receivers
+		// m_rxServiceMap will contain a list of all the message clients defined in the config
+
+		// set up message receivers from types defined in blueprint
 		Map<String, MqttRxService> messageReceivers = new HashMap<String,MqttRxService>();
 		if(m_messageReceiverServices!=null){
 			for(MqttRxService messageReceiver: m_messageReceiverServices){
+				
+				if(messageReceiver.getClientInstanceId()==null || "".equals(messageReceiver.getClientInstanceId())) 
+					throw new IllegalArgumentException("clientInstanceId value is not defined for a Receiver in blueprint");
+				
 				if (messageReceivers.containsKey(messageReceiver.getClientInstanceId())) 
-					throw new RuntimeException("duplicate messageReceiver '"+messageReceiver.getClientInstanceId()
+					throw new IllegalArgumentException("duplicate messageReceiver ClientInstanceId in blueprint '"+messageReceiver.getClientInstanceId()
 							+ "' in configuration");
 				messageReceivers.put(messageReceiver.getClientInstanceId(), messageReceiver);
 			}
 		}
 
+		// find the client in the blueprint corresponding to the configuration file and configure it
 		for(MessageClientConfig receiverConfig:m_MQTTReceiverConfig.getMessageClients()){
-			if (m_clientMap.containsKey(receiverConfig.getClientInstanceId())) 
-				throw new RuntimeException("duplicate ClientInstanceId '"+receiverConfig.getClientInstanceId()
-						+ "' in configuration");
+			
+			if(receiverConfig.getClientInstanceId()==null || "".equals(receiverConfig.getClientInstanceId())) 
+				throw new IllegalArgumentException("clientInstanceId value is not defined for a Receiver in configuration");
+			
+			if (m_rxServiceMap.containsKey(receiverConfig.getClientInstanceId())) 
+				throw new IllegalArgumentException("duplicate ClientInstanceId '"+receiverConfig.getClientInstanceId()
+						+ "' in message client configuration.");
 			
 			MqttRxService rxService = messageReceivers.get(receiverConfig.getClientInstanceId());
 			
@@ -165,64 +185,65 @@ public class Controller {
 				if(receiverConfig.getTopicList()!=null) rxService.setTopicList(receiverConfig.getTopicList());
 				m_rxServiceMap.put(receiverConfig.getClientInstanceId(), rxService);
 			} else {
-				throw new RuntimeException("receiver configId "+receiverConfig.getClientInstanceId()
+				throw new IllegalArgumentException("receiver configId "+receiverConfig.getClientInstanceId()
 						+ " clientType "+receiverConfig.getClientType()
-						+ " defines unavailable service");
+						+ " defines an unavailable service");
 			}
 		}
 
 		// set up message queue
+		if(m_messageNotificationClientQueueImpl==null) throw new IllegalStateException("m_messageNotificationClientQueueImpl has not been defined");
 		m_messageNotificationClientQueueImpl.setMaxMessageQueueLength(m_MQTTReceiverConfig.getMaxMessageQueueLength());
 		m_messageNotificationClientQueueImpl.setMaxMessageQueueThreads(m_MQTTReceiverConfig.getMaxMessageQueueThreads());
-
-		m_messageNotificationClientQueueImpl.setOutgoingNotificationHandlingClients(Arrays.asList());
+		
 
 		// add m_messageReceiverServices to message queue
 		// used to add rest interface
-		List<MessageNotifier> messageNotifiers = new ArrayList<MessageNotifier>();
+		List<MessageNotifier> incomingMessageNotifiers = new ArrayList<MessageNotifier>();
 		for(String clientInstanceId : m_rxServiceMap.keySet()){
 			LOG.debug("adding rxService to message queue client:"+clientInstanceId);
-			messageNotifiers.add(m_rxServiceMap.get(clientInstanceId));
+			incomingMessageNotifiers.add(m_rxServiceMap.get(clientInstanceId));
 		}
 
 		// add user defined mqtt receivers to message queue
 		for(String clientInstanceId : m_clientMap.keySet()){
 			LOG.debug("adding mqtt to message queue client:"+clientInstanceId);
-			messageNotifiers.add(m_clientMap.get(clientInstanceId));
+			incomingMessageNotifiers.add(m_clientMap.get(clientInstanceId));
 		}
 
-		m_messageNotificationClientQueueImpl.setIncommingMessageNotifiers(messageNotifiers);
+		// add incoming message notifiers to the client queue
+		m_messageNotificationClientQueueImpl.setIncommingMessageNotifiers(incomingMessageNotifiers);
+		
+		// notification handing clients are set up directly in the blueprint and not here
+		// List<NotificationClient> notificationHandlingClients;
+		// m_messageNotificationClientQueueImpl.setOutgoingNotificationHandlingClients(notificationHandlingClients);
+		
+		// set up m_notificationMessageHandler
+		// with configuration for parsing messages into OnmsCollectionAttributeMap's
 
-		Map<String, MessageParserConfig> topicDataParserMap = new HashMap<String, MessageParserConfig>();
+		Map<String, MessageDataParserConfig> topicDataParserMap = new HashMap<String, MessageDataParserConfig>();
 		for( MessageDataParserConfig messageDataParser:m_MQTTReceiverConfig.getMessageDataParsers()){
 			for(String subscription:messageDataParser.getSubscriptionTopics()){
 				if (topicDataParserMap.containsKey(subscription)) 
-					throw new RuntimeException("duplicate data topic subscription '"+subscription
+					throw new IllegalArgumentException("duplicate data topic subscription '"+subscription
 							+ "' in configuration");
 				topicDataParserMap.put(subscription, messageDataParser);
 			}
 		}
 		
-		Map<String, MessageParserConfig> topicEventParserMap = new HashMap<String, MessageParserConfig>();
+		m_notificationMessageHandler.setTopicDataParserMap(topicDataParserMap);
+		
+		Map<String, MessageEventParserConfig> topicEventParserMap = new HashMap<String, MessageEventParserConfig>();
 		for( MessageEventParserConfig messageEventParser:m_MQTTReceiverConfig.getMessageEventParsers()){
 			for(String subscription:messageEventParser.getSubscriptionTopics()){
 				if (topicEventParserMap.containsKey(subscription)) 
-					throw new RuntimeException("duplicate event topic subscription '"+subscription
+					throw new IllegalArgumentException("duplicate event topic subscription '"+subscription
 							+ "' in configuration");
 				topicEventParserMap.put(subscription, messageEventParser);
 			}
 		}
 		
-		//TODO allow events and data from same topic
-		
-		// check no duplicate topics
-		for(String subscription: topicEventParserMap.keySet()){
-			if (topicDataParserMap.containsKey(subscription))throw new RuntimeException("duplicate event topic subscription '"+subscription
-					+ "' for events and data in configuration");
-			topicDataParserMap.put(subscription, topicEventParserMap.get(subscription));
-		}
-		
-		m_notificationMessageHandler.setTopicParserMap(topicDataParserMap);
+		m_notificationMessageHandler.setTopicEventParserMap(topicEventParserMap);
 
 	}
 
@@ -236,7 +257,7 @@ public class Controller {
 		// initialise messageQueue
 		m_messageNotificationClientQueueImpl.init();
 
-		// initialise receivers
+		// initialise mqtt receivers
 		for(String clientId: m_clientMap.keySet()){
 			LOG.info("initialising"+clientId);
 			try{
@@ -246,6 +267,7 @@ public class Controller {
 			}
 		}
 		
+		// initialise other receivers
 		for(String clientId: m_rxServiceMap.keySet()){
 			LOG.info("initialising"+clientId);
 			try{
@@ -322,7 +344,7 @@ public class Controller {
 
 		} catch (JAXBException e) {
 			LOG.error("MQTT Receiver Config Problem loading configuration: "+ e.getMessage());
-			throw new RuntimeException("MQTT Receiver Config Problem loading configuration",e);
+			throw new IllegalArgumentException("MQTT Receiver Config Problem loading configuration",e);
 		}
 
 
