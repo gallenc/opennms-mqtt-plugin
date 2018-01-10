@@ -26,11 +26,10 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.json.test.manual;
+package org.opennms.plugins.json.test;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -42,7 +41,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import org.junit.Test;
 import org.opennms.netmgt.events.api.EventIpcManager;
@@ -60,7 +58,6 @@ import org.opennms.plugins.messagenotifier.datanotifier.DataPersistor;
 import org.opennms.plugins.messagenotifier.eventnotifier.EventPersistor;
 import org.opennms.plugins.messagenotifier.rest.MqttRxService;
 import org.opennms.plugins.messagenotifier.rest.MqttRxServiceImpl;
-import org.opennms.plugins.mqtt.config.MQTTClientConfig;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
 import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
 import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
@@ -71,7 +68,7 @@ import org.slf4j.LoggerFactory;
 public class TestController {
 	private static final Logger LOG = LoggerFactory.getLogger(TestController.class);
 
-	public static final String TEST_CONFIG_FILE = "src/test/resources/testConfig.xml";
+	public static final String TEST_CONFIG_FILE = "src/test/resources/ControllerTests/testConfig.xml";
 
 	private MqttRxService mockMqttRxService=null;
 
@@ -252,81 +249,81 @@ public class TestController {
 
 		@Override
 		public void addEventListener(EventListener listener) {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 
 		@Override
 		public void addEventListener(EventListener listener,
 				Collection<String> ueis) {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 
 		@Override
 		public void addEventListener(EventListener listener, String uei) {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 
 		@Override
 		public void removeEventListener(EventListener listener) {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 
 		@Override
 		public void removeEventListener(EventListener listener,
 				Collection<String> ueis) {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 
 		@Override
 		public void removeEventListener(EventListener listener, String uei) {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 
 		@Override
 		public boolean hasEventListener(String uei) {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 			return false;
 		}
 
 		@Override
 		public void send(Event event) throws EventProxyException {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 
 		@Override
 		public void send(Log eventLog) throws EventProxyException {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 
 		@Override
 		public void sendNow(Event event) {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 
 		@Override
 		public void sendNow(Log eventLog) {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 
 		@Override
 		public void sendNowSync(Event event) {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 
 		@Override
 		public void sendNowSync(Log eventLog) {
-			// TODO Auto-generated method stub
+			// Auto-generated method stub
 
 		}
 

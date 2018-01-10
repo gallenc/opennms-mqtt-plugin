@@ -27,7 +27,7 @@
  *******************************************************************************/
 
 
-package org.opennms.plugins.json.test.manual;
+package org.opennms.plugins.json.test;
 
 import static org.junit.Assert.*;
 
