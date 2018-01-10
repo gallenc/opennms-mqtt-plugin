@@ -54,7 +54,8 @@ public class TestJsonConfig {
 			jaxbMarshaller.marshal(xmlGroups ,stringWriter);
 			LOG.info("output string xmlgroups: \n"+stringWriter.toString());
 
-			OnmsAttributeMessageHandler waj = new OnmsAttributeMessageHandler();
+			XmlGroups source=new XmlGroups(); //NOTE NOT USED BUT MUST NOT BE NULL
+			OnmsAttributeMessageHandler waj = new OnmsAttributeMessageHandler(source);
 
 			JSONObject json=null;
 			try {

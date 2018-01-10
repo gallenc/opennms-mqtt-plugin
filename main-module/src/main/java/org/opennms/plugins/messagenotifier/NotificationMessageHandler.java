@@ -86,7 +86,7 @@ public class NotificationMessageHandler implements NotificationClient {
 			LOG.error("unable to persist data message from topic:"+topic, ex);
 		}
 		// see if topic creates an event
-		if (eventParserConfig!=null)try{
+		if (eventParserConfig!=null) try{
 			String eventPayloadType = eventParserConfig.getPayloadType();
 			Object eventPayloadObject = MessagePayloadTypeHandler.parsePayload(payload, eventPayloadType);
 

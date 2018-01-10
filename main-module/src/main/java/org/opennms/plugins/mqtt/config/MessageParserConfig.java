@@ -2,12 +2,17 @@ package org.opennms.plugins.mqtt.config;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opennms.protocols.xml.config.XmlGroups;
 
+@XmlRootElement(name="messageParser")
+@XmlAccessorType(XmlAccessType.NONE)
 public class MessageParserConfig {
 
 	private List<String> subscriptionTopics = null;
@@ -41,7 +46,7 @@ public class MessageParserConfig {
 		return xmlGroups;
 	}
 
-	@XmlElement
+	@XmlElement(name = "xml-groups")
 	public void setXmlGroups(XmlGroups xmlGroups) {
 		this.xmlGroups = xmlGroups;
 	}

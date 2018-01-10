@@ -230,6 +230,17 @@ public class TestMqttConfigMarshalling {
 			StringReader reader = new StringReader(xmlString);
 			MQTTReceiverConfig unmarshalledmConfig = (MQTTReceiverConfig) jaxbUnmarshaller.unmarshal(reader);
 			
+			// test convert back
+			Marshaller jaxbMarshaller2 = jaxbContext.createMarshaller();
+			jaxbMarshaller2.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+			jaxbMarshaller2.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			StringWriter stringWriter2 = new StringWriter();
+			jaxbMarshaller.marshal(unmarshalledmConfig,stringWriter2);
+			
+			String xmlString2 = stringWriter.toString();
+			LOG.debug("re unmarshalled string string mConfig: \n"+xmlString2);
+			
+			assertEquals(xmlString,xmlString2);
 
 		} catch (JAXBException e) {
 			throw new RuntimeException("Problem testing mqttclient",e);

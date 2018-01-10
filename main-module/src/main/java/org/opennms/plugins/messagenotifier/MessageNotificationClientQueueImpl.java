@@ -61,25 +61,25 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 
 	private LinkedBlockingQueue<MessageNotification> m_queue=null;
 
-	private AtomicBoolean m_clientRunning = new AtomicBoolean(false);
+	private AtomicBoolean m_clientsRunning = new AtomicBoolean(false);
 
-	private List<NotificationClient> m_notificationHandlingClients = new ArrayList<NotificationClient>();
+	private List<NotificationClient> m_outgoingNotificationHandlingClients = new ArrayList<NotificationClient>();
 
-	private List<MessageNotifier> m_messageNotifiers = null;
+	private List<MessageNotifier> m_incommingMessageNotifiers = null;
 
 	@Override
 	public List<MessageNotifier> getIncommingMessageNotifiers() {
-		return m_messageNotifiers;
+		return m_incommingMessageNotifiers;
 	}
 
 	@Override
 	public void setIncommingMessageNotifiers(List<MessageNotifier> messageNotifiers) {
-		this.m_messageNotifiers = messageNotifiers;
+		this.m_incommingMessageNotifiers = messageNotifiers;
 	}
 
 	public void setOutgoingNotificationHandlingClients(
 			List<NotificationClient> notificationHandlingClients) {
-		this.m_notificationHandlingClients = notificationHandlingClients;
+		this.m_outgoingNotificationHandlingClients = notificationHandlingClients;
 	}
 
 
@@ -103,7 +103,7 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 		LOG.debug("initialising messageNotificationClientQueue with maxMessageQueueThreads:"+m_maxMessageQueueThreads
 				+ " and maxMessageQueueLength "+m_maxMessageQueueLength);
 
-		if (m_messageNotifiers==null) throw new IllegalStateException("m_messageNotifiers list cannot be null");
+		if (m_incommingMessageNotifiers==null) throw new IllegalStateException("m_incommingMessageNotifiers list cannot be null");
 		if (m_maxMessageQueueThreads==null) throw new IllegalStateException("maxMessageQueueThreads list cannot be null");
 
 		m_queue= new LinkedBlockingQueue<MessageNotification>(m_maxMessageQueueLength);
@@ -111,14 +111,16 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 		executorService = Executors.newFixedThreadPool(m_maxMessageQueueThreads);
 
 		// start consuming threads
-		m_clientRunning.set(true);
+		m_clientsRunning.set(true);
 
 		for(int i=0; i<m_maxMessageQueueThreads; i++){
-			executorService.execute(new RemovingConsumer());
+			String name="removingConsumer_"+i;
+			executorService.execute(new RemovingConsumer(name));
 		}
 
 		// start listening for notifications
-		for(MessageNotifier messageNotifier: m_messageNotifiers){
+		for(MessageNotifier messageNotifier: m_incommingMessageNotifiers){
+			LOG.debug("initialising messageNotificationClientQueue : registering for notifications from messageNotifier:"+messageNotifier.getClass());
 			messageNotifier.addMessageNotificationClient(this);
 		}
 
@@ -129,12 +131,12 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 		LOG.debug("shutting down blockingQueue");
 
 		// stop listening for notifications
-		for(MessageNotifier messageNotifier: m_messageNotifiers){
+		for(MessageNotifier messageNotifier: m_incommingMessageNotifiers){
 			messageNotifier.removeMessageNotificationClient(this);
 		}
 
 		// signal consuming threads to stop
-		m_clientRunning.set(false);
+		m_clientsRunning.set(false);
 		if(executorService!=null) synchronized(this) {
 			if(executorService!=null){
 				executorService.shutdown();
@@ -162,25 +164,30 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 	 * Class run in separate thread to remove and process notifications from the m_queue 
 	 */
 	private class RemovingConsumer implements Runnable {
+		
+		public String name;
+		public RemovingConsumer(String name){
+			this.name=name;
+		}
 
 		@Override
 		public void run() {
 
-			if(LOG.isDebugEnabled()) LOG.debug("starting notification RemovingConsumer in thread");
-			// we remove elements from the m_queue until interrupted and m_clientRunning==false.
-			while (m_clientRunning.get()) {
+			if(LOG.isDebugEnabled()) LOG.debug("starting notification RemovingConsumer "+name+" in new thread");
+			// we remove elements from the m_queue until interrupted and m_clientsRunning==false.
+			while (m_clientsRunning.get()) {
 				try {
 					MessageNotification messageNotification = m_queue.take();
 
-					if(LOG.isDebugEnabled()) LOG.debug("Notification received from m_queue by consumer thread :\n topic:"+messageNotification.getTopic()
+					if(LOG.isDebugEnabled()) LOG.debug("Notification received from m_queue by RemovingConsumer "+name+" thread :\n topic:"+messageNotification.getTopic()
 							+ "\n qos:"+messageNotification.getQos()
 							+ "\n payload:"+new String(messageNotification.getPayload()));
 
 					// we look in list for notification handling clients to handle this received notification
-					if(m_notificationHandlingClients.isEmpty()) { 
+					if(m_outgoingNotificationHandlingClients.isEmpty()) { 
 						LOG.warn("no topic handing clients have been set to receive notification");
 					} else {
-						for(NotificationClient notificationClient:m_notificationHandlingClients){
+						for(NotificationClient notificationClient:m_outgoingNotificationHandlingClients){
 
 							try {
 								notificationClient.sendMessageNotification(messageNotification);
@@ -194,7 +201,7 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 
 			}
 
-			LOG.debug("shutting down notification RemovingConsumer in thread");
+			LOG.debug("shutting down notification RemovingConsumer "+name+" in thread");
 		}
 	}
 

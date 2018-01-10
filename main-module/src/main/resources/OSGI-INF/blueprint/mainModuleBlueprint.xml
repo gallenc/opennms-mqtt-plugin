@@ -51,12 +51,12 @@
     <!-- <property name="createNodeAssetData" value="${org.opennms.plugin.mqttclient.create-node-asset-data}" /> -->
   </bean>
 
-  <bean id="eventPersistor" class="org.opennms.plugins.messagenotifier.eventnotifier.EventPersistor">
+  <bean id="eventPersistor" class="org.opennms.plugins.messagenotifier.eventnotifier.EventPersistorImpl">
     <property name="eventProxy" ref="eventProxy" />
     <property name="nodeByForeignSourceCache" ref="nodeByForeignSourceCache" />
   </bean>
 
-  <bean id="dataPersistor" class="org.opennms.plugins.messagenotifier.datanotifier.DataPersistor">
+  <bean id="dataPersistor" class="org.opennms.plugins.messagenotifier.datanotifier.DataPersistorImpl">
     <property name="nodeByForeignSourceCache" ref="nodeByForeignSourceCache" />
   </bean>
 

@@ -2,19 +2,15 @@ package org.opennms.plugins.messagenotifier;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.opennms.plugins.json.OnmsAttributeMessageHandler;
-import org.opennms.plugins.messagenotifier.datanotifier.MqttDataNotificationClient;
-import org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient;
 import org.opennms.plugins.messagenotifier.rest.MqttRxService;
 import org.opennms.plugins.mqtt.config.ConfigProperty;
 import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
@@ -22,16 +18,16 @@ import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
 import org.opennms.plugins.mqtt.config.MQTTClientConfig;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
 import org.opennms.plugins.mqtt.config.MessageClientConfig;
-import org.opennms.plugins.mqtt.config.MessageParserConfig;
 import org.opennms.plugins.mqttclient.MQTTClientImpl;
 import org.opennms.plugins.mqttclient.NodeByForeignSourceCacheImpl;
-import org.opennms.protocols.xml.config.XmlGroups;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Controller {
 	private static final Logger LOG = LoggerFactory.getLogger(Controller.class);
-
+	
+	AtomicBoolean configLoaded= new AtomicBoolean(false);
+	
 	// internal map of client name / mqtt client
 	private Map<String,MQTTClientImpl> m_clientMap= new HashMap<String, MQTTClientImpl>();
 
@@ -65,6 +61,14 @@ public class Controller {
 	/*
 	 * getters and setters for class properties
 	 */
+	
+	public MQTTReceiverConfig getM_MQTTReceiverConfig() {
+		return m_MQTTReceiverConfig;
+	}
+
+	public void setM_MQTTReceiverConfig(MQTTReceiverConfig m_MQTTReceiverConfig) {
+		this.m_MQTTReceiverConfig = m_MQTTReceiverConfig;
+	}
 	
 	public NotificationMessageHandler getNotificationMessageHandler() {
 		return m_notificationMessageHandler;
@@ -113,7 +117,7 @@ public class Controller {
 	 */
 	
 	/**
-	 * called by init to load configuration and set up controlled classes before init();
+	 * called by init to load configuration and set up controlled classes before start();
 	 */
 	public void loadConfig(){
 
@@ -133,6 +137,9 @@ public class Controller {
 		// set up mqtt receivers
 		// m_clientMap will contain a list of all the mqtt clients 
 		for(MQTTClientConfig mqttConfig:m_MQTTReceiverConfig.getMqttClients()){
+			
+			LOG.debug("adding mqtt receiver client:"+mqttConfig.getClientInstanceId());
+			
 			if(mqttConfig.getClientInstanceId()==null || "".equals(mqttConfig.getClientInstanceId())) 
 				throw new IllegalArgumentException("clientInstanceId value is not defined for a MQTTClientConfig");
 			if (m_clientMap.containsKey(mqttConfig.getClientInstanceId())) 
@@ -164,6 +171,8 @@ public class Controller {
 
 		// find the client in the blueprint corresponding to the configuration file and configure it
 		for(MessageClientConfig receiverConfig:m_MQTTReceiverConfig.getMessageClients()){
+			
+			LOG.debug("adding message receiver client:"+receiverConfig.getClientInstanceId());
 			
 			if(receiverConfig.getClientInstanceId()==null || "".equals(receiverConfig.getClientInstanceId())) 
 				throw new IllegalArgumentException("clientInstanceId value is not defined for a Receiver in configuration");
@@ -214,42 +223,59 @@ public class Controller {
 		// add incoming message notifiers to the client queue
 		m_messageNotificationClientQueueImpl.setIncommingMessageNotifiers(incomingMessageNotifiers);
 		
-		// notification handing clients are set up directly in the blueprint and not here
-		// List<NotificationClient> notificationHandlingClients;
+		// NOTE notification handing clients are set up directly in the blueprint and not here
+		// List<NotificationClient> notificationHandlingClients = Arrays.asList(m_notificationMessageHandler);
 		// m_messageNotificationClientQueueImpl.setOutgoingNotificationHandlingClients(notificationHandlingClients);
 		
 		// set up m_notificationMessageHandler
 		// with configuration for parsing messages into OnmsCollectionAttributeMap's
 
 		Map<String, MessageDataParserConfig> topicDataParserMap = new HashMap<String, MessageDataParserConfig>();
-		for( MessageDataParserConfig messageDataParser:m_MQTTReceiverConfig.getMessageDataParsers()){
-			for(String subscription:messageDataParser.getSubscriptionTopics()){
+		for( MessageDataParserConfig messageDataParserConfig:m_MQTTReceiverConfig.getMessageDataParsers()){
+			for(String subscription:messageDataParserConfig.getSubscriptionTopics()){
 				if (topicDataParserMap.containsKey(subscription)) 
 					throw new IllegalArgumentException("duplicate data topic subscription '"+subscription
 							+ "' in configuration");
-				topicDataParserMap.put(subscription, messageDataParser);
+				topicDataParserMap.put(subscription, messageDataParserConfig);
 			}
 		}
 		
 		m_notificationMessageHandler.setTopicDataParserMap(topicDataParserMap);
 		
 		Map<String, MessageEventParserConfig> topicEventParserMap = new HashMap<String, MessageEventParserConfig>();
-		for( MessageEventParserConfig messageEventParser:m_MQTTReceiverConfig.getMessageEventParsers()){
-			for(String subscription:messageEventParser.getSubscriptionTopics()){
+		for( MessageEventParserConfig messageEventParserConfig:m_MQTTReceiverConfig.getMessageEventParsers()){
+			for(String subscription:messageEventParserConfig.getSubscriptionTopics()){
 				if (topicEventParserMap.containsKey(subscription)) 
 					throw new IllegalArgumentException("duplicate event topic subscription '"+subscription
 							+ "' in configuration");
-				topicEventParserMap.put(subscription, messageEventParser);
+				topicEventParserMap.put(subscription, messageEventParserConfig);
 			}
 		}
 		
 		m_notificationMessageHandler.setTopicEventParserMap(topicEventParserMap);
+		
+		configLoaded.set(true);
 
 	}
+	
 
+
+	/**
+	 * init method called by blueprint. Loads the configuration and then calls start()
+	 */
 	public void init(){
 		// load configuration and set up all classes
 		loadConfig();
+		
+		start();
+	}
+
+	/**
+	 * Starts the controller. Must be called after load config
+	 */
+	public void start(){
+		
+		if(! configLoaded.get()) throw new IllegalStateException("loadConfig() must be called and succeed before start()");
 
 		// initialise nodeCache
 		m_nodeByForeignSourceCacheImpl.init();
@@ -323,7 +349,7 @@ public class Controller {
 
 		if (m_configFile==null) throw new RuntimeException("MQTTReceiverConfig fileUri must be set");
 
-		MQTTReceiverConfig licenceMetadata =null;
+		MQTTReceiverConfig receiverConfig =null;
 		try {
 
 			File mqttReceiverConfigFile = new File(m_configFile);
@@ -331,8 +357,9 @@ public class Controller {
 
 			if (mqttReceiverConfigFile.exists()) {
 				JAXBContext jaxbContext = JAXBContext.newInstance(MQTTReceiverConfig.class);
+				
 				Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-				licenceMetadata = (MQTTReceiverConfig) jaxbUnmarshaller.unmarshal(mqttReceiverConfigFile);
+				receiverConfig = (MQTTReceiverConfig) jaxbUnmarshaller.unmarshal(mqttReceiverConfigFile);
 
 				System.out.println("MQTT Receiver Config successfully loaded from file="+mqttReceiverConfigFile.getAbsolutePath());
 				LOG.info("MQTT Receiver Config successfully loaded from file="+mqttReceiverConfigFile.getAbsolutePath());
@@ -340,7 +367,7 @@ public class Controller {
 				System.out.println("MQTT Receiver Config file="+mqttReceiverConfigFile.getAbsolutePath()+" does not exist.");
 				LOG.info("MQTT Receiver Config file="+mqttReceiverConfigFile.getAbsolutePath()+" does not exist.");
 			}
-			return licenceMetadata;
+			return receiverConfig;
 
 		} catch (JAXBException e) {
 			LOG.error("MQTT Receiver Config Problem loading configuration: "+ e.getMessage());

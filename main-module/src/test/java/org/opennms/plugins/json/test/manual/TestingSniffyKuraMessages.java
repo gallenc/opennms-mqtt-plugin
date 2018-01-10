@@ -43,7 +43,7 @@ import org.opennms.plugins.mqttclient.test.manual.MQTTJsonTransmitterTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestingJxpathKuraMessages {
+public class TestingSniffyKuraMessages {
 	private static final Logger LOG = LoggerFactory.getLogger(MQTTJsonTransmitterTest.class);
 
 	@Test
@@ -51,18 +51,18 @@ public class TestingJxpathKuraMessages {
 		LOG.debug("start testParseTestMessages()");
 		JSONObject jsonobj;
 		try {
-			jsonobj = parseJson(TYPED_JSON);
-			LOG.debug("testParseTestMessages() TYPED_JSON JSON object:"+jsonobj.toJSONString() );
+			jsonobj = parseJson(KURA_TYPED_JSON);
+			LOG.debug("testParseTestMessages() KURA_TYPED_JSON JSON object:"+jsonobj.toJSONString() );
 		} catch (ParseException e) {
-			LOG.debug("failed to parse message:"+TYPED_JSON,e);		
-			fail("failed to parse message:"+TYPED_JSON);
+			LOG.debug("failed to parse message:"+KURA_TYPED_JSON,e);		
+			fail("failed to parse message:"+KURA_TYPED_JSON);
 		}
 		try {
-			jsonobj = parseJson(SIMPLE_JSON);
-			LOG.debug("testParseTestMessages() SIMPLE_JSON JSON object:"+jsonobj.toJSONString() );
+			jsonobj = parseJson(KURA_SIMPLE_JSON);
+			LOG.debug("testParseTestMessages() KURA_SIMPLE_JSON JSON object:"+jsonobj.toJSONString() );
 		} catch (ParseException e) {
-			LOG.debug("failed to parse message:"+SIMPLE_JSON,e);		
-			fail("failed to parse message:"+SIMPLE_JSON);
+			LOG.debug("failed to parse message:"+KURA_SIMPLE_JSON,e);		
+			fail("failed to parse message:"+KURA_SIMPLE_JSON);
 		}
 		try {
 			jsonobj = parseJson(SNIFFY_TEST_MESSAGE);
@@ -75,34 +75,6 @@ public class TestingJxpathKuraMessages {
 		LOG.debug("end testParseTestMessages)");
 	}
 
-	@Test
-	public void testJxpath(){
-		JSONObject jsonobj=null;
-		try {
-			String test="{\"firstName\":\"John\",\"lastName\":\"doe\",\"age\":26,\"address\":{\"streetAddress\":\"naiststreet\",\"city\":\"Nara\",\"postalCode\":\"630-0192\"},\"phoneNumbers\":[{\"type\":\"iPhone\",\"number\":\"0123-4567-8888\"},{\"type\":\"home\",\"number\":\"0123-4567-8910\"}]}";
-			jsonobj = parseJson(TYPED_JSON);
-			LOG.debug("testJxpath() TYPED_JSON JSON object:"+jsonobj.toJSONString() );
-		} catch (ParseException e) {
-			LOG.debug("failed to parse message:"+TYPED_JSON,e);		
-			fail("failed to parse message:"+TYPED_JSON);
-		}
-
-		JXPathContext context = JXPathContext .newContext(jsonobj);
-		Iterator i=context.iterate("phoneNumbers[0]/type");
-		
-		while (i.hasNext()) {
-			LOG.debug("testJxpath() iteratornext:"+i.next());
-		}
-
-		//		
-		//		
-		//		Iterator<Pointer> itr = context.iteratePointers("phoneNumbers[1]/type");
-		//        while (itr.hasNext()) {
-		//JXPathContext relativeContext = context.getRelativeContext(itr.next());
-
-
-
-	}
 
 	private JSONObject parseJson(String payloadString) throws ParseException{
 		JSONObject jsonObject=null;
@@ -138,7 +110,7 @@ public class TestingJxpathKuraMessages {
 	//	    },
 	//	    "body": "UGlwcG8sIHBsdXRvLCBwYXBlcmlubywgcXVpLCBxdW8gZSBxdWEu"
 	//		}
-	private String TYPED_JSON =
+	public static final String KURA_TYPED_JSON =
 			"{ \n"
 					+"    \"sentOn\" : 1491298822,  \n"
 					+"    \"position\" : {  \n"
@@ -188,7 +160,7 @@ public class TestingJxpathKuraMessages {
 	//	    },
 	//	    "body": "UGlwcG8sIHBsdXRvLCBwYXBlcmlubywgcXVpLCBxdW8gZSBxdWEu"
 	//		}
-	private String SIMPLE_JSON=
+	public static final String KURA_SIMPLE_JSON=
 			"{  \n"
 					+"    \"sentOn\" : 1491298822,  \n"
 					+"    \"position\" : {  \n"
@@ -215,7 +187,7 @@ public class TestingJxpathKuraMessages {
 					+"  }  \n";
 
 
-	public String SNIFFY_TEST_MESSAGE="{"
+	public static final String SNIFFY_TEST_MESSAGE="{"
 			+ " \"time\": \"2017-10-19 10:15:02.854888\","
 			+ " \"id\": \"monitorID\","
 			+ " \"cityName\": \"Southampton\","

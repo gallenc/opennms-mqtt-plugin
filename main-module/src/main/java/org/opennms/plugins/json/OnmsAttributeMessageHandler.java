@@ -59,12 +59,10 @@ public class OnmsAttributeMessageHandler {
 	private XmlGroups source=null;
 
 	public OnmsAttributeMessageHandler(XmlGroups source){
+		if(source==null)throw new IllegalStateException("XmlGroups source must not be null");
 		this.source = source;
 	}
 
-	public OnmsAttributeMessageHandler(){
-		super();
-	}
 
 //	@SuppressWarnings("unchecked")
 //	public List<OnmsCollectionAttributeMap> jsonToAttributeMap(String jsonStr){

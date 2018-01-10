@@ -11,7 +11,7 @@
   <createNodeAssetData>true</createNodeAssetData>
 
   <messageDataParsers>
-      <messageDataParser contentType="JSON">
+    <messageDataParser payloadType="JSON">
       <subscriptionTopics>
         <topic>mqtt-data1</topic>
         <topic>mqtt-data2</topic>
@@ -40,10 +40,10 @@
     </messageDataParser>
   </messageDataParsers>
   <messageEventParsers>
-      <messageEventParser contentType="JSON">
+    <messageEventParser payloadType="JSON">
       <subscriptionTopics>
-        <topic>mqtt-events3</topic>
-        <topic>mqtt-events4</topic>
+        <topic>mqtt-events1</topic>
+        <topic>mqtt-events2</topic>
       </subscriptionTopics>
       <xml-groups>
         <ns2:xml-group name="sniffy" resource-type="sniffy" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
@@ -63,18 +63,18 @@
   </messageEventParsers>
 
   <mqttClients>
-    <client clientInstanceId="client1">
-      <brokerUrl>tcp://localhost:1883</brokerUrl>
-      <clientId>opennms</clientId>
-      <connectionRetryInterval>3000</connectionRetryInterval>
-      <clientConnectionMaxWait>20000</clientConnectionMaxWait>
-      <password>xxx</password>
-      <topicList>
-        <topic qos="0" topic="mqtt-events" />
-        <topic qos="1" topic="mqtt-data" />
-      </topicList>
-      <userName>yyy</userName>
-    </client>
+<!--     <client clientInstanceId="client1"> -->
+<!--       <brokerUrl>tcp://localhost:1883</brokerUrl> -->
+<!--       <clientId>opennms</clientId> -->
+<!--       <connectionRetryInterval>3000</connectionRetryInterval> -->
+<!--       <clientConnectionMaxWait>20000</clientConnectionMaxWait> -->
+<!--       <password>xxx</password> -->
+<!--       <topicList> -->
+<!--         <topic qos="0" topic="mqtt-events" /> -->
+<!--         <topic qos="1" topic="mqtt-data" /> -->
+<!--       </topicList> -->
+<!--       <userName>yyy</userName> -->
+<!--     </client> -->
   </mqttClients>
 
   <messageClients>
@@ -83,8 +83,11 @@
         <client-configuration name="TBD" value="TBD" />
       </configuration>
       <topicList>
-        <topic qos="0" topic="mqtt-events" />
-        <topic qos="1" topic="mqtt-data" />
+        <topic qos="0" topic="mqtt-events1" />
+        <topic qos="0" topic="mqtt-events2" />
+
+        <topic qos="0" topic="mqtt-data1" />
+        <topic qos="0" topic="mqtt-data2" />
       </topicList>
     </message-client>
   </messageClients>

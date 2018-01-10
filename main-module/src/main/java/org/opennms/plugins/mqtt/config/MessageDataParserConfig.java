@@ -11,6 +11,10 @@ import org.opennms.protocols.xml.config.XmlRrd;
 @XmlAccessorType(XmlAccessType.NONE)
 public class MessageDataParserConfig extends MessageParserConfig {
 	
+	public MessageDataParserConfig(){
+		super();
+	}
+	
 	private XmlRrd xmlRrd=null;
 	
 	public XmlRrd getXmlRrd() {
