@@ -48,7 +48,6 @@ import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
 import org.opennms.plugins.messagenotifier.MessageNotifier;
 import org.opennms.plugins.messagenotifier.NotificationClient;
 import org.opennms.plugins.messagenotifier.VerySimpleMessageNotificationClient;
-import org.opennms.plugins.messagenotifier.eventnotifier.MqttEventNotificationClient;
 import org.opennms.plugins.mqttclient.MQTTClientImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

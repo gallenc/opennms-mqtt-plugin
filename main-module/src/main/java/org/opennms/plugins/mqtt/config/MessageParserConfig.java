@@ -17,6 +17,7 @@ public class MessageParserConfig {
 
 	private List<String> subscriptionTopics = null;
 	private String payloadType = null;
+	private String foreignSource = null;
 	private XmlGroups xmlGroups = null;
 
 	public MessageParserConfig() {
@@ -40,6 +41,15 @@ public class MessageParserConfig {
 	@XmlAttribute(required = true)
 	public void setPayloadType(String payloadType) {
 		this.payloadType = payloadType;
+	}
+	
+	public String getForeignSource() {
+		return foreignSource;
+	}
+
+	@XmlAttribute(required = true)
+	public void setForeignSource(String foreignSource) {
+		this.foreignSource = foreignSource;
 	}
 
 	public XmlGroups getXmlGroups() {

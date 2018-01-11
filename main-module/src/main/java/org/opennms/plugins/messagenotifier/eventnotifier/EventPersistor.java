@@ -6,7 +6,6 @@ import org.opennms.plugins.json.OnmsCollectionAttributeMap;
 
 public interface EventPersistor {
 
-	public abstract void persistAttributeMapList(
-			List<OnmsCollectionAttributeMap> attributeMap);
+	public abstract void persistAttributeMapList(List<OnmsCollectionAttributeMap> attributeMap);
 
 }

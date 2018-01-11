@@ -30,6 +30,7 @@ package org.opennms.plugins.json;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -96,7 +97,6 @@ public class OnmsAttributeMessageHandler {
 			throw new UnsupportedOperationException("not yet implimented - parsing xml Document");
 		} else throw new UnsupportedOperationException("not yet implimented - parsing this object" +payloadObject.getClass().getName());
 	}
-
 
 	public List<OnmsCollectionAttributeMap> jsonToAttributeMap(JSONObject json){
 		List<OnmsCollectionAttributeMap> attributeMapList = new ArrayList<OnmsCollectionAttributeMap>();

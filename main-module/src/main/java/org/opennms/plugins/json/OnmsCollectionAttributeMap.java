@@ -34,11 +34,17 @@ import java.util.Map;
 
 public class OnmsCollectionAttributeMap {
 	
+	private String foreignSource = null;
+	
 	private String foreignId=null;
 	
 	private String resourceName=null;
 	
 	private Date timestamp=null;
+	
+	private String topic=null;
+	
+	private Integer qos=null;
 	
 	private Map<String,OnmsCollectionAttribute> attributeMap = new HashMap<String, OnmsCollectionAttribute>();
 	
@@ -57,6 +63,14 @@ public class OnmsCollectionAttributeMap {
 	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
 	}
+	
+	public String getForeignSource() {
+		return foreignSource;
+	}
+
+	public void setForeignSource(String foreignSource) {
+		this.foreignSource = foreignSource;
+	}
 
 	public String getForeignId() {
 		return foreignId;
@@ -74,13 +88,30 @@ public class OnmsCollectionAttributeMap {
 		this.resourceName = resourceName;
 	}
 
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
+
+	public Integer getQos() {
+		return qos;
+	}
+
+	public void setQos(Integer qos) {
+		this.qos = qos;
+	}
+
 	@Override
 	public String toString() {
-		
-		String ts = (timestamp==null) ? null : Long.toString(timestamp.getTime());
-		return "OnmsCollectionAttributeMap [foreignId=" + foreignId
-				+ ", resourceName=" + resourceName + ", timestamp=" + ts +" ("+timestamp+ ")"
-				+ ", attributeMap=" + attributeMap + "]";
+		return "OnmsCollectionAttributeMap [foreignSource=" + foreignSource
+				+ ", foreignId=" + foreignId + ", resourceName=" + resourceName
+				+ ", timestamp=" + timestamp + ", topic=" + topic + ", qos="
+				+ qos + ", attributeMap=" + attributeMap + "]";
 	}
+
+
 
 }

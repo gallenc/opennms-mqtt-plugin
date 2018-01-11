@@ -98,6 +98,8 @@ public class TestMqttConfigMarshalling {
     private Boolean createDummyInterfaces=true;
     
     private Boolean createNodeAssetData=true;
+    
+    private String foreignSource="mqtt";
 
 	private Integer nodeCacheMaxSize=1000;
 
@@ -190,6 +192,7 @@ public class TestMqttConfigMarshalling {
 		
 		MessageEventParserConfig eventconfig = new MessageEventParserConfig();
 		eventconfig.setPayloadType(MessagePayloadTypeHandler.JSON);
+		eventconfig.setForeignSource(foreignSource);
 		messageEventParsers.add(eventconfig);
 		
 		eventconfig.setXmlGroups(xmlGroups);
@@ -202,6 +205,7 @@ public class TestMqttConfigMarshalling {
 		
 		MessageDataParserConfig dataconfig= new MessageDataParserConfig();
 		dataconfig.setPayloadType(MessagePayloadTypeHandler.JSON);
+		dataconfig.setForeignSource(foreignSource);
 		
 		messageDataParsers.add(dataconfig);
 		

@@ -16,6 +16,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 public class MessagePayloadTypeHandler {
+	
+	public final static String TEXT="TEXT";
 
 	public final static String JSON="JSON";
 
@@ -23,7 +25,7 @@ public class MessagePayloadTypeHandler {
 
 	public final static String PROTOBUF="PROTOBUF";
 
-	public final static List<String> supportedPayloadTypes= Arrays.asList(JSON,XML,PROTOBUF);
+	public final static List<String> supportedPayloadTypes= Arrays.asList(TEXT,JSON,XML,PROTOBUF);
 
 	public static Object parsePayload(byte[] payload, String payloadType){
 		if(payloadType==null) throw new IllegalArgumentException("payloadType must not be null");
@@ -31,6 +33,8 @@ public class MessagePayloadTypeHandler {
 		Object returnObject=null;
 
 		switch (payloadType) {
+		case TEXT :  returnObject = parseTextPayload(payload);
+		break;
 		case JSON :  returnObject = parseJsonPayload(payload);
 		break;
 		case XML:  returnObject = parseXmlPayload(payload);
@@ -40,6 +44,15 @@ public class MessagePayloadTypeHandler {
 		default: throw new IllegalArgumentException("unsupported payloadType:"+payloadType);
 		}
 		return returnObject;
+	}
+	
+	public static String parseTextPayload(byte[] payload){
+		try{
+			String payloadString = new String(payload, "UTF8");
+			return payloadString;
+		} catch (Exception ex) {
+			throw new RuntimeException("problem parsing payload to String", ex);
+		}
 	}
 
 	public static JSONObject parseJsonPayload(byte[] payload){

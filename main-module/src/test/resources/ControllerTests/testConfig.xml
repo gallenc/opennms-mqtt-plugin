@@ -11,7 +11,7 @@
   <createNodeAssetData>true</createNodeAssetData>
 
   <messageDataParsers>
-    <messageDataParser payloadType="JSON">
+    <messageDataParser  foreignSource="mqtt" payloadType="JSON">
       <subscriptionTopics>
         <topic>mqtt-data1</topic>
         <topic>mqtt-data2</topic>
@@ -40,7 +40,7 @@
     </messageDataParser>
   </messageDataParsers>
   <messageEventParsers>
-    <messageEventParser payloadType="JSON">
+    <messageEventParser  foreignSource="mqtt" payloadType="JSON">
       <subscriptionTopics>
         <topic>mqtt-events1</topic>
         <topic>mqtt-events2</topic>
