@@ -8,6 +8,7 @@ TODO SPRINT 12 jan 2017
 5. add thread pool to queueImpl (optional)  DONE
 
 TO DO  - NEXT SPRINT
+move to top level project and document
 add documentation project
 remove old classes no longer needed
 test with live sniffy system
