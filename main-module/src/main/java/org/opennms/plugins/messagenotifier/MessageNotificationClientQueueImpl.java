@@ -65,7 +65,7 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 
 	private List<NotificationClient> m_outgoingNotificationHandlingClients = new ArrayList<NotificationClient>();
 
-	private List<MessageNotifier> m_incommingMessageNotifiers = null;
+	private List<MessageNotifier> m_incommingMessageNotifiers=null;
 
 	@Override
 	public List<MessageNotifier> getIncommingMessageNotifiers() {
@@ -131,8 +131,14 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 		LOG.debug("shutting down blockingQueue");
 
 		// stop listening for notifications
-		for(MessageNotifier messageNotifier: m_incommingMessageNotifiers){
-			messageNotifier.removeMessageNotificationClient(this);
+		if (m_incommingMessageNotifiers!=null){
+			for(MessageNotifier messageNotifier: m_incommingMessageNotifiers){
+				try{
+					messageNotifier.removeMessageNotificationClient(this);
+				} catch (Exception e) {
+					LOG.warn("exception when shutting down blockingQueue",e);
+				}
+			}
 		}
 
 		// signal consuming threads to stop
@@ -164,7 +170,7 @@ public class MessageNotificationClientQueueImpl implements MessageNotificationCl
 	 * Class run in separate thread to remove and process notifications from the m_queue 
 	 */
 	private class RemovingConsumer implements Runnable {
-		
+
 		public String name;
 		public RemovingConsumer(String name){
 			this.name=name;

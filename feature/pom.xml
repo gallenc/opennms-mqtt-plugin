@@ -28,6 +28,10 @@
               <goal>generate-features-xml</goal>
             </goals>
             <configuration>
+              <bundles>
+                <!-- needed for jxpath to load in osgi -->
+                <bundle>wrap:mvn:org.jdom/jdom/${jdomVersion}</bundle>
+              </bundles>
             </configuration>
           </execution>
         </executions>
@@ -47,7 +51,7 @@
       <artifactId>${productName}.main-module</artifactId>
       <version>${project.version}</version>
     </dependency>
-   <dependency>
+    <dependency>
       <groupId>com.googlecode.json-simple</groupId>
       <artifactId>json-simple</artifactId>
       <scope>compile</scope>
@@ -57,8 +61,18 @@
       <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-jxpath</groupId>
+      <artifactId>commons-jxpath</artifactId>
+      <scope>compile</scope>
+    </dependency>
+<!--     <dependency> -->
+<!--       <groupId>org.opennms.protocols</groupId> -->
+<!--       <artifactId>org.opennms.protocols.xml</artifactId> -->
+<!--       <scope>compile</scope> -->
+<!--     </dependency> -->
   </dependencies>
-  
+
   <pluginRepositories>
     <pluginRepository>
       <snapshots>

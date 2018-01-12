@@ -182,8 +182,6 @@ public class DataPersistorImpl implements DataPersistor {
 
 	}
 
-
-
 	private String attributeMapToString(Map<String,OnmsCollectionAttribute> attributeMap){
 		StringBuffer msg = new StringBuffer("attributeMap[");
 		for(String key:attributeMap.keySet()){
@@ -308,7 +306,5 @@ public class DataPersistorImpl implements DataPersistor {
 			// pass
 		}
 	}
-
-
 
 }

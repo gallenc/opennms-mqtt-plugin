@@ -49,7 +49,7 @@ public class MqttRxServiceImpl implements  MqttRxService {
 
 	// topic, MQTTTopicSubscription
 	private Map<String,MQTTTopicSubscription> topicMap = Collections.synchronizedMap(new HashMap<String,MQTTTopicSubscription>());
-	
+
 	// configuration properties name, value
 	private Map<String,String> configuration = Collections.synchronizedMap(new HashMap<String,String>());
 
@@ -106,29 +106,31 @@ public class MqttRxServiceImpl implements  MqttRxService {
 					"  Message:\t" + new String(messageNotification.getPayload()) +
 					"  QoS:\t" + messageNotification.getQos();
 			LOG.warn(msg);
-			throw new RuntimeException(msg);
-		}
-		
-		if(LOG.isDebugEnabled()){
-			String time = new Timestamp(System.currentTimeMillis()).toString();
-			LOG.debug("Message received. Forwarding to "+messageNotificationClientList.size()+ " clients."
-					+ " Time:\t" +time +
-					"  Topic:\t" + messageNotification.getTopic() +
-					"  Message:\t" + new String(messageNotification.getPayload()) +
-					"  QoS:\t" + messageNotification.getQos());
-		}
 
-		// send notifications to registered clients - note each m_client must return quickly
-		synchronized(messageNotificationClientList) {
-			Iterator<MessageNotificationClient> i = messageNotificationClientList.iterator(); // Must be in synchronized block
-			while (i.hasNext()){
-				try{
-					MessageNotificationClient mnclient=i.next();
-					mnclient.sendMessageNotification(messageNotification);
-				} catch (Exception e){
-					LOG.error("Problem forwarding message notification.",e);
-				}
-			}         
+		} else {
+			// forward messages to receivers
+			
+			if(LOG.isDebugEnabled()){
+				String time = new Timestamp(System.currentTimeMillis()).toString();
+				LOG.debug("Message received. Forwarding to "+messageNotificationClientList.size()+ " clients."
+						+ " Time:\t" +time +
+						"  Topic:\t" + messageNotification.getTopic() +
+						"  Message:\t" + new String(messageNotification.getPayload()) +
+						"  QoS:\t" + messageNotification.getQos());
+			}
+
+			// send notifications to registered clients - note each m_client must return quickly
+			synchronized(messageNotificationClientList) {
+				Iterator<MessageNotificationClient> i = messageNotificationClientList.iterator(); // Must be in synchronized block
+				while (i.hasNext()){
+					try{
+						MessageNotificationClient mnclient=i.next();
+						mnclient.sendMessageNotification(messageNotification);
+					} catch (Exception e){
+						LOG.error("Problem forwarding message notification.",e);
+					}
+				}         
+			}
 		}
 	}
 
@@ -166,12 +168,12 @@ public class MqttRxServiceImpl implements  MqttRxService {
 	@Override
 	public void init() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
