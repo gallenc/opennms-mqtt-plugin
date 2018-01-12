@@ -28,26 +28,40 @@
 
 package org.opennms.plugins.json;
 
+import org.opennms.netmgt.collection.api.AttributeType;
+
 public class OnmsCollectionAttribute {
 	private String value;
-	private String onmsType;
+	private AttributeType onmsType;
 
+	public AttributeType getOnmsType() {
+		return onmsType;
+	}
+	
+	public void setOnmsType(AttributeType onmsType) {
+		this.onmsType = onmsType;
+	}
+	
+	public void setOnmsType(String typeAsString) {
+		this.onmsType = AttributeType.parse(typeAsString);
+		if(onmsType==null) throw new IllegalArgumentException(typeAsString +" cannot be parsed to AttributeType.");
+		
+	}
+	
 	public String getValue() {
 		return value;
 	}
+	
 	public void setValue(String value) {
 		this.value = value;
-	}
-	public String getOnmsType() {
-		return onmsType;
-	}
-	public void setOnmsType(String onmstype) {
-		this.onmsType = onmstype;
 	}
 
 	@Override
 	public String toString() {
-		return "OnmsCollectionAttribute [value=" + value + ", onmsType=" + onmsType + "]";
+		return "OnmsCollectionAttribute [value=" + value + ", onmsType="
+				+ onmsType + "]";
 	}
+
+
 
 }

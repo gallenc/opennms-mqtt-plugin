@@ -48,6 +48,7 @@ import org.opennms.plugins.json.OnmsCollectionAttribute;
 import org.opennms.protocols.xml.config.XmlGroup;
 import org.opennms.protocols.xml.config.XmlGroups;
 import org.opennms.protocols.xml.config.XmlObject;
+import org.opennms.protocols.xml.config.XmlRrd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -58,10 +59,13 @@ public class OnmsAttributeMessageHandler {
 	private static final Logger LOG = LoggerFactory.getLogger(OnmsAttributeMessageHandler.class);
 
 	private XmlGroups source=null;
+	
+	private XmlRrd xmlRrd=null;
 
-	public OnmsAttributeMessageHandler(XmlGroups source){
+	public OnmsAttributeMessageHandler(XmlGroups source, XmlRrd xmlRrd){
 		if(source==null)throw new IllegalStateException("XmlGroups source must not be null");
 		this.source = source;
+		this.xmlRrd=xmlRrd;
 	}
 
 
@@ -128,6 +132,8 @@ public class OnmsAttributeMessageHandler {
 				//final Resource collectionResource = getCollectionResource(agent, resourceName, group.getResourceType(), timestamp);
 				//LOG.debug("fillCollectionSet: processing resource {}", collectionResource);
 				OnmsCollectionAttributeMap onmsCollectionAttributeMap= new OnmsCollectionAttributeMap();
+				onmsCollectionAttributeMap.setXmlRrd(xmlRrd);
+				
 				onmsCollectionAttributeMap.setForeignId(foreignId);
 				onmsCollectionAttributeMap.setResourceName(resourceName);
 				onmsCollectionAttributeMap.setTimestamp(timestamp);

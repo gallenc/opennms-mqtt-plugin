@@ -43,6 +43,7 @@ import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
 import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
 import org.opennms.plugins.mqtt.config.MessageParserConfig;
 import org.opennms.protocols.xml.config.XmlGroups;
+import org.opennms.protocols.xml.config.XmlRrd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,7 +126,8 @@ public class NotificationMessageHandler implements NotificationClient {
 			} else {
 
 				XmlGroups dataSource = dataParserConfig.getXmlGroups();
-				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(dataSource);
+				XmlRrd xmlRrd = dataParserConfig.getXmlRrd();
+				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(dataSource, xmlRrd);
 
 				List<OnmsCollectionAttributeMap> dataAttributeMap = onmsAttributeMessageHandler.payloadObjectToAttributeMap(dataPayloadObject);
 
@@ -159,7 +161,8 @@ public class NotificationMessageHandler implements NotificationClient {
 			} else try {
 				// if an object returned try and parse object using jxpath
 				XmlGroups eventSource = eventParserConfig.getXmlGroups();
-				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(eventSource);
+				XmlRrd xmlRrd=null; // xmlRrd not defined for events
+				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(eventSource, xmlRrd);
 				eventAttributeMap = onmsAttributeMessageHandler.payloadObjectToAttributeMap(eventPayloadObject);
 			} catch (Exception ex){
 				LOG.error("saving event data as string because unable to use jxpath to convert message from topic:"+topic, ex);

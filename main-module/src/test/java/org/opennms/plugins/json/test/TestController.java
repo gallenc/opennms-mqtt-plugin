@@ -228,7 +228,7 @@ public class TestController {
 		@Override
 		public void persistAttributeMapList(List<OnmsCollectionAttributeMap> attributeMap) {
 			int eventMessagesRx = eventMessagesReceived.addAndGet(1);
-			LOG.debug("dataPersistor (dataMessagesRx="+eventMessagesRx+") persisting attributeMap: "+attributeMap.toString());
+			LOG.debug("eventPersistor (eventMessagesRx="+eventMessagesRx+") persisting attributeMap: "+attributeMap.toString());
 
 		}
 

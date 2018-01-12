@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.opennms.plugins.json.OnmsCollectionAttributeMap;
 import org.opennms.plugins.json.OnmsAttributeMessageHandler;
 import org.opennms.protocols.xml.config.XmlGroups;
+import org.opennms.protocols.xml.config.XmlRrd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,8 @@ public class TestJsonConfig {
 			LOG.info("output string xmlgroups: \n"+stringWriter.toString());
 
 			XmlGroups source=new XmlGroups(); //NOTE NOT USED BUT MUST NOT BE NULL
-			OnmsAttributeMessageHandler waj = new OnmsAttributeMessageHandler(source);
+			XmlRrd xmlRrd = null; // not used but needed by class declaration
+			OnmsAttributeMessageHandler waj = new OnmsAttributeMessageHandler(source,xmlRrd);
 
 			JSONObject json=null;
 			try {

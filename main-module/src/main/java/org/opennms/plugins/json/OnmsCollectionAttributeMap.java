@@ -32,6 +32,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.opennms.protocols.xml.config.XmlRrd;
+
 public class OnmsCollectionAttributeMap {
 	
 	private String foreignSource = null;
@@ -45,6 +47,8 @@ public class OnmsCollectionAttributeMap {
 	private String topic=null;
 	
 	private Integer qos=null;
+	
+	private XmlRrd xmlRrd=null;
 	
 	private Map<String,OnmsCollectionAttribute> attributeMap = new HashMap<String, OnmsCollectionAttribute>();
 	
@@ -104,14 +108,21 @@ public class OnmsCollectionAttributeMap {
 		this.qos = qos;
 	}
 
+	public XmlRrd getXmlRrd() {
+		return xmlRrd;
+	}
+
+	public void setXmlRrd(XmlRrd xmlRrd) {
+		this.xmlRrd = xmlRrd;
+	}
+
 	@Override
 	public String toString() {
 		return "OnmsCollectionAttributeMap [foreignSource=" + foreignSource
 				+ ", foreignId=" + foreignId + ", resourceName=" + resourceName
 				+ ", timestamp=" + timestamp + ", topic=" + topic + ", qos="
-				+ qos + ", attributeMap=" + attributeMap + "]";
+				+ qos + ", xmlRrd=" + xmlRrd + ", attributeMap=" + attributeMap
+				+ "]";
 	}
-
-
 
 }

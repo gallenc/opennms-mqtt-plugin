@@ -27,6 +27,7 @@ import org.opennms.plugins.json.OnmsCollectionAttributeMap;
 import org.opennms.plugins.messagenotifier.MessagePayloadTypeHandler;
 import org.opennms.protocols.xml.config.XmlGroup;
 import org.opennms.protocols.xml.config.XmlGroups;
+import org.opennms.protocols.xml.config.XmlRrd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -241,7 +242,8 @@ public class OnmsAttributeJsonHandlerTest {
 		
 		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.JSON);
 
-		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups);
+		XmlRrd xmlRrd = null; // not used but needed by class declaration
+		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd );
 		List<OnmsCollectionAttributeMap> attributeMapList = onmsAttributeMessageHandler.payloadObjectToAttributeMap(payloadObj);
 
 		LOG.debug("attributeMap: \n    attributeMap.size: "+attributeMapList.size()+"\n    attributeMap.toString: "+attributeMapList.toString().replaceAll("],", "],\n    "));

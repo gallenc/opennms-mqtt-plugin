@@ -34,16 +34,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
-import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
 import org.opennms.plugins.messagenotifier.MessageNotifier;
 import org.opennms.plugins.messagenotifier.NotificationClient;
