@@ -1,7 +1,30 @@
+TODO SPRINT 12 jan 2017
 1. add tests of json marshalling; kura, sniffy examples and
- examples of multiple timestamp values
-2. add remaining config for clients to controller
-3. change event parser to use jxpath config
-4. change data parser to use jxpath config
-5. change wiring to wire in controller
-5. add thread pool to queueImpl (optional)
+ examples of multiple timestamp values DONE
+2. add remaining config for clients to controller DONE
+3. change event parser to use jxpath config DONE
+4. change data parser to use jxpath config  DONE
+5. change wiring to wire in controller      DONE
+5. add thread pool to queueImpl (optional)  DONE
+
+TO DO  - NEXT SPRINT
+add documentation project
+remove old classes no longer needed
+test with live sniffy system
+test with live system and cassandra
+test cassandra with big data analysis framework
+test with eclipse Kura messages
+measurements api - fix naming for constants
+
+add change to optional.config to allow xml to be referenced in OSgi
+change optional.config to allow new node interface to be referenced in OSgi
+
+add GIS coordinates into nodes added by events
+add node GIS coordinates into Measurements api
+Measurements api working with alternative grafana map plugins
+
+add ability to use compressed mesages
+add ability to use protobuf encoded messages
+add ability to use XML messages
+
+

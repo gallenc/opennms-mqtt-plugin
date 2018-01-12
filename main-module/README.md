@@ -1,4 +1,4 @@
-Example post to send event
+Example post to send event (Firefox HttpRequestor plugin)
 
 ----
 POST http://192.168.75.129:8980/opennms/plugin/mqtt/v1-0/receive/mqtt-events/0/
