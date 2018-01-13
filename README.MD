@@ -47,6 +47,7 @@ org.osgi.framework.system.packages.extra=org.apache.karaf.branding,\
 ```
 
 2. Edit and place the sample mqtt-interface-config.xml in the opennms/etc directory
+(the sample is in the main-module here: https://github.com/gallenc/tmforumhack2017/blob/master/TMForumVancouver2017Hack/opennms/MqttClient/main-module/mqtt-interface-config.xml)
 
 3. Place the target kar built in kar-package into the OpenNMS/deploy directory.
 
