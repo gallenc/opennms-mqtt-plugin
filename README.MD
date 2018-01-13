@@ -10,6 +10,9 @@ Example configurations are provided for Eclipse Kura and Solent Airwatch Sniffy 
 
 (A future enhancement will be to support gzip compressed messages, xml messages and protobuf messages sent over MQTT payloads)
 
+# Architecture
+The architecture of the feature is shown in the following diagram.
+![image](https://github.com/gallenc/tmforumhack2017/blob/master/TMForumVancouver2017Hack/opennms/MqttClient/diagrams1.jpg)
 
 # Building and deploying
 
