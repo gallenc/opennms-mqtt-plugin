@@ -6,15 +6,28 @@
   <maxMessageQueueLength>1000</maxMessageQueueLength>
   <maxMessageQueueThreads>2</maxMessageQueueThreads>
 
-  <createDummyInterfaces>true</createDummyInterfaces>
+  <!-- if true new nodes will be created for messages referencing an unknown node -->
   <createMissingNodes>true</createMissingNodes>
+  <!-- if true a dummy interface will also be created when the node is created -->
+  <createDummyInterfaces>true</createDummyInterfaces>
+  <!-- if true asset information will be copied to the node assed table when the node is created -->
+  <!-- this particularly applies to latitude and longitude if defined in the message -->
   <createNodeAssetData>true</createNodeAssetData>
 
+  <!-- message data parsers define how data messages are converted into metrics to be stored in RRD's or Cassandra by OpenNMS -->
+  <!-- subscriptionTopics defines wich topic messages will be passed to this parser. 
+  <!-- many messageDataParsers can be defined but only one per topic altough events can also be driven off the same topic) -->
   <messageDataParsers>
+    <!-- payloadType detemines how the payload is parsed; JSON, XML, PROTOBUF ot TEXT. Note only JSON is supported in present release -->
+    <!-- foreignSource defines the foreign source to be used when referencing or creating a new node -->
     <messageDataParser  foreignSource="mqtt" payloadType="JSON">
       <subscriptionTopics>
         <topic>mqtt-data</topic>
       </subscriptionTopics>
+      <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS --> 
+      <!-- however multiple readings with differnt timstamps can be received. The timsetamp-xpath is relative to gthe start of the message -->
+      <!-- the key-xpath defines the key which will give the node its foreignId. Thus the foreignSource defined above is combined with -->
+      <!-- the foreignId retreived by the key-xpath to give a refernece to the node for which the data is persisted. -->
       <xml-groups>
         <ns2:xml-group name="sniffy" resource-type="sniffy" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
           <ns2:xml-object name="time" type="string" xpath="@time" />
@@ -29,6 +42,7 @@
           <ns2:xml-object name="PM10" type="GAUGE" xpath="@PM10" />
         </ns2:xml-group>
       </xml-groups>
+      <!-- xmlRRD us set up exactly as it is for xml data collection. step (in seconds ) is the interval expected between data received from the same node -->
       <xmlRrd step="300">
         <ns2:rra>RRA:AVERAGE:0.5:1:2016</ns2:rra>
         <ns2:rra>RRA:AVERAGE:0.5:12:1488</ns2:rra>
@@ -37,6 +51,8 @@
         <ns2:rra>RRA:MIN:0.5:288:366</ns2:rra>
       </xmlRrd>
     </messageDataParser>
+    <!-- message event parsers follow the same pattern as message data pasrsers.-->
+    <!-- however hte Xpath defines which name value pairs are saved as params in the resulting opennms events -->
   </messageDataParsers>
   <messageEventParsers>
     <messageEventParser  foreignSource="mqtt" payloadType="JSON">
@@ -60,6 +76,12 @@
     </messageEventParser>
   </messageEventParsers>
 
+  <!-- mqttClients define connections to mqtt brokers. (This follows the paho client model). -->
+  <!-- each client must have a unique instanceId  -this is used in OpwnNMS logging. -->
+  <!-- the clienid must be unique for a given mqtt broker -->
+  <!-- the clientConnectionMaxWait tetermins the time the client will wait for the broker to respond before abandoning a connection attempt -->
+  <!-- the connectionRetryInterval is the interval before hte client will try again to connect after failing to connect previously -->
+  <!-- the topic list determines which topics the client will subscribe to once it has established a connection -->
   <mqttClients>
 <!--     <client clientInstanceId="client1"> -->
 <!--       <brokerUrl>tcp://localhost:1883</brokerUrl> -->
@@ -75,6 +97,9 @@
 <!--     </client> -->
   </mqttClients>
 
+  <!-- message clients are alternative message sources defined within OpenNMS -->
+  <!-- in this case, the opennms-rest-client is an in built rest client which can receive messages on a particular topic and qos -->
+  <!-- determined by the url. The topicList determines which topics will be accepted by the ReST api and passed to the message que for processing -->
   <messageClients>
     <message-client clientInstanceId="opennms-rest-client" clientType="opennms-rest-client">
       <configuration>
