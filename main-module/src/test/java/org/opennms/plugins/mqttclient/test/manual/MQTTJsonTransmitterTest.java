@@ -59,9 +59,9 @@ public class MQTTJsonTransmitterTest {
 	public static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
 
 	//public static final String jsonTestFile="./src/test/resources/testData.json";
-	public static final String TEST_JSON_FILE="./src/test/resources/testData2.json";
+	public static final String TEST_JSON_FILE="./src/test/resources/TestData/testData2.json";
 
-	public static final String MAIN_PROPERTIES_FILE="./src/test/resources/mqttclienttest.properties";
+	public static final String MAIN_PROPERTIES_FILE="./src/test/resources/TestData/mqttclienttest.properties";
 
 	public static final String SERVER_URL = "tcp://localhost:1883"; //172.18.0.4
 	//public static final String SERVER_URL = "tcp://192.168.202.1:1883";

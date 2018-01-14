@@ -98,7 +98,8 @@ public class OnmsAttributeMessageHandler {
 		if(payloadObject instanceof JSONObject){
 			return jsonToAttributeMap((JSONObject) payloadObject);
 		} else if(payloadObject instanceof Document){
-			throw new UnsupportedOperationException("not yet implimented - parsing xml Document");
+			return xmlToAttributeMap((Document) payloadObject);
+			
 		} else throw new UnsupportedOperationException("not yet implimented - parsing this object" +payloadObject.getClass().getName());
 	}
 
@@ -111,6 +112,18 @@ public class OnmsAttributeMessageHandler {
 		}
 		return attributeMapList;
 	}
+	
+	public List<OnmsCollectionAttributeMap> xmlToAttributeMap(Document document){
+		List<OnmsCollectionAttributeMap> attributeMapList = new ArrayList<OnmsCollectionAttributeMap>();
+		try {
+			if(true) throw new UnsupportedOperationException("not yet implimented - parsing xml Document"); //TODO REMOVE
+			//TODO fillAttributeMap(attributeMapList, source, document);
+		} catch (Exception ex) {
+			throw new RuntimeException("problem parsing attributeMap from json message:"+document.toString(), ex);
+		}
+		return attributeMapList;
+	}
+
 
 	public void fillAttributeMap(List<OnmsCollectionAttributeMap> attributeMapList, XmlGroups source, JSONObject json) throws ParseException {
 		JXPathContext context = JXPathContext.newContext(json);
