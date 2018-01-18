@@ -1,0 +1,4 @@
+Site,Species,ReadingDateTime,Value,Units,Provisional or Ratified
+SH0,NO,01/01/2018 00:00,5.0,ug m-3,P
+SH0,NO,01/01/2018 00:15,5.0,ug m-3,P
+SH0,NO,01/01/2018 00:30,5.0,ug m-3,P

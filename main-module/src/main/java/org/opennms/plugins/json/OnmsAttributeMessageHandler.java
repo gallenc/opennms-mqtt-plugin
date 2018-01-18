@@ -30,7 +30,6 @@ package org.opennms.plugins.json;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -99,6 +98,8 @@ public class OnmsAttributeMessageHandler {
 			return jsonToAttributeMap((JSONObject) payloadObject);
 		} else if(payloadObject instanceof Document){
 			return xmlToAttributeMap((Document) payloadObject);
+		} else if(payloadObject instanceof List ){
+			return listObjectToAttributeMap((List<?>) payloadObject);
 			
 		} else throw new UnsupportedOperationException("not yet implimented - parsing this object" +payloadObject.getClass().getName());
 	}
@@ -116,17 +117,26 @@ public class OnmsAttributeMessageHandler {
 	public List<OnmsCollectionAttributeMap> xmlToAttributeMap(Document document){
 		List<OnmsCollectionAttributeMap> attributeMapList = new ArrayList<OnmsCollectionAttributeMap>();
 		try {
-			if(true) throw new UnsupportedOperationException("not yet implimented - parsing xml Document"); //TODO REMOVE
-			//TODO fillAttributeMap(attributeMapList, source, document);
+			fillAttributeMap(attributeMapList, source, document);
 		} catch (Exception ex) {
-			throw new RuntimeException("problem parsing attributeMap from json message:"+document.toString(), ex);
+			throw new RuntimeException("problem parsing attributeMap from xml message:"+document.toString(), ex);
+		}
+		return attributeMapList;
+	}
+	
+	public List<OnmsCollectionAttributeMap> listObjectToAttributeMap(List<?> strList){
+		List<OnmsCollectionAttributeMap> attributeMapList = new ArrayList<OnmsCollectionAttributeMap>();
+		try {
+			fillAttributeMap(attributeMapList, source, strList);
+		} catch (Exception ex) {
+			throw new RuntimeException("problem parsing attributeMap from list object:"+strList.toString(), ex);
 		}
 		return attributeMapList;
 	}
 
 
-	public void fillAttributeMap(List<OnmsCollectionAttributeMap> attributeMapList, XmlGroups source, JSONObject json) throws ParseException {
-		JXPathContext context = JXPathContext.newContext(json);
+	public void fillAttributeMap(List<OnmsCollectionAttributeMap> attributeMapList, XmlGroups source, Object inputObject) throws ParseException {
+		JXPathContext context = JXPathContext.newContext(inputObject);
 		for (XmlGroup group : source.getXmlGroups()) {
 			LOG.debug("fillAttributeMap: getting resources for XML group '{}' using XPATH '{}'", group.getName(), group.getResourceXpath());
 

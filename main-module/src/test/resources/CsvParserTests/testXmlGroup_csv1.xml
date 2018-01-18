@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+  <xml-group name="solaris-zone-stats" resource-type="solarisZone" resource-xpath="." key-xpath=".[1]" 
+  timestamp-xpath=".[3]" timestamp-format="dd/mm/yyyy HH:mm"> <!-- empty string indicates simple timestamp from epoch (Date.toString()) -->
+    <xml-object name="name" type="string" xpath=".[1]" />
+    <xml-object name="timestamp" type="string" xpath=".[3]" />
+    <xml-object name="value" type="GAUGE" xpath=".[4]" />
+  </xml-group>
+</xml-groups>
+
+<!-- Site,Species,ReadingDateTime,Value,Units,Provisional or Ratified -->
+<!-- 1,  2  3                4   5      6 Note jxpath numbers indexes from 1 -->
+<!-- SH0,NO,01/01/2018 00:00,5.0,ug m-3,P -->

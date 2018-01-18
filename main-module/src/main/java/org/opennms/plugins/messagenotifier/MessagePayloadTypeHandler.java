@@ -4,8 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,7 +19,9 @@ import org.json.simple.parser.JSONParser;
 
 public class MessagePayloadTypeHandler {
 	
-	public final static String TEXT="TEXT";
+	public final static String TEXT_CSV="TEXT_CSV";
+	
+	public final static String TEXT_CSV_HEADER="TEXT_CSV_HEADER";
 
 	public final static String JSON="JSON";
 
@@ -25,7 +29,7 @@ public class MessagePayloadTypeHandler {
 
 	public final static String PROTOBUF="PROTOBUF";
 
-	public final static List<String> supportedPayloadTypes= Arrays.asList(TEXT,JSON,XML,PROTOBUF);
+	public final static List<String> supportedPayloadTypes= Arrays.asList(TEXT_CSV_HEADER,TEXT_CSV,JSON,XML,PROTOBUF);
 
 	public static Object parsePayload(byte[] payload, String payloadType){
 		if(payloadType==null) throw new IllegalArgumentException("payloadType must not be null");
@@ -33,7 +37,9 @@ public class MessagePayloadTypeHandler {
 		Object returnObject=null;
 
 		switch (payloadType) {
-		case TEXT :  returnObject = parseTextPayload(payload);
+		case TEXT_CSV :  returnObject = parseCsvPayload(payload,false);
+		break;
+		case TEXT_CSV_HEADER :  returnObject = parseCsvPayload(payload,true);
 		break;
 		case JSON :  returnObject = parseJsonPayload(payload);
 		break;
@@ -46,13 +52,35 @@ public class MessagePayloadTypeHandler {
 		return returnObject;
 	}
 	
-	public static String parseTextPayload(byte[] payload){
+	public static List<List<String>>  parseCsvPayload(byte[] payload, boolean header){
 		try{
 			String payloadString = new String(payload, "UTF8");
-			return payloadString;
+			String[] lines = payloadString.split("\\R+"); // split at line separator ignore empty lines
+			
+			if(header && lines.length>0)  lines = Arrays.copyOfRange(lines, 1, lines.length);
+			
+			List<List<String>> splitLines = new ArrayList<List<String>>();
+			for(String line: lines){
+				List<String> x = csvToList(line);
+				splitLines.add(x);
+			}
+			
+			return splitLines;
+			
 		} catch (Exception ex) {
-			throw new RuntimeException("problem parsing payload to String", ex);
+			throw new RuntimeException("problem parsing payload as CSV String", ex);
 		}
+	}
+	
+	private static List<String> csvToList(String csvStr){
+		final List<String> csvList;
+		if (csvStr != null && !csvStr.trim().isEmpty()) {
+			csvList = Arrays.asList(csvStr.split(",")).stream()
+					.filter(h -> h != null && !h.trim().isEmpty())
+					.map(h -> h.trim())
+					.collect(Collectors.toList());
+		} else csvList = new ArrayList<String>();
+		return csvList;
 	}
 
 	public static JSONObject parseJsonPayload(byte[] payload){
