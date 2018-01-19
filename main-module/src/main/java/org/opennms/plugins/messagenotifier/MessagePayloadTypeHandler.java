@@ -31,7 +31,7 @@ public class MessagePayloadTypeHandler {
 
 	public final static List<String> supportedPayloadTypes= Arrays.asList(TEXT_CSV_HEADER,TEXT_CSV,JSON,XML,PROTOBUF);
 
-	public static Object parsePayload(byte[] payload, String payloadType){
+	public static Object parsePayload(byte[] payload, String payloadType, boolean compressed){
 		if(payloadType==null) throw new IllegalArgumentException("payloadType must not be null");
 
 		Object returnObject=null;

@@ -240,7 +240,8 @@ public class OnmsAttributeJsonHandlerTest {
 			throw new RuntimeException(e);
 		}
 		
-		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.JSON);
+		boolean compressed=false;
+		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.JSON,compressed);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration
 		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd );

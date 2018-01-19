@@ -63,7 +63,8 @@ public class OnmsAttributeXMLHandlerTest {
 			throw new RuntimeException(e);
 		}
 
-		Document receivedObject = (Document) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.XML);
+		boolean compressed=false;
+		Document receivedObject = (Document) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.XML,compressed);
 		assertNotNull(receivedObject);
 		
 
@@ -119,7 +120,8 @@ public class OnmsAttributeXMLHandlerTest {
 			throw new RuntimeException(e);
 		}
 
-		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.XML);
+		boolean compressed=false;
+		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.XML,compressed);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration
 		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd );

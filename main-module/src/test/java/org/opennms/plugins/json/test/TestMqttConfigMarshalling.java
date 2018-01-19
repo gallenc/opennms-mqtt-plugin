@@ -40,8 +40,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 
 import org.junit.Test;
 import org.opennms.netmgt.collection.api.AttributeType;
@@ -71,6 +69,7 @@ public class TestMqttConfigMarshalling {
 	private String clientConnectionMaxWait="20000";
 	private String password="xxx";
 	private String userName="yyy";
+
 	
 	private List<String> eventSubscriptionTopics= Arrays.asList("mqtt-events","mqtt-events2");
 	
@@ -104,6 +103,8 @@ public class TestMqttConfigMarshalling {
 	private Integer nodeCacheMaxSize=1000;
 
 	private Integer nodeCacheMaxTtl=0;
+	
+	private String compressed="false";
 
 	@Test
 	public void testMQTTClientConfig() {
@@ -193,6 +194,7 @@ public class TestMqttConfigMarshalling {
 		MessageEventParserConfig eventconfig = new MessageEventParserConfig();
 		eventconfig.setPayloadType(MessagePayloadTypeHandler.JSON);
 		eventconfig.setForeignSource(foreignSource);
+		eventconfig.setCompressed(compressed);
 		messageEventParsers.add(eventconfig);
 		
 		eventconfig.setXmlGroups(xmlGroups);
@@ -206,6 +208,7 @@ public class TestMqttConfigMarshalling {
 		MessageDataParserConfig dataconfig= new MessageDataParserConfig();
 		dataconfig.setPayloadType(MessagePayloadTypeHandler.JSON);
 		dataconfig.setForeignSource(foreignSource);
+		dataconfig.setCompressed(compressed);
 		
 		messageDataParsers.add(dataconfig);
 		

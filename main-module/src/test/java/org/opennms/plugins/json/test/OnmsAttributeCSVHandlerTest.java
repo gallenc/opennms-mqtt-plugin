@@ -4,29 +4,21 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.json.simple.JSONObject;
 import org.junit.Test;
 import org.opennms.plugins.json.OnmsAttributeMessageHandler;
 import org.opennms.plugins.json.OnmsCollectionAttributeMap;
 import org.opennms.plugins.messagenotifier.MessagePayloadTypeHandler;
-import org.opennms.protocols.xml.config.XmlGroup;
 import org.opennms.protocols.xml.config.XmlGroups;
 import org.opennms.protocols.xml.config.XmlRrd;
 import org.slf4j.Logger;
@@ -61,7 +53,8 @@ public class OnmsAttributeCSVHandlerTest {
 			throw new RuntimeException(e);
 		}
 
-		List<List<String>> receivedObject = (List<List<String>>) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV);
+		boolean compressed=false;
+		List<List<String>> receivedObject = (List<List<String>>) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV,compressed);
 		assertNotNull(receivedObject);
 		
 		String receivedString = listToString(receivedObject);
@@ -73,7 +66,7 @@ public class OnmsAttributeCSVHandlerTest {
 		
 		assertEquals(lines.length,receivedObject.size());
 		
-		List<List<String>> receivedObject2 = (List<List<String>>) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV_HEADER);
+		List<List<String>> receivedObject2 = (List<List<String>>) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV_HEADER,compressed);
 		assertNotNull(receivedObject2);
 		
 		String receivedString2 = listToString(receivedObject2);
@@ -147,7 +140,8 @@ public class OnmsAttributeCSVHandlerTest {
 			throw new RuntimeException(e);
 		}
 
-		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV_HEADER);
+		boolean compressed=false;
+		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV_HEADER, compressed);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration
 		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd );
