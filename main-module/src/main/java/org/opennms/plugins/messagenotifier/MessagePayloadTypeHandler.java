@@ -121,9 +121,9 @@ public class MessagePayloadTypeHandler {
 
 			builder = factory.newDocumentBuilder();
 
-
 			InputStream stream = new ByteArrayInputStream(payloadString.getBytes(StandardCharsets.UTF_8.name()));
 			Document doc = builder.parse(stream);
+			
 			// Ugly hack to deal with DOM & XPath 1.0's battle royale 
 			// over handling namespaces without a prefix. 
 			if(doc.getNamespaceURI() != null && doc.getPrefix() == null){

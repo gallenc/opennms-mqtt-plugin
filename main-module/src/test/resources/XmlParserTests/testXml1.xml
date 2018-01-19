@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<message>
+  <sentOn>1491298822</sentOn>
+  <position>
+    <latitude>45.234</latitude>
+    <longitude>-7.3456</longitude>
+    <altitude>1.0</altitude>
+    <heading>5.4</heading>
+    <precision>0.1</precision>
+    <speed>23.5</speed>
+    <timestamp>1191292288</timestamp>
+    <satellites>3</satellites>
+    <status>2</status>
+  </position>
+  <metrics>
+    <code type="string">A23D44567Q</code>
+    <distance type="double">0.26456E+4</distance>
+    <temperature type="float">27.5</temperature>
+    <count type="int32">12354</count>
+    <timestamp type="int64">23412334545</timestamp>
+    <enable type="bool">true</enable>
+    <rawBuffer type="bytes">cGlwcG8gcGx1dG8gcGFwZXJpbm8=</rawBuffer>
+  </metrics>
+  <body>UGlwcG8sIHBsdXRvLCBwYXBlcmlubywgcXVpLCBxdW8gZSBxdWEu</body>
+</message>

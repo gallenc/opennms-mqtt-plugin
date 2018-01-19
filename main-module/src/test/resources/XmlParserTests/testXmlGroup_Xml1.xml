@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+ <xml-group name="kura-typed" resource-type="kura" resource-xpath="/message" key-xpath="metrics/code" timestamp-xpath="sentOn" timestamp-format="">
+    <xml-object name="sentOn" type="string" xpath="sentOn" />
+
+    <!-- position -->
+    <xml-object name="latitude" type="GAUGE" xpath="position/latitude" />
+    <xml-object name="longitude" type="GAUGE" xpath="position/longitude" />
+    <xml-object name="altitude" type="GAUGE" xpath="position/altitude" />
+    <xml-object name="heading" type="GAUGE" xpath="position/heading" />
+    <xml-object name="precision" type="GAUGE" xpath="position/precision" />
+    <xml-object name="speed" type="GAUGE" xpath="position/speed" />
+    <xml-object name="timestamp" type="string" xpath="position/timestamp" />
+    <xml-object name="satellites" type="GAUGE" xpath="position/satellites" />
+    <xml-object name="status" type="GAUGE" xpath="position/status" />
+
+    <!-- metrics -->
+    <xml-object name="code" type="string" xpath="metrics/code" />
+    <xml-object name="distance" type="GAUGE" xpath="metrics/distance" />
+    <xml-object name="temperature" type="GAUGE" xpath="metrics/temperature" />
+    <xml-object name="count" type="GAUGE" xpath="metrics/count" />
+    <xml-object name="timestamp" type="string" xpath="metrics/timestamp" />
+    <xml-object name="enable" type="string" xpath="metrics/enable" />
+    <xml-object name="rawBuffer" type="GAUGE" xpath="metrics/rawBuffer" />
+
+    <!-- body -->
+    <xml-object name="body" type="string" xpath="body" />
+  </xml-group>
+</xml-groups>
+
+<!-- Message to decode -->
+<!-- <message> -->
+<!--   <sentOn>1491298822</sentOn> -->
+<!--   <position> -->
+<!--     <latitude>45.234</latitude> -->
+<!--     <longitude>-7.3456</longitude> -->
+<!--     <altitude>1.0</altitude> -->
+<!--     <heading>5.4</heading> -->
+<!--     <precision>0.1</precision> -->
+<!--     <speed>23.5</speed> -->
+<!--     <timestamp>1191292288</timestamp> -->
+<!--     <satellites>3</satellites> -->
+<!--     <status>2</status> -->
+<!--   </position> -->
+<!--   <metrics> -->
+<!--     <code type="string">A23D44567Q</code> -->
+<!--     <distance type="double">0,26456E+4</distance> -->
+<!--     <temperature type="float">27.5</temperature> -->
+<!--     <count type="int32">12354</count> -->
+<!--     <timestamp type="int64">23412334545</timestamp> -->
+<!--     <enable type="bool">true</enable> -->
+<!--     <rawBuffer type="bytes">cGlwcG8gcGx1dG8gcGFwZXJpbm8=</rawBuffer> -->
+<!--   </metrics> -->
+<!--   <body>UGlwcG8sIHBsdXRvLCBwYXBlcmlubywgcXVpLCBxdW8gZSBxdWEu</body> -->
+<!-- </message> -->
