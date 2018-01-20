@@ -105,7 +105,7 @@ public class TestMqttConfigMarshalling {
 
 	private Integer nodeCacheMaxTtl=0;
 	
-	String compressed = CompressionMethods.UNCOMPRESSED;
+	String compression = CompressionMethods.UNCOMPRESSED;
 
 	@Test
 	public void testMQTTClientConfig() {
@@ -195,7 +195,7 @@ public class TestMqttConfigMarshalling {
 		MessageEventParserConfig eventconfig = new MessageEventParserConfig();
 		eventconfig.setPayloadType(MessagePayloadTypeHandler.JSON);
 		eventconfig.setForeignSource(foreignSource);
-		eventconfig.setCompressed(compressed);
+		eventconfig.setCompression(compression);
 		messageEventParsers.add(eventconfig);
 		
 		eventconfig.setXmlGroups(xmlGroups);
@@ -209,7 +209,7 @@ public class TestMqttConfigMarshalling {
 		MessageDataParserConfig dataconfig= new MessageDataParserConfig();
 		dataconfig.setPayloadType(MessagePayloadTypeHandler.JSON);
 		dataconfig.setForeignSource(foreignSource);
-		dataconfig.setCompressed(compressed);
+		dataconfig.setCompression(compression);
 		
 		messageDataParsers.add(dataconfig);
 		

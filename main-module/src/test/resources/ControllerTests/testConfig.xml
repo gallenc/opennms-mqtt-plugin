@@ -11,9 +11,34 @@
   <createNodeAssetData>true</createNodeAssetData>
 
   <messageDataParsers>
-    <messageDataParser  foreignSource="mqtt" payloadType="JSON" compressed="UNCOMPRESSED" >
+    <messageDataParser foreignSource="mqtt" payloadType="JSON" compression="UNCOMPRESSED">
       <subscriptionTopics>
         <topic>mqtt-data1</topic>
+      </subscriptionTopics>
+      <xml-groups>
+        <ns2:xml-group name="sniffy" resource-type="sniffy" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+          <ns2:xml-object name="time" type="string" xpath="@time" />
+          <ns2:xml-object name="id" type="string" xpath="@id" />
+          <ns2:xml-object name="cityName" type="string" xpath="@cityName" />
+          <ns2:xml-object name="stationName" type="string" xpath="@stationName" />
+          <ns2:xml-object name="latitude" type="GAUGE" xpath="@latitude" />
+          <ns2:xml-object name="longitude" type="GAUGE" xpath="@longitude" />
+          <ns2:xml-object name="averaging" type="GAUGE" xpath="@averaging" />
+          <ns2:xml-object name="PM1" type="GAUGE" xpath="@PM1" />
+          <ns2:xml-object name="PM25" type="GAUGE" xpath="@PM25" />
+          <ns2:xml-object name="PM10" type="GAUGE" xpath="@PM10" />
+        </ns2:xml-group>
+      </xml-groups>
+      <xmlRrd step="300">
+        <ns2:rra>RRA:AVERAGE:0.5:1:2016</ns2:rra>
+        <ns2:rra>RRA:AVERAGE:0.5:12:1488</ns2:rra>
+        <ns2:rra>RRA:AVERAGE:0.5:288:366</ns2:rra>
+        <ns2:rra>RRA:MAX:0.5:288:366</ns2:rra>
+        <ns2:rra>RRA:MIN:0.5:288:366</ns2:rra>
+      </xmlRrd>
+    </messageDataParser>
+    <messageDataParser foreignSource="mqtt" payloadType="JSON" compression="AUTOMATIC_GZIP">
+      <subscriptionTopics>
         <topic>mqtt-data2</topic>
       </subscriptionTopics>
       <xml-groups>
@@ -40,9 +65,27 @@
     </messageDataParser>
   </messageDataParsers>
   <messageEventParsers>
-    <messageEventParser  foreignSource="mqtt" payloadType="JSON" compressed="UNCOMPRESSED" >
+    <messageEventParser foreignSource="mqtt" payloadType="JSON" compression="AUTOMATIC_GZIP">
       <subscriptionTopics>
         <topic>mqtt-events1</topic>
+      </subscriptionTopics>
+      <xml-groups>
+        <ns2:xml-group name="sniffy" resource-type="sniffy" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+          <ns2:xml-object name="time" type="string" xpath="@time" />
+          <ns2:xml-object name="id" type="string" xpath="@id" />
+          <ns2:xml-object name="cityName" type="string" xpath="@cityName" />
+          <ns2:xml-object name="stationName" type="string" xpath="@stationName" />
+          <ns2:xml-object name="latitude" type="GAUGE" xpath="@latitude" />
+          <ns2:xml-object name="longitude" type="GAUGE" xpath="@longitude" />
+          <ns2:xml-object name="averaging" type="GAUGE" xpath="@averaging" />
+          <ns2:xml-object name="PM1" type="GAUGE" xpath="@PM1" />
+          <ns2:xml-object name="PM25" type="GAUGE" xpath="@PM25" />
+          <ns2:xml-object name="PM10" type="GAUGE" xpath="@PM10" />
+        </ns2:xml-group>
+      </xml-groups>
+    </messageEventParser>
+    <messageEventParser foreignSource="mqtt" payloadType="JSON" compression="GZIP">
+      <subscriptionTopics>
         <topic>mqtt-events2</topic>
       </subscriptionTopics>
       <xml-groups>
@@ -63,18 +106,18 @@
   </messageEventParsers>
 
   <mqttClients>
-<!--     <client clientInstanceId="client1"> -->
-<!--       <brokerUrl>tcp://localhost:1883</brokerUrl> -->
-<!--       <clientId>opennms</clientId> -->
-<!--       <connectionRetryInterval>3000</connectionRetryInterval> -->
-<!--       <clientConnectionMaxWait>20000</clientConnectionMaxWait> -->
-<!--       <password>xxx</password> -->
-<!--       <topicList> -->
-<!--         <topic qos="0" topic="mqtt-events" /> -->
-<!--         <topic qos="1" topic="mqtt-data" /> -->
-<!--       </topicList> -->
-<!--       <userName>yyy</userName> -->
-<!--     </client> -->
+    <!-- <client clientInstanceId="client1"> -->
+    <!-- <brokerUrl>tcp://localhost:1883</brokerUrl> -->
+    <!-- <clientId>opennms</clientId> -->
+    <!-- <connectionRetryInterval>3000</connectionRetryInterval> -->
+    <!-- <clientConnectionMaxWait>20000</clientConnectionMaxWait> -->
+    <!-- <password>xxx</password> -->
+    <!-- <topicList> -->
+    <!-- <topic qos="0" topic="mqtt-events" /> -->
+    <!-- <topic qos="1" topic="mqtt-data" /> -->
+    <!-- </topicList> -->
+    <!-- <userName>yyy</userName> -->
+    <!-- </client> -->
   </mqttClients>
 
   <messageClients>

@@ -20,8 +20,8 @@
   <messageDataParsers>
     <!-- payloadType determines how the payload is parsed; JSON, XML, PROTOBUF ot TEXT. Note only JSON is supported in present release -->
     <!-- foreignSource defines the foreign source to be used when referencing or creating a new node -->
-    <!-- compressed determines the processing of compressed messages GZIP, UNCOMPRESSED, AUTOMATIC_GZIP (tries to guess if gzip compressed - small chance of false positives)-->
-    <messageDataParser  foreignSource="mqtt" payloadType="JSON" compressed="UNCOMPRESSED" >
+    <!-- compression determines the processing of compressed messages GZIP, UNCOMPRESSED, AUTOMATIC_GZIP (tries to guess if gzip compressed - small chance of false positives)-->
+    <messageDataParser  foreignSource="mqtt" payloadType="JSON" compression="UNCOMPRESSED" >
       <subscriptionTopics>
         <topic>mqtt-data</topic>
       </subscriptionTopics>
@@ -56,7 +56,7 @@
     <!-- however hte Xpath defines which name value pairs are saved as params in the resulting opennms events -->
   </messageDataParsers>
   <messageEventParsers>
-    <messageEventParser  foreignSource="mqtt" payloadType="JSON" compressed="UNCOMPRESSED" >
+    <messageEventParser  foreignSource="mqtt" payloadType="JSON" compression="UNCOMPRESSED" >
       <subscriptionTopics>
         <topic>mqtt-events</topic>
       </subscriptionTopics>

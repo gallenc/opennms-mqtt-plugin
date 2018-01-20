@@ -18,7 +18,7 @@ public class MessageParserConfig {
 	private List<String> subscriptionTopics = null;
 	private String payloadType = null;
 	private String foreignSource = null;
-	private String compressed = null;
+	private String compression = null;
 	private XmlGroups xmlGroups = null;
 
 	public MessageParserConfig() {
@@ -62,13 +62,13 @@ public class MessageParserConfig {
 		this.xmlGroups = xmlGroups;
 	}
 
-	public String getCompressed() {
-		return compressed;
+	public String getCompression() {
+		return compression;
 	}
 
 	@XmlAttribute(required = true)
-	public void setCompressed(String compressed) {
-		this.compressed = compressed;
+	public void setCompression(String compression) {
+		this.compression = compression;
 	}
 
 }

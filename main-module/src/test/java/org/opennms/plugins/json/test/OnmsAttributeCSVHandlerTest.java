@@ -54,8 +54,8 @@ public class OnmsAttributeCSVHandlerTest {
 			throw new RuntimeException(e);
 		}
 
-		String compressed = CompressionMethods.UNCOMPRESSED;
-		List<List<String>> receivedObject = (List<List<String>>) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV,compressed);
+		String compression = CompressionMethods.UNCOMPRESSED;
+		List<List<String>> receivedObject = (List<List<String>>) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV,compression);
 		assertNotNull(receivedObject);
 		
 		String receivedString = listToString(receivedObject);
@@ -67,7 +67,7 @@ public class OnmsAttributeCSVHandlerTest {
 		
 		assertEquals(lines.length,receivedObject.size());
 		
-		List<List<String>> receivedObject2 = (List<List<String>>) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV_HEADER,compressed);
+		List<List<String>> receivedObject2 = (List<List<String>>) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV_HEADER,compression);
 		assertNotNull(receivedObject2);
 		
 		String receivedString2 = listToString(receivedObject2);
@@ -141,8 +141,8 @@ public class OnmsAttributeCSVHandlerTest {
 			throw new RuntimeException(e);
 		}
 
-		String compressed = CompressionMethods.UNCOMPRESSED;
-		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV_HEADER, compressed);
+		String compression = CompressionMethods.UNCOMPRESSED;
+		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV_HEADER, compression);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration
 		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd );

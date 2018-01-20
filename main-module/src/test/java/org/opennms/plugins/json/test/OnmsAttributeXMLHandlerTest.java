@@ -64,8 +64,8 @@ public class OnmsAttributeXMLHandlerTest {
 			throw new RuntimeException(e);
 		}
 
-		String compressed=CompressionMethods.UNCOMPRESSED;
-		Document receivedObject = (Document) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.XML,compressed);
+		String compression=CompressionMethods.UNCOMPRESSED;
+		Document receivedObject = (Document) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.XML,compression);
 		assertNotNull(receivedObject);
 		
 
@@ -121,8 +121,8 @@ public class OnmsAttributeXMLHandlerTest {
 			throw new RuntimeException(e);
 		}
 		
-		String compressed=CompressionMethods.UNCOMPRESSED;
-		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.XML,compressed);
+		String compression=CompressionMethods.UNCOMPRESSED;
+		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.XML,compression);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration
 		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd );

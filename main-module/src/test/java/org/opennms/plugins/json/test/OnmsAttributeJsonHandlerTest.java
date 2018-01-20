@@ -224,9 +224,77 @@ public class OnmsAttributeJsonHandlerTest {
 
 		LOG.debug("end OnmsAttributeJsonHandlerTest test6");
 	}
+	
+	/*
+	 * Test of compression
+	 */
+	@Test
+	public void test6b() {
+		LOG.debug("start OnmsAttributeJsonHandlerTest test6b (compression)");
 
+		String xmlGroupFile = TEST_XMLGROUP_6;
+		String jsonFile = TEST_JSON_6;
 
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, CompressionMethods.GZIP);
+
+		assertTrue(attributeMapList.size()==2);
+
+		// message 1
+		assertTrue("global_0".equals(attributeMapList.get(0).getResourceName()));
+		assertTrue("global".equals(attributeMapList.get(0).getForeignId()));
+		assertTrue(new Long(1299258888).equals(new Long(attributeMapList.get(0).getTimestamp().getTime()))); 
+		assertEquals("245",attributeMapList.get(0).getAttributeMap().get("nproc").getValue() );
+		
+		// message 2
+		assertTrue("zone1_871".equals(attributeMapList.get(1).getResourceName()));
+		assertTrue("zone1".equals(attributeMapList.get(1).getForeignId()));
+		assertTrue(new Long(1299259999).equals(new Long(attributeMapList.get(1).getTimestamp().getTime()))); 
+		assertEquals("24",attributeMapList.get(1).getAttributeMap().get("nproc").getValue() );
+
+		LOG.debug("end OnmsAttributeJsonHandlerTest test6b (compression)");
+	}
+	
+	
+	/*
+	 * Test of automatic compression
+	 */
+	@Test
+	public void test6c() {
+		LOG.debug("start OnmsAttributeJsonHandlerTest test6c (automatic compression)");
+
+		String xmlGroupFile = TEST_XMLGROUP_6;
+		String jsonFile = TEST_JSON_6;
+
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, CompressionMethods.AUTOMATIC_GZIP);
+
+		assertTrue(attributeMapList.size()==2);
+
+		// message 1
+		assertTrue("global_0".equals(attributeMapList.get(0).getResourceName()));
+		assertTrue("global".equals(attributeMapList.get(0).getForeignId()));
+		assertTrue(new Long(1299258888).equals(new Long(attributeMapList.get(0).getTimestamp().getTime()))); 
+		assertEquals("245",attributeMapList.get(0).getAttributeMap().get("nproc").getValue() );
+		
+		// message 2
+		assertTrue("zone1_871".equals(attributeMapList.get(1).getResourceName()));
+		assertTrue("zone1".equals(attributeMapList.get(1).getForeignId()));
+		assertTrue(new Long(1299259999).equals(new Long(attributeMapList.get(1).getTimestamp().getTime()))); 
+		assertEquals("24",attributeMapList.get(1).getAttributeMap().get("nproc").getValue() );
+
+		LOG.debug("end OnmsAttributeJsonHandlerTest test6c (automatic compression)");
+	}
+
+	/*
+	 * Test with no compression
+	 */
 	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String jsonFile){
+		return testMethod(xmlGroupFile, jsonFile, CompressionMethods.UNCOMPRESSED);
+	}
+
+	/*
+	 * Test with compression selection
+	 */
+	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String jsonFile, String compression){
 		// read xpath configuration
 		XmlGroups xmlGroups = unmarshalXmlGroups(xmlGroupFile);
 		// read json string
@@ -241,8 +309,15 @@ public class OnmsAttributeJsonHandlerTest {
 			throw new RuntimeException(e);
 		}
 		
-		String compressed = CompressionMethods.UNCOMPRESSED;
-		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.JSON,compressed);
+		if (CompressionMethods.GZIP.equals(compression)||CompressionMethods.AUTOMATIC_GZIP.equals(compression) ) {
+			try {
+				payload = CompressionMethods.compressGzip(payload);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.JSON,compression);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration
 		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd );

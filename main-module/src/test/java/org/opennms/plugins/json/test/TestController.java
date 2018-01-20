@@ -30,6 +30,7 @@ package org.opennms.plugins.json.test;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -49,6 +50,7 @@ import org.opennms.netmgt.events.api.EventProxyException;
 import org.opennms.netmgt.xml.event.Event;
 import org.opennms.netmgt.xml.event.Log;
 import org.opennms.plugins.json.OnmsCollectionAttributeMap;
+import org.opennms.plugins.messagenotifier.CompressionMethods;
 import org.opennms.plugins.messagenotifier.Controller;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
@@ -127,8 +129,8 @@ public class TestController {
 	}
 
 	@Test
-	public void testSendMessages() {
-		LOG.debug("start testSendMessages()");
+	public void testSendMessagesUncompressed() {
+		LOG.debug("start testSendMessagesUncompressed()");
 
 		LOG.debug("testSendMessages() loading controller configuration:");
 		Controller controller = loadClients(TEST_CONFIG_FILE);
@@ -155,7 +157,7 @@ public class TestController {
 
 		// send 10 data messages
 		for(int i=0;i<10 ; i++){
-			String topic2 = "mqtt-data2";
+			String topic2 = "mqtt-data1";
 			int qos2 = 0 ;
 			byte[] payload2 = TestingSniffyKuraMessages.SNIFFY_TEST_MESSAGE.getBytes(StandardCharsets.UTF_8);
 
@@ -185,7 +187,81 @@ public class TestController {
 		dataMessagesReceived.set(0);
 		eventMessagesReceived.set(0);
 
-		LOG.debug("end testSendMessages()");
+		LOG.debug("end testSendMessagesUncompressed()");
+	}
+	
+	@Test
+	public void testSendMessagesCompressed() {
+		LOG.debug("start testSendMessagesCompressed()");
+
+		LOG.debug("testSendMessages() loading controller configuration:");
+		Controller controller = loadClients(TEST_CONFIG_FILE);
+
+		LOG.debug("testSendMessages() starting controller:");
+		controller.start();
+
+		// reset counters
+		dataMessagesReceived.set(0);
+		eventMessagesReceived.set(0);
+
+		// send 1 event message
+		String topic = "mqtt-events2";
+		int qos = 0 ;
+		byte[] payload = TestingSniffyKuraMessages.SNIFFY_TEST_MESSAGE.getBytes(StandardCharsets.UTF_8);
+		
+		try {
+			payload = CompressionMethods.compressGzip(payload);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		MessageNotification messageNotification = new MessageNotification(topic, qos, payload);
+
+		try {
+			mockMqttRxService.messageArrived(messageNotification);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		// send 10 data messages
+		for(int i=0;i<10 ; i++){
+			String topic2 = "mqtt-data2";
+			int qos2 = 0 ;
+			byte[] payload2 = TestingSniffyKuraMessages.SNIFFY_TEST_MESSAGE.getBytes(StandardCharsets.UTF_8);
+			
+			try {
+				payload2 = CompressionMethods.compressGzip(payload2);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+			MessageNotification messageNotification2 = new MessageNotification(topic2, qos2, payload2);
+
+			try {
+				mockMqttRxService.messageArrived(messageNotification2);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		// wait for all messages to arrive before testing
+		try {
+			Thread.sleep(5000); // 5 seconds
+		} catch(InterruptedException ex) {
+			Thread.currentThread().interrupt();
+		}
+
+		assertEquals(10,dataMessagesReceived.get());
+		assertEquals(1, eventMessagesReceived.get());
+
+		// clean up
+		controller.destroy();
+
+		// reset counters
+		dataMessagesReceived.set(0);
+		eventMessagesReceived.set(0);
+
+		LOG.debug("end testSendMessagesCompressed()");
 	}
 
 	private Controller loadClients(String configFile){
