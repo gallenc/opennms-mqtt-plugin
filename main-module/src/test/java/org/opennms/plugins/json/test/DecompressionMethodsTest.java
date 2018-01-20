@@ -7,36 +7,36 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.Test;
-import org.opennms.plugins.messagenotifier.GzipMethods;
+import org.opennms.plugins.messagenotifier.CompressionMethods;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GzipMethodsTest {
-	private static final Logger LOG = LoggerFactory.getLogger(GzipMethodsTest.class);
+public class DecompressionMethodsTest {
+	private static final Logger LOG = LoggerFactory.getLogger(DecompressionMethodsTest.class);
 	
 
 	@Test
 	public void test1() throws IOException {
-		LOG.debug("start GzipMethodsTest test1");
+		LOG.debug("start DecompressionMethodsTest test1");
 		
 		String inputString = TestingSniffyKuraMessages.KURA_TYPED_JSON;
 		
 		// convert input inputString to byte array 
 		byte[] payload = stringToByte(inputString);
 
-		assertFalse(GzipMethods.isCompressed(payload));		
+		assertFalse(CompressionMethods.isCompressed(payload));		
 				
-		byte[] compressedPayload = GzipMethods.compress(payload);
+		byte[] compressedPayload = CompressionMethods.compressGzip(payload);
 		
-		assertTrue(GzipMethods.isCompressed(compressedPayload));
+		assertTrue(CompressionMethods.isCompressed(compressedPayload));
 		
-		byte[] decompressedPayload = GzipMethods.decompress(compressedPayload);
+		byte[] decompressedPayload = CompressionMethods.decompressGzip(compressedPayload);
 
 		String outputString = new String( decompressedPayload, "UTF8");
 		
 		assertEquals(inputString,outputString);
 		
-		LOG.debug("end GzipMethodsTest test1");	
+		LOG.debug("end DecompressionMethodsTest test1");	
 		
 	}
 	

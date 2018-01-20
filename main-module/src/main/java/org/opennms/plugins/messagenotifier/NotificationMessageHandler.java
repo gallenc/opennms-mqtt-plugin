@@ -116,10 +116,9 @@ public class NotificationMessageHandler implements NotificationClient {
 		if (dataParserConfig!=null) try{
 
 			String dataForeignSource = dataParserConfig.getForeignSource();
-			boolean compressed = (dataParserConfig.getCompressed()==null) ? false : Boolean.parseBoolean(dataParserConfig.getCompressed());
 			
 			String dataPayloadType = dataParserConfig.getPayloadType();
-			Object dataPayloadObject = MessagePayloadTypeHandler.parsePayload(payload, dataPayloadType, compressed);
+			Object dataPayloadObject = MessagePayloadTypeHandler.parsePayload(payload, dataPayloadType, dataParserConfig.getCompressed());
 
 			// if string returned simply log fact we cannot persist this data
 			if(dataPayloadObject instanceof String){
@@ -154,9 +153,8 @@ public class NotificationMessageHandler implements NotificationClient {
 			String eventForeignSource = eventParserConfig.getForeignSource();
 			
 			String eventPayloadType = eventParserConfig.getPayloadType();
-			boolean compressed = (eventParserConfig.getCompressed()==null) ? false : Boolean.parseBoolean(eventParserConfig.getCompressed());
 			
-			Object eventPayloadObject = MessagePayloadTypeHandler.parsePayload(payload, eventPayloadType, compressed);
+			Object eventPayloadObject = MessagePayloadTypeHandler.parsePayload(payload, eventPayloadType, eventParserConfig.getCompressed());
 
 			// if string returned simply create event with string value
 			if(eventPayloadObject instanceof String){

@@ -18,6 +18,7 @@ import javax.xml.bind.Unmarshaller;
 import org.junit.Test;
 import org.opennms.plugins.json.OnmsAttributeMessageHandler;
 import org.opennms.plugins.json.OnmsCollectionAttributeMap;
+import org.opennms.plugins.messagenotifier.CompressionMethods;
 import org.opennms.plugins.messagenotifier.MessagePayloadTypeHandler;
 import org.opennms.protocols.xml.config.XmlGroups;
 import org.opennms.protocols.xml.config.XmlRrd;
@@ -53,7 +54,7 @@ public class OnmsAttributeCSVHandlerTest {
 			throw new RuntimeException(e);
 		}
 
-		boolean compressed=false;
+		String compressed = CompressionMethods.UNCOMPRESSED;
 		List<List<String>> receivedObject = (List<List<String>>) MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV,compressed);
 		assertNotNull(receivedObject);
 		
@@ -140,7 +141,7 @@ public class OnmsAttributeCSVHandlerTest {
 			throw new RuntimeException(e);
 		}
 
-		boolean compressed=false;
+		String compressed = CompressionMethods.UNCOMPRESSED;
 		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV_HEADER, compressed);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration

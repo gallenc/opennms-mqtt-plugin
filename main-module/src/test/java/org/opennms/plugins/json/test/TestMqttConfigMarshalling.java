@@ -43,6 +43,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.junit.Test;
 import org.opennms.netmgt.collection.api.AttributeType;
+import org.opennms.plugins.messagenotifier.CompressionMethods;
 import org.opennms.plugins.messagenotifier.MessagePayloadTypeHandler;
 import org.opennms.plugins.mqtt.config.ConfigProperty;
 import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
@@ -104,7 +105,7 @@ public class TestMqttConfigMarshalling {
 
 	private Integer nodeCacheMaxTtl=0;
 	
-	private String compressed="false";
+	String compressed = CompressionMethods.UNCOMPRESSED;
 
 	@Test
 	public void testMQTTClientConfig() {

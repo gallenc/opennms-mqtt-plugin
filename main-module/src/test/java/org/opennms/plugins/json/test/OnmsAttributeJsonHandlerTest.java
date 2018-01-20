@@ -24,6 +24,7 @@ import org.json.simple.JSONObject;
 import org.junit.Test;
 import org.opennms.plugins.json.OnmsAttributeMessageHandler;
 import org.opennms.plugins.json.OnmsCollectionAttributeMap;
+import org.opennms.plugins.messagenotifier.CompressionMethods;
 import org.opennms.plugins.messagenotifier.MessagePayloadTypeHandler;
 import org.opennms.protocols.xml.config.XmlGroup;
 import org.opennms.protocols.xml.config.XmlGroups;
@@ -240,7 +241,7 @@ public class OnmsAttributeJsonHandlerTest {
 			throw new RuntimeException(e);
 		}
 		
-		boolean compressed=false;
+		String compressed = CompressionMethods.UNCOMPRESSED;
 		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.JSON,compressed);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration

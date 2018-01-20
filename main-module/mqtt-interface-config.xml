@@ -15,12 +15,13 @@
   <createNodeAssetData>true</createNodeAssetData>
 
   <!-- message data parsers define how data messages are converted into metrics to be stored in RRD's or Cassandra by OpenNMS -->
-  <!-- subscriptionTopics defines wich topic messages will be passed to this parser. 
+  <!-- subscriptionTopics defines wich topic messages will be passed to this parser. -->
   <!-- many messageDataParsers can be defined but only one per topic altough events can also be driven off the same topic) -->
   <messageDataParsers>
-    <!-- payloadType detemines how the payload is parsed; JSON, XML, PROTOBUF ot TEXT. Note only JSON is supported in present release -->
+    <!-- payloadType determines how the payload is parsed; JSON, XML, PROTOBUF ot TEXT. Note only JSON is supported in present release -->
     <!-- foreignSource defines the foreign source to be used when referencing or creating a new node -->
-    <messageDataParser  foreignSource="mqtt" payloadType="JSON">
+    <!-- compressed determines the processing of compressed messages GZIP, UNCOMPRESSED, AUTOMATIC_GZIP (tries to guess if gzip compressed - small chance of false positives)-->
+    <messageDataParser  foreignSource="mqtt" payloadType="JSON" compressed="UNCOMPRESSED" >
       <subscriptionTopics>
         <topic>mqtt-data</topic>
       </subscriptionTopics>
@@ -55,7 +56,7 @@
     <!-- however hte Xpath defines which name value pairs are saved as params in the resulting opennms events -->
   </messageDataParsers>
   <messageEventParsers>
-    <messageEventParser  foreignSource="mqtt" payloadType="JSON">
+    <messageEventParser  foreignSource="mqtt" payloadType="JSON" compressed="UNCOMPRESSED" >
       <subscriptionTopics>
         <topic>mqtt-events</topic>
       </subscriptionTopics>
