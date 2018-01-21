@@ -8,13 +8,13 @@ Each topic message can be configured to generate an OpenNMS event or to persist 
 
 Currently the expected MQTT payloads are:
 
-1. json messages which are parsed using a jxpath configuration in much the same way as jxpath is used in the OpenNMS XMLCollector. 
+1. Json messages which are parsed using a jxpath configuration in much the same way as jxpath is used in the OpenNMS XMLCollector. 
 Example configurations are provided for Eclipse Kura and Solent Airwatch Sniffy messages.
 
 2. XML messages, also parsed with jxpath.
 An example configuration is provided for Eclipse Kura XML messages
 
-3. payload messages may also optionally be compressed using gzip. 
+3. Payload messages may also optionally be compressed using gzip. 
 Decompression is applied before json or xml decoding.
 
 (A future enhancement will be to support protobuf messages sent over MQTT payloads)
@@ -63,7 +63,7 @@ org.osgi.framework.system.packages.extra=org.apache.karaf.branding,\
 ```
 
 2. Edit and place the sample mqtt-interface-config.xml in the opennms/etc directory
-(the sample is in the main-module here: https://github.com/gallenc/tmforumhack2017/blob/master/TMForumVancouver2017Hack/opennms/MqttClient/main-module/mqtt-interface-config.xml)
+(the sample is in the main-module here: https://github.com/gallenc/opennms-mqtt-plugin/blob/master/main-module/mqtt-interface-config.xml)
 
 3. Place the target kar built in kar-package into the OpenNMS/deploy directory.
 
