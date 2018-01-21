@@ -28,7 +28,7 @@ The example file is annotated explaining how the configuration works.
 
 # Architecture
 The architecture of the feature is shown in the following diagram.
-![image](https://github.com/gallenc/tmforumhack2017/blob/master/TMForumVancouver2017Hack/opennms/MqttClient/diagrams1.jpg)
+![image](https://github.com/gallenc/opennms-mqtt-plugin/blob/master/diagrams1.jpg)
 
 # Building and deploying
 
