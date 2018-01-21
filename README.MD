@@ -2,13 +2,29 @@
 This OpenNMS plugin adds the ability for OpenNMS to received streaming measurements and events from an IoT infrastructure. 
 The plugin supports MQTT messages and also asynchronous messages sent into OpenNMS from a ReST API.
 OpenNMS can register with an MQTT broker to receive MQTT messages.
-Several brokers can be subscribed to at the same time and several topic subscriptions can be defined on each broker. 
+Several brokers can be subscribed to at the same time and multiple topic subscriptions can be defined on each broker. 
 OpenNMS will attempt to reconnect to a broker if a connection is lost.
 Each topic message can be configured to generate an OpenNMS event or to persist an OpenNMS date value (or both).
-Currently the expected MQTT payloads are json messages which are parsed using a jxpath configuration in much the same way as jxpath is used in the OpenNMS XMLCollector. 
+
+Currently the expected MQTT payloads are:
+
+1. json messages which are parsed using a jxpath configuration in much the same way as jxpath is used in the OpenNMS XMLCollector. 
 Example configurations are provided for Eclipse Kura and Solent Airwatch Sniffy messages.
 
-(A future enhancement will be to support gzip compressed messages, xml messages and protobuf messages sent over MQTT payloads)
+2. XML messages, also parsed with jxpath.
+An example configuration is provided for Eclipse Kura XML messages
+
+3. payload messages may also optionally be compressed using gzip. 
+Decompression is applied before json or xml decoding.
+
+(A future enhancement will be to support protobuf messages sent over MQTT payloads)
+
+The Eclipse Kura message formats are described here: https://github.com/eclipse/kapua/wiki/K-Payload-JSON-Format
+These formats are used by a number of IoT cloud providers including Kapura.
+
+The plugin is configured using a single file placed in the OpenNMS etc directory: mqtt-interface-config.xml
+
+The example file is annotated explaining how the configuration works.
 
 # Architecture
 The architecture of the feature is shown in the following diagram.
@@ -16,7 +32,7 @@ The architecture of the feature is shown in the following diagram.
 
 # Building and deploying
 
-(Please note that the present version does not use the new OpenNMS streaming API and so is backwards compatible with Meridian 2017. It interacts with OpenNMS in much the same way.)
+(Please note that the present version does not use the new OpenNMS streaming API and so is backwards compatible with Meridian 2017. It interacts with OpenNMS in much the same way as the design intent of the streaming API.)
 
 You need to target the build against the correct major version of OpenNMS.
 To do this, edit the parent pom.xml and change the property
