@@ -307,15 +307,15 @@ public class Controller {
 
 	public void destroy(){
 
-		// disconnect and destroy mqtt receivers
+		// disconnect and destroy all mqtt receivers
 		for (String clientInstanceId : m_clientMap.keySet()){
 			try {
 				MQTTClientImpl client = m_clientMap.get(clientInstanceId);
 				if(client!=null) client.destroy();
-				m_clientMap.remove(clientInstanceId);
 			} catch (Exception e){
 				LOG.error("problem destroying client "+clientInstanceId, e);
 			}
+			m_clientMap.remove(clientInstanceId);
 		}
 
 		// disconnect and destroy MqttRxService receivers
@@ -323,10 +323,10 @@ public class Controller {
 			try {
 				MqttRxService client = m_rxServiceMap.get(clientInstanceId);
 				if(client!=null) client.destroy();
-				m_rxServiceMap.remove(clientInstanceId);
 			} catch (Exception e){
 				LOG.error("problem destroying m_rxServiceMap client "+clientInstanceId, e);
 			}
+			m_rxServiceMap.remove(clientInstanceId);
 		}
 
 		// destroy message queue (shuts down consumer threads)

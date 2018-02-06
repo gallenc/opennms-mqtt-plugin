@@ -42,6 +42,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -54,6 +55,8 @@ import org.slf4j.LoggerFactory;
 
 public class MQTTJsonTransmitterTest {
 	private static final Logger LOG = LoggerFactory.getLogger(MQTTJsonTransmitterTest.class);
+	
+	public static AtomicInteger messagecount = new AtomicInteger(0);
 
 	// works with 2017-10-19 10:15:02.854888
 	public static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
@@ -196,7 +199,7 @@ public class MQTTJsonTransmitterTest {
 				}
 			}
 		} else { // use json file
-			LOG.debug("sending json messagees from file "+jsonTestFile);
+			LOG.debug("sending json messages from file "+jsonTestFile);
 			// send json messages from file
 			JSONArray jsonArray= this.readJsonFile();
 
@@ -215,7 +218,8 @@ public class MQTTJsonTransmitterTest {
 						LOG.debug("sending json message"+message);
 						byte[] payload = message.getBytes();
 						client.publishSynchronous(topic, qos, payload);
-						LOG.debug("message sent");
+						LOG.debug("message sent to topic "+topic+" qos "+qos
+								+ " count:"+messagecount.addAndGet(1));
 					} catch(Exception e){
 						LOG.debug("problem publishing json message", e);
 					}
