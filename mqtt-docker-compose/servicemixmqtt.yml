@@ -1,0 +1,47 @@
+version: '3.0'
+
+volumes:
+  psql.data:
+    driver: local
+  opennms.data:
+    driver: local
+  opennms.etc:
+    driver: local
+  helm.data:
+    driver: local
+  cassandra1-data:
+    driver: local
+  servicemix1-data:
+    driver: local
+
+networks:
+  opennms.net:
+    driver: bridge
+
+services:
+ 
+  # servicemix1 IS ACTIVE MQ / MQTT BROKER
+  # from https://hub.docker.com/r/mkroli/servicemix/
+  servicemix1:
+    container_name: servicemix1
+    image: mkroli/servicemix:7.0 
+    ports:
+      - "11099:1099"
+      - "14444:44444"
+      - "61616:61616" 
+      - "18101:8101" # ssh consol
+      - "18181:8181" # web consol
+      - "1883:1883"  # active mq mqtt
+    volumes:
+      - servicemix1-data:/opt/servicemix/data
+      - ./servicemix1/deploy:/opt/servicemix/deploy
+      - ./servicemix1/etc/activemq.xml:/opt/servicemix/etc/activemq.xml
+      # - ./servicemix1/etc/users.properties:/opt/servicemix/etc/users.properties
+      # - ./karaf1/karaf-config/org.apache.karaf.features.cfg:/opt/karaf/etc/org.apache.karaf.features.cfg        
+      # restart: always
+    entrypoint: /opt/servicemix/bin/servicemix
+    networks:
+      - opennms.net
+
+
+
