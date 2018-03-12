@@ -70,7 +70,33 @@
         <transportConnectors>
              <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
             <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+
+             <!-- <transportConnector name="mqtt" uri="mqtt://0.0.0.0:1883"/>-->
+             <transportConnector name="mqtt"  uri="mqtt://0.0.0.0:1883?wireFormat.maxFrameSize=10000"/>
+
         </transportConnectors>
+
+      <plugins>
+        <simpleAuthenticationPlugin anonymousAccessAllowed="true">
+          <users>
+            <authenticationUser username="system"
+                                password="manager"
+                                groups="users,admins"/>
+            <authenticationUser username="user"
+                                password="password"
+                                groups="users"/>
+            <authenticationUser username="guest"
+                                password="password"
+                                groups="guests"/>
+                              
+            <authenticationUser username="mqtt-user"
+                                password="mqtt-password"
+                                groups="guests"/>
+                              
+          </users>
+        </simpleAuthenticationPlugin>
+    </plugins>
+
     </broker>
 
 </beans>
