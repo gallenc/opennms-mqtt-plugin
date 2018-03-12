@@ -122,15 +122,15 @@ services:
       - "18181:8181" # web consol
       - "1883:1883"  # active mq mqtt
     volumes:
-        - servicemix1-data:/opt/servicemix/data
-        - ./servicemix1/deploy:/opt/servicemix/deploy
-        - ./servicemix1/etc/activemq.xml:/opt/servicemix/etc/activemq.xml
-        - ./servicemix1/etc/users.properties:/opt/servicemix/etc/users.properties
-      #  - ./karaf1/karaf-config/org.apache.karaf.features.cfg:/opt/karaf/etc/org.apache.karaf.features.cfg        
-      #  - ./karaf-etc:/opt/karaf/etc
-      #  - ./karaf-data:/opt/karaf/data
+      - servicemix1-data:/opt/servicemix/data
+      - ./servicemix1/deploy:/opt/servicemix/deploy
+      - ./servicemix1/etc/activemq.xml:/opt/servicemix/etc/activemq.xml
+      # - ./servicemix1/etc/users.properties:/opt/servicemix/etc/users.properties
+      # - ./karaf1/karaf-config/org.apache.karaf.features.cfg:/opt/karaf/etc/org.apache.karaf.features.cfg        
       # restart: always
     entrypoint: /opt/servicemix/bin/servicemix
     networks:
       - opennms.net
+
+
 
