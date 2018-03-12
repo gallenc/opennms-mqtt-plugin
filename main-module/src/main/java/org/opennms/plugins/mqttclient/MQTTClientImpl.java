@@ -294,12 +294,17 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 */
 	public void destroy(){
 		try {
-			m_clientConnected.set(false);
 			stopConnectionRetryThead();
 			m_client.disconnectForcibly(m_clientConnectionMaxWait,m_clientConnectionMaxWait );
-			m_client.close();
 		} catch (MqttException e) {
-			LOG.error("client instanceId:"+m_instanceId+": problem closing m_client",e);
+			LOG.error("client instanceId:"+m_instanceId+": problem disconnecting m_client",e);
+		} finally {
+			try {
+				// once closed a client can never be reused
+				m_client.close();
+			} catch (MqttException e) {
+				LOG.error("client instanceId:"+m_instanceId+": problem closing m_client",e);
+			}
 		}
 	}
 
@@ -323,7 +328,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 				IMqttToken discToken = m_client.disconnect(null, null);
 				discToken.waitForCompletion();
 			} catch (MqttException e1) {
-				// An exception is thrown if connect fails.
+				// An exception is thrown if disconnect fails.
 				LOG.error("client instanceId:"+m_instanceId+": error when disconnecting from MQTT broker:",e1);
 			}
 		}
@@ -335,6 +340,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 * the retry interval sets how long between connection attempts the m_client waits
 	 */
 	private synchronized void startConnectionRetryThead(){
+		
 		if (m_connectionRetryThread==null){
 
 			if(m_connectionRetryInterval==null) throw new RuntimeException("client instanceId:"+m_instanceId+": connectionretryInterval cannot be null");
@@ -362,7 +368,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 										LOG.debug("client instanceId:"+m_instanceId+":  subscribing to topic:"+subscription.getTopic()+" qos:"+subscription.getQos());
 										subscribe(subscription.getTopic(), Integer.parseInt(subscription.getQos()));
 									} catch(Exception e){
-										LOG.error("client instanceId:"+m_instanceId+": exception thrown when trying to subscribe to topic.",e);
+										LOG.error("client instanceId:"+m_instanceId+": exception thrown when trying to subscribe to topic:"+subscription.getTopic()+" qos:"+subscription.getQos(),e);
 									}
 								}
 
@@ -385,13 +391,13 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	}
 
 	private synchronized void stopConnectionRetryThead(){
-		m_clientConnected.set(false);
+		LOG.info("client instanceId:"+m_instanceId+": disconnecting and stopping connection retry thread");
+		disconnect();
 		if (m_connectionRetryThread!=null){
 			m_connectionRetryThread.interrupt();
 			m_connectionRetryThread=null;
 			LOG.info("client instanceId:"+m_instanceId+": connection retry thread stopped");
 		}
-		disconnect();
 	}
 
 
@@ -406,8 +412,8 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 */
 	@Override
 	public void connectionLost(Throwable cause) {
-		m_clientConnected.set(false);
-		LOG.debug("client instanceId:"+m_instanceId+": Connection to " + m_brokerUrl + " lost!" + cause);
+		LOG.debug("client instanceId:"+m_instanceId+": Connection to " + m_brokerUrl + " lost! Cause:" + cause);
+		stopConnectionRetryThead();
 		startConnectionRetryThead();
 	}
 
