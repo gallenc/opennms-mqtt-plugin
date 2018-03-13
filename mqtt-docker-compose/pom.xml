@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.opennms.plugins</groupId>
+    <artifactId>MqttClient.parent</artifactId>
+    <version>0.0.3-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>MqttClient.mqtt-docker-compose</artifactId>
+  <packaging>pom</packaging>
+  <name>MqttClient.mqtt-docker-compose</name>
+
+  <!--  copies build kar file to opennms docker deploy directory -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.0.1</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>MqttClient.kar-package</artifactId>
+                  <version>${project.version}</version>
+                  <type>kar</type>
+                  <!-- <classifier> [classifier - optional] </classifier> -->
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/opennms-deploy/</outputDirectory>
+                  <!-- <destFileName>[ filename ]</destFileName> -->
+                </artifactItem>
+              </artifactItems>
+              <!-- other configurations here -->
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+</project>

@@ -5,7 +5,6 @@
     <version>0.0.3-SNAPSHOT</version>
   </parent>
 
-  <!-- LicenceAuthenticator -->
   <modelVersion>4.0.0</modelVersion>
   <artifactId>MqttClient.main-module</artifactId>
   <name>MqttClient.main-module</name>

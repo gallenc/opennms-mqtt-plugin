@@ -51,6 +51,7 @@
     <module>kar-descriptor</module>
     <module>kar-package</module>
     <module>test-onejar</module>
+    <module>mqtt-docker-compose</module>
   </modules>
 
   <build>

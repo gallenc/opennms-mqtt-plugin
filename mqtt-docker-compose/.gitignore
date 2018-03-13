@@ -2,3 +2,4 @@
 *.iml
 /.project
 /.directory
+/target/

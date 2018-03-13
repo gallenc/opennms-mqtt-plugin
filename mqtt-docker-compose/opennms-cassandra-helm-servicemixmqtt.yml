@@ -109,7 +109,7 @@ services:
     ports:
       - "3000:3000"
       
-  # servicemix1 IS ACTIVE MQ / MQTT BROKER
+  # servicemix1 is acting as ActiveMQ / MQTT Broker
   # from https://hub.docker.com/r/mkroli/servicemix/
   servicemix1:
     container_name: servicemix1
@@ -117,10 +117,10 @@ services:
     ports:
       - "11099:1099"
       - "14444:44444"
-      - "61616:61616" 
-      - "18101:8101" # ssh consol
-      - "18181:8181" # web consol
-      - "1883:1883"  # active mq mqtt
+      - "51616:61616" # active mq  (avoid opennms clash)
+      - "18101:8101"  # ssh consol (avoid opennms clash)
+      - "18181:8181"  # web consol (avoid opennms clash)
+      - "1883:1883"   # active mq mqtt
     volumes:
       - servicemix1-data:/opt/servicemix/data
       - ./servicemix1/deploy:/opt/servicemix/deploy
