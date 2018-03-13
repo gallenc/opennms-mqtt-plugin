@@ -52,6 +52,7 @@ services:
       - opennms.etc:/opt/opennms/etc
       - opennms.data:/opennms-data
       - ./etc-overlay:/opt/opennms-etc-overlay
+      - ./target/opennms-deploy:/opt/opennms/deploy:ro
       
     # starting with cassandra option
     command: ["-c"]
