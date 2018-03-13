@@ -96,8 +96,8 @@ public class DataPersistorImpl implements DataPersistor {
 						latStr = attributeMap.get(LATITUDE_KEY).getValue();
 						lonStr = attributeMap.get(LONGITUDE_KEY).getValue();
 
-						Float latitude = Float.valueOf(latStr);
-						Float longitude = Float.valueOf(lonStr);
+						Double latitude = Double.valueOf(latStr);
+						Double longitude = Double.valueOf(lonStr);
 
 						OnmsGeolocation geolocation = new OnmsGeolocation();
 						geolocation.setLatitude(latitude); 

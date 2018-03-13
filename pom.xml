@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opennms.plugins</groupId>
   <artifactId>MqttClient.parent</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>MqttClient.parent</name>
   <description>MqttClient Parent Project</description>
@@ -19,11 +19,13 @@
     <productName>MqttClient</productName>
     <productFeatureRepository>mvn:${project.groupId}/${productName}/${project.version}/xml/features</productFeatureRepository>
 
-    <licencemanagerVersion>1.0.4</licencemanagerVersion>
+    <licencemanagerVersion>1.0.6</licencemanagerVersion>
     <!-- <licencemanagerVersion>1.1.0-SNAPSHOT</licencemanagerVersion> -->
-    <org.opennms.version>20.1.0</org.opennms.version>
+
+    <org.opennms.version>21.0.4</org.opennms.version>
     <!-- <org.opennms.version>21.0.1</org.opennms.version> -->
-     <!--<org.opennms.version>20.0.2</org.opennms.version> -->
+    <!-- <org.opennms.version>20.1.0</org.opennms.version> -->
+    <!-- <org.opennms.version>20.0.2</org.opennms.version> -->
 
     <slf4jVersion>1.7.21</slf4jVersion>
     <log4j2Version>2.8.2</log4j2Version>
@@ -366,7 +368,18 @@
         <groupId>com.sun.jersey</groupId>
         <artifactId>jersey-json</artifactId>
         <version>${jerseyVersion}</version>
-      </dependency>
+        <!-- use opennms jaxb-dependencies from org.opennms.protocols.xml -->
+        <exclusions>
+        <exclusion>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-impl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
       <dependency>
         <groupId>javax.ws.rs</groupId>
