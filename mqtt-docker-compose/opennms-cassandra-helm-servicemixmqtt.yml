@@ -52,7 +52,7 @@ services:
       - opennms.etc:/opt/opennms/etc
       - opennms.data:/opennms-data
       - ./etc-overlay:/opt/opennms-etc-overlay
-      - ./opennms-deploy:/opt/opennms/deploy:ro
+      - ./opennms-deploy:/opt/opennms/deploy
       
     # starting with cassandra option
     command: ["-c"]
@@ -61,7 +61,7 @@ services:
       interval: 1m
       timeout: 5s
       retries: 3
-    # restart: always
+    restart: unless-stopped # will continue to try restart to allow cassandra time to come up
     ports:
       - "8980:8980"
       - "8101:8101"

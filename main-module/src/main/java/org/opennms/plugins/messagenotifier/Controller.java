@@ -285,21 +285,21 @@ public class Controller {
 
 		// initialise mqtt receivers
 		for(String clientId: m_clientMap.keySet()){
-			LOG.info("initialising"+clientId);
+			LOG.info("initialising mqtt client : "+clientId);
 			try{
-			m_clientMap.get(clientId).init();
+			   m_clientMap.get(clientId).init();
 			}catch (Exception ex){
-				LOG.error("problem initialising clientId:"+clientId,ex);
+				LOG.error("problem initialising mqtt clientId:"+clientId,ex);
 			}
 		}
 		
 		// initialise other receivers
 		for(String clientId: m_rxServiceMap.keySet()){
-			LOG.info("initialising"+clientId);
+			LOG.info("initialising rx client : "+clientId);
 			try{
-				m_rxServiceMap.get(clientId).init();
+			   m_rxServiceMap.get(clientId).init();
 			}catch (Exception ex){
-				LOG.error("problem initialising clientId:"+clientId,ex);
+				LOG.error("problem initialising rx clientId:"+clientId,ex);
 			}
 		}
 

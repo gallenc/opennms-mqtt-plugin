@@ -78,24 +78,24 @@
   </messageEventParsers>
 
   <!-- mqttClients define connections to mqtt brokers. (This follows the paho client model). -->
-  <!-- each client must have a unique instanceId  -this is used in OpwnNMS logging. -->
+  <!-- each client must have a unique instanceId  - this is used in OpenNMS logging. -->
   <!-- the clienid must be unique for a given mqtt broker -->
   <!-- the clientConnectionMaxWait tetermins the time the client will wait for the broker to respond before abandoning a connection attempt -->
   <!-- the connectionRetryInterval is the interval before hte client will try again to connect after failing to connect previously -->
   <!-- the topic list determines which topics the client will subscribe to once it has established a connection -->
   <mqttClients>
-<!--     <client clientInstanceId="client1"> -->
-<!--       <brokerUrl>tcp://localhost:1883</brokerUrl> -->
-<!--       <clientId>opennms</clientId> -->
-<!--       <connectionRetryInterval>3000</connectionRetryInterval> -->
-<!--       <clientConnectionMaxWait>20000</clientConnectionMaxWait> -->
-<!--       <password>xxx</password> -->
-<!--       <topicList> -->
-<!--         <topic qos="0" topic="mqtt-events" /> -->
-<!--         <topic qos="1" topic="mqtt-data" /> -->
-<!--       </topicList> -->
-<!--       <userName>yyy</userName> -->
-<!--     </client> -->
+    <client clientInstanceId="client1">
+      <brokerUrl>tcp://localhost:1883</brokerUrl>
+      <clientId>opennms</clientId>
+      <connectionRetryInterval>3000</connectionRetryInterval>
+      <clientConnectionMaxWait>20000</clientConnectionMaxWait>
+      <topicList>
+        <topic qos="0" topic="mqtt-events" />
+        <topic qos="0" topic="mqtt-data" />
+      </topicList>
+      <userName>mqtt-user</userName>
+      <password>mqtt-password</password>
+    </client>
   </mqttClients>
 
   <!-- messageClients are alternative message sources defined within OpenNMS -->
