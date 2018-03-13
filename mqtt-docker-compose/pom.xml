@@ -35,7 +35,7 @@
                   <type>kar</type>
                   <!-- <classifier> [classifier - optional] </classifier> -->
                   <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/opennms-deploy/</outputDirectory>
+                  <outputDirectory>${project.basedir}/opennms-deploy/</outputDirectory>
                   <!-- <destFileName>[ filename ]</destFileName> -->
                 </artifactItem>
               </artifactItems>

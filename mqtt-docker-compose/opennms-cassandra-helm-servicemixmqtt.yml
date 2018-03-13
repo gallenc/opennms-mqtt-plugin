@@ -1,4 +1,4 @@
-version: '3.0'
+version: '3.1'
 
 volumes:
   psql.data:
@@ -52,7 +52,7 @@ services:
       - opennms.etc:/opt/opennms/etc
       - opennms.data:/opennms-data
       - ./etc-overlay:/opt/opennms-etc-overlay
-      - ./target/opennms-deploy:/opt/opennms/deploy:ro
+      - ./opennms-deploy:/opt/opennms/deploy:ro
       
     # starting with cassandra option
     command: ["-c"]
@@ -61,6 +61,7 @@ services:
       interval: 1m
       timeout: 5s
       retries: 3
+    # restart: always
     ports:
       - "8980:8980"
       - "8101:8101"

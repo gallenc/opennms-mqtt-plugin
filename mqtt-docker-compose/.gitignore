@@ -4,3 +4,6 @@
 /.directory
 /target/
 /.settings/
+/opennms-deploy/*.kar
+/opennms-deploy/*.jar
+/opennms-deploy/*.xml
