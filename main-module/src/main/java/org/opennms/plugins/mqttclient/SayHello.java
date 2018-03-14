@@ -42,12 +42,12 @@ public class SayHello {
 	
 	public SayHello(){
 		super();
-		LOG.info("Hello - MqttClient started");
+		LOG.warn("Hello - MqttClient started");
 		System.out.println("Hello - MqttClient started");
 	}
 	
 	public void destroyMethod(){
-		LOG.info("Goodbye - MqttClient stopped");
+		LOG.warn("Goodbye - MqttClient stopped");
 		System.out.println("Goodbye - MqttClient stopped");
 	}
 }

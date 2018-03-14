@@ -106,7 +106,7 @@ public class NodeByForeignSourceCacheImpl implements NodeByForeignSourceCache, E
 
 	public void init() {
 		if (m_nodeDataCache == null) {
-			LOG.info("initializing m_nodeDataCache (" + ", TTL="+ MAX_TTL + "m, MAX_SIZE=" + MAX_SIZE + ")");
+			LOG.warn("initializing m_nodeDataCache (" + ", TTL="+ MAX_TTL + "m, MAX_SIZE=" + MAX_SIZE + ")");
 
 			CacheBuilder cacheBuilder = CacheBuilder.newBuilder();
 

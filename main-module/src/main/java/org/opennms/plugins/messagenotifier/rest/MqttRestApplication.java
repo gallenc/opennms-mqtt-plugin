@@ -29,7 +29,7 @@ public class MqttRestApplication extends Application {
 	
 	public MqttRestApplication(){
 		super();
-		LOG.info("Mqtt ReST Service starting");
+		LOG.warn("Mqtt ReST Service starting");
 	}
 
 	// doing this because the com.sun.ws.rest.api.core.PackagesResourceConfig 
@@ -50,7 +50,7 @@ public class MqttRestApplication extends Application {
 	//	}
 	
 	public void destroyMethod(){
-		LOG.info("Mqtt ReST Service shutting down");
+		LOG.warn("Mqtt ReST Service shutting down");
 	}
 
 }

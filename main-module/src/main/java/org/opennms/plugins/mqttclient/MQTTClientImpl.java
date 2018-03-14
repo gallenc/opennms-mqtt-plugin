@@ -195,7 +195,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			m_clientConnected.set(true);
 			return true;
 		}
-		LOG.info("client instanceId:"+m_instanceId+": Connecting to "+m_brokerUrl + " with m_client ID "+m_client.getClientId()
+		LOG.warn("client instanceId:"+m_instanceId+": Connecting to "+m_brokerUrl + " with m_client ID "+m_client.getClientId()
 				+" (number of connection attempts since start="
 				+ reconnectionCount.incrementAndGet()+")");
 		IMqttToken conToken;
@@ -208,7 +208,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			m_clientConnected.set(false);
 			return false;
 		}
-		LOG.info("client instanceId:"+m_instanceId+": Connected to MQTT broker");
+		LOG.warn("client instanceId:"+m_instanceId+": Connected to MQTT broker");
 		m_clientConnected.set(true);
 		return true;
 	}
@@ -386,17 +386,17 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			});
 
 			m_connectionRetryThread.start();
-			LOG.info("client instanceId:"+m_instanceId+": connection retry thread started: retryInterval="+m_connectionRetryInterval);
+			LOG.warn("client instanceId:"+m_instanceId+": connection retry thread started: retryInterval="+m_connectionRetryInterval);
 		}
 	}
 
 	private synchronized void stopConnectionRetryThead(){
-		LOG.info("client instanceId:"+m_instanceId+": disconnecting and stopping connection retry thread");
+		LOG.warn("client instanceId:"+m_instanceId+": disconnecting and stopping connection retry thread");
 		disconnect();
 		if (m_connectionRetryThread!=null){
 			m_connectionRetryThread.interrupt();
 			m_connectionRetryThread=null;
-			LOG.info("client instanceId:"+m_instanceId+": connection retry thread stopped");
+			LOG.warn("client instanceId:"+m_instanceId+": connection retry thread stopped");
 		}
 	}
 

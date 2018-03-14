@@ -285,7 +285,7 @@ public class Controller {
 
 		// initialise mqtt receivers
 		for(String clientId: m_clientMap.keySet()){
-			LOG.info("initialising mqtt client : "+clientId);
+			LOG.warn("initialising mqtt client : "+clientId);
 			try{
 			   m_clientMap.get(clientId).init();
 			}catch (Exception ex){
@@ -295,7 +295,7 @@ public class Controller {
 		
 		// initialise other receivers
 		for(String clientId: m_rxServiceMap.keySet()){
-			LOG.info("initialising rx client : "+clientId);
+			LOG.warn("initialising rx client : "+clientId);
 			try{
 			   m_rxServiceMap.get(clientId).init();
 			}catch (Exception ex){
@@ -362,10 +362,10 @@ public class Controller {
 				receiverConfig = (MQTTReceiverConfig) jaxbUnmarshaller.unmarshal(mqttReceiverConfigFile);
 
 				System.out.println("MQTT Receiver Config successfully loaded from file="+mqttReceiverConfigFile.getAbsolutePath());
-				LOG.info("MQTT Receiver Config successfully loaded from file="+mqttReceiverConfigFile.getAbsolutePath());
+				LOG.warn("MQTT Receiver Config successfully loaded from file="+mqttReceiverConfigFile.getAbsolutePath());
 			} else {
 				System.out.println("MQTT Receiver Config file="+mqttReceiverConfigFile.getAbsolutePath()+" does not exist.");
-				LOG.info("MQTT Receiver Config file="+mqttReceiverConfigFile.getAbsolutePath()+" does not exist.");
+				LOG.warn("MQTT Receiver Config file="+mqttReceiverConfigFile.getAbsolutePath()+" does not exist.");
 			}
 			return receiverConfig;
 
