@@ -32,13 +32,17 @@ The architecture of the feature is shown in the following diagram.
 
 # Building and deploying
 
-(Please note that the present version does not use the new OpenNMS streaming API and so is backwards compatible with Meridian 2017. It interacts with OpenNMS in much the same way as the design intent of the streaming API.)
+(Please note that the present version does not use the new OpenNMS streaming API and so is backwards compatible with Meridian 2017. 
+It interacts with OpenNMS in much the same way as the design intent of the streaming API.)
+
+A docker-compose project with all the correct dependencies is also provided in the sub project mqtt-docker-compose. 
+If you first build this project, you can then run the docker-compose project.
 
 You need to target the build against the correct major version of OpenNMS.
 To do this, edit the parent pom.xml and change the property
 
 ''''
-    <org.opennms.version>20.0.2</org.opennms.version>
+    <org.opennms.version>21.0.5</org.opennms.version>
 ''''
     
 To match the version you are targeting. 
@@ -49,7 +53,10 @@ mvn build install
 ```
 
 Io install in OpenNMS, 
-1. edit the opennms/etc/custom.properties  file
+
+
+1. - edit the opennms/etc/custom.properties  file (this step is depricated)
+(post opennms 21.0.5, this is included in the standard custom.properties  file
 
 add the following org.opennms.protocols.xml.config package to the property
 ```
@@ -78,5 +85,6 @@ Username: admin
 Content-Type: application/json;charset=utf-8
 {"time":"2017-12-13 09:03:43.004000","id":"6","formula1":"PM1.constant1+PM1.constant2", "constant1":"1200.0", "constant2":"34.0"}
 ```
+
 
 
