@@ -5,6 +5,12 @@
 -Xms1G
 -Xmx1G
 
+# new path to cassandra.yaml to inject specific variables
+-Dcassandra.config=/opt/cassandra.yaml
+
+# in cassandra.yaml listen_address : <leave blank>
+# in cassandra.yaml enable user defined functions
+
 ###########################################################################
 #                             jvm.options                                 #
 #                                                                         #
