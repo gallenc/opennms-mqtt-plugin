@@ -62,6 +62,10 @@ public class OnmsAttributeJsonHandlerTest {
 	// simple json encoding
 	private static final String TEST_JSON_6 = "src/test/resources/JsonParserTests/testJson6.json";
 	private static final String TEST_XMLGROUP_6 = "src/test/resources/JsonParserTests/testXmlGroup6.xml";
+	
+	// Laurawan test - Herb Garcea
+	private static final String TEST_JSON_7 = "src/test/resources/JsonParserTests/testJson7.json";
+	private static final String TEST_XMLGROUP_7 = "src/test/resources/JsonParserTests/testXmlGroup7.xml";
 
 
 	@Test
@@ -282,6 +286,30 @@ public class OnmsAttributeJsonHandlerTest {
 		assertEquals("24",attributeMapList.get(1).getAttributeMap().get("nproc").getValue() );
 
 		LOG.debug("end OnmsAttributeJsonHandlerTest test6c (automatic compression)");
+	}
+	
+	// test of Herb's Laurawan
+	@Test
+	public void test7() {
+		LOG.debug("start OnmsAttributeJsonHandlerTest test7");
+
+		String xmlGroupFile = TEST_XMLGROUP_7;
+		String jsonFile = TEST_JSON_7;
+
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
+
+		assertTrue(attributeMapList.size()==1);
+
+		assertTrue("d".equals(attributeMapList.get(0).getForeignId()));
+
+		assertEquals("462",attributeMapList.get(0).getAttributeMap().get("light").getValue() );
+		assertEquals("97.34025",attributeMapList.get(0).getAttributeMap().get("moisture").getValue() );
+		assertEquals("29.8125",attributeMapList.get(0).getAttributeMap().get("temperature").getValue() );
+		assertEquals("0.1875",attributeMapList.get(0).getAttributeMap().get("x_acc").getValue() );
+		assertEquals("0.375",attributeMapList.get(0).getAttributeMap().get("y_acc").getValue() );
+		assertEquals("0.8125",attributeMapList.get(0).getAttributeMap().get("z_acc").getValue() );
+
+		LOG.debug("end OnmsAttributeJsonHandlerTest test7");
 	}
 
 	/*

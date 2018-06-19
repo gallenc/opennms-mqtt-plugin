@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+  <xml-group name="laurawan" resource-type="laurawan" resource-xpath="/*" key-xpath="name(/*)" >
+
+    <xml-object name="light" type="GAUGE" xpath="@light" />
+    <xml-object name="moisture" type="GAUGE" xpath="@moisture" />
+    <xml-object name="temperature" type="GAUGE" xpath="@temperature" />
+    <xml-object name="x_acc" type="GAUGE" xpath="@x_acc" />
+    <xml-object name="y_acc" type="GAUGE" xpath="@y_acc" />
+    <xml-object name="z_acc" type="GAUGE" xpath="@z_acc" />
+
+  </xml-group>
+</xml-groups>
+
+<!-- Example Laurawan MQTT payload Herb Garcia Insitu Systems, Inc. -->
+<!-- 6/15/2018, 6:25:59 PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A- -->
+<!-- 4F-F6/evt/datapoint/fmt/json : msg.payload : Object -->
+
+<!-- { -->
+<!-- 	"d": { -->
+<!-- 		"light": 462, -->
+<!-- 		"moisture": 97.34025, -->
+<!-- 		"temperature": 29.8125, -->
+<!-- 		"x_acc": 0.1875, -->
+<!-- 		"y_acc": 0.375, -->
+<!-- 		"z_acc": 0.8125 -->
+<!-- 	} -->
+<!-- } -->
