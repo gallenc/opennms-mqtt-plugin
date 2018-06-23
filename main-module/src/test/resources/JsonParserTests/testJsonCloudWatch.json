@@ -1,0 +1,130 @@
+{
+	"engine": "MYSQL",
+	"instanceID": "db-phpipam-prod",
+	"instanceResourceID": "db-IWDTBF2TOWGZZQVJJL5VMBJME4",
+	"timestamp": "2018-05-22T21:26:41Z",
+	"version": 1.00,
+	"uptime": "163 days, 18:27:02",
+	"numVCPUs": 4,
+	"cpuUtilization": {
+		"guest": 0.00,
+		"irq": 0.03,
+		"system": 0.23,
+		"wait": 0.11,
+		"idle": 99.15,
+		"user": 0.34,
+		"total": 0.87,
+		"steal": 0.01,
+		"nice": 0.15
+	},
+	"loadAverageMinute": {
+		"fifteen": 0.05,
+		"five": 0.01,
+		"one": 0.00
+	},
+	"memory": {
+		"writeback": 4,
+		"hugePagesFree": 0,
+		"hugePagesRsvd": 0,
+		"hugePagesSurp": 0,
+		"cached": 2690548,
+		"hugePagesSize": 2048,
+		"free": 10488404,
+		"hugePagesTotal": 0,
+		"inactive": 370396,
+		"pageTables": 137580,
+		"dirty": 236,
+		"mapped": 33576,
+		"active": 3952116,
+		"total": 15404800,
+		"slab": 305144,
+		"buffers": 297736
+	},
+	"tasks": {
+		"sleeping": 224,
+		"zombie": 0,
+		"running": 1,
+		"stopped": 0,
+		"total": 225,
+		"blocked": 0
+	},
+	"swap": {
+		"cached": 0,
+		"total": 15406328,
+		"out": 0.00,
+		"free": 15406328,
+		"in": 0.00
+	},
+	"network": [
+		{
+			"interface": "eth0",
+			"rx": 6152.25,
+			"tx": 47244.00
+		}
+	],
+	"diskIO": [
+		{
+			"writeKbPS": 16.87,
+			"readIOsPS": 0.00,
+			"await": 1.50,
+			"readKbPS": 0.00,
+			"rrqmPS": 0.00,
+			"util": 0.43,
+			"avgQueueLen": 0.37,
+			"tps": 4.08,
+			"readKb": 0,
+			"device": "rdsdev",
+			"writeKb": 1012,
+			"avgReqSz": 4.13,
+			"wrqmPS": 0.00,
+			"writeIOsPS": 4.08
+		}
+	],
+	"fileSys": [
+		{
+			"used": 355980,
+			"name": "rdsfilesys",
+			"usedFiles": 298,
+			"usedFilePercent": 0.00,
+			"maxFiles": 6553600,
+			"mountPoint": "/rdsdbdata",
+			"total": 103053476,
+			"usedPercent": 0.35
+		}
+	],
+	"processList": [
+		{
+			"vss": 79723320,
+			"name": "mysqld",
+			"tgid": 6869,
+			"vmlimit": "unlimited",
+			"parentID": 1,
+			"memoryUsedPc": 7.05,
+			"cpuUsedPc": 0.00,
+			"id": 6869,
+			"rss": 1085388
+		},
+		{
+			"vss": 977900,
+			"name": "OS processes",
+			"tgid": 0,
+			"vmlimit": "",
+			"parentID": 0,
+			"memoryUsedPc": 0.23,
+			"cpuUsedPc": 0.00,
+			"id": 0,
+			"rss": 30144
+		},
+		{
+			"vss": 2513376,
+			"name": "RDS processes",
+			"tgid": 0,
+			"vmlimit": "",
+			"parentID": 0,
+			"memoryUsedPc": 1.80,
+			"cpuUsedPc": 0.18,
+			"id": 0,
+			"rss": 277864
+		}
+	]
+}

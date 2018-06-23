@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+  <xml-group name="amazon" resource-type="cloudwatch" resource-xpath="/" key-xpath="@instanceID" timestamp-xpath="@timestamp" timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
+    <xml-object name="timestamp" type="string" xpath="@timestamp" />
+    <xml-object name="instanceResourceID" type="string" xpath="@instanceResourceID" />
+    <xml-object name="version" type="string" xpath="@version" />
+    <xml-object name="numVCPUs" type="GAUGE" xpath="@numVCPUs" />
+    <xml-object name="uptime" type="string" xpath="@uptime" />
+
+    <!-- cpuUtilization -->
+    <xml-object name="cpuUtilizationGuest" type="GAUGE" xpath="cpuUtilization/guest" />
+    <xml-object name="cpuUtilizationIrq" type="GAUGE" xpath="cpuUtilization/irq" />
+    <xml-object name="cpuUtilizationSystem" type="GAUGE" xpath="cpuUtilization/system" />
+    <xml-object name="cpuUtilizationWait" type="GAUGE" xpath="cpuUtilization/wait" />
+    <xml-object name="cpuUtilizationIdle" type="GAUGE" xpath="cpuUtilization/idle" />
+    <xml-object name="cpuUtilizationUser" type="GAUGE" xpath="cpuUtilization/user" />
+    <xml-object name="cpuUtilizationTotal" type="GAUGE" xpath="cpuUtilization/total" />
+    <xml-object name="cpuUtilizationSteal" type="GAUGE" xpath="cpuUtilization/steal" />
+    <xml-object name="cpuUtilizationNice" type="GAUGE" xpath="cpuUtilization/nice" />
+
+    <!-- loadAverageMinute -->
+    <xml-object name="loadAverage15Minute" type="GAUGE" xpath="loadAverageMinute/fifteen" />
+    <xml-object name="loadAverage5Minute" type="GAUGE" xpath="loadAverageMinute/five" />
+    <xml-object name="loadAverage1Minute" type="GAUGE" xpath="loadAverageMinute/one" />
+
+    <!-- memory -->
+    <xml-object name="memWriteback" type="GAUGE" xpath="memory/writeback" />
+    <xml-object name="memHugePagesFree" type="GAUGE" xpath="memory/hugePagesFree" />
+    <xml-object name="memHugePagesRsvd" type="GAUGE" xpath="memory/hugePagesRsvd" />
+    <xml-object name="memhugePagesSurp" type="GAUGE" xpath="memory/hugePagesSurp" />
+    <xml-object name="memCached" type="GAUGE" xpath="memory/cached" />
+    <xml-object name="memHugePagesSize" type=" GAUGE " xpath="memory/hugePagesSize" />
+    <xml-object name="memFree" type="GAUGE" xpath="memory/free" />
+    <xml-object name="memHugePagesTotal" type="GAUGE" xpath="memory/hugePagesTotal" />
+    <xml-object name="memInactive" type="GAUGE" xpath="memory/inactive" />
+    <xml-object name="memPageTables" type="GAUGE" xpath="memory/pageTables" />
+    <xml-object name="memDirty" type="GAUGE" xpath="memory/dirty" />
+    <xml-object name="memMapped" type="GAUGE" xpath="memory/mapped" />
+    <xml-object name="memActive" type="GAUGE" xpath="memory/active" />
+    <xml-object name="memTotal" type="GAUGE" xpath="memory/total" />
+    <xml-object name="memSlab" type="GAUGE" xpath="memory/slab" />
+    <xml-object name="memBuffers" type="GAUGE" xpath="memory/buffers" />
+
+    <!-- tasks -->
+    <xml-object name="tasksSleeping" type="GAUGE" xpath="tasks/sleeping" />
+    <xml-object name="tasksZombie" type="GAUGE" xpath="tasks/zombie" />
+    <xml-object name="tasksRunning" type="GAUGE" xpath="tasks/running" />
+    <xml-object name="tasksStopped" type="GAUGE" xpath="tasks/stopped" />
+    <xml-object name="tasksTotal" type="GAUGE" xpath="tasks/total" />
+    <xml-object name="tasksBlocked" type="GAUGE" xpath="tasks/blocked" />
+
+
+    <!-- swap -->
+    <xml-object name="swapCached" type="GAUGE" xpath="swap/cached" />
+    <xml-object name="swapTotal" type="GAUGE" xpath="swap/total" />
+    <xml-object name="swapOut" type="GAUGE" xpath="swap/out" />
+    <xml-object name="swapFree" type="GAUGE" xpath="swap/free" />
+    <xml-object name="swapIn" type="GAUGE" xpath="swap/in" />
+  </xml-group>
+</xml-groups>
+
+<!-- Example Cloudwatch Group -->
+<!-- { -->
+<!-- 	"engine": "MYSQL", -->
+<!-- 	"instanceID": "db-phpipam-prod", -->
+<!-- 	"instanceResourceID": "db-IWDTBF2TOWGZZQVJJL5VMBJME4", -->
+<!-- 	"timestamp": "2018-05-22T21:26:41Z", -->
+<!-- 	"version": 1.00, -->
+<!-- 	"uptime": "163 days, 18:27:02", -->
+<!-- 	"numVCPUs": 4, -->
+<!-- 	"cpuUtilization": { -->
+<!-- 		"guest": 0.00, -->
+<!-- 		"irq": 0.03, -->
+<!-- 		"system": 0.23, -->
+<!-- 		"wait": 0.11, -->
+<!-- 		"idle": 99.15, -->
+<!-- 		"user": 0.34, -->
+<!-- 		"total": 0.87, -->
+<!-- 		"steal": 0.01, -->
+<!-- 		"nice": 0.15 -->
+<!-- 	}, -->
+<!-- 	"loadAverageMinute": { -->
+<!-- 		"fifteen": 0.05, -->
+<!-- 		"five": 0.01, -->
+<!-- 		"one": 0.00 -->
+<!-- 	}, -->
+<!-- 	"memory": { -->
+<!-- 		"writeback": 4, -->
+<!-- 		"hugePagesFree": 0, -->
+<!-- 		"hugePagesRsvd": 0, -->
+<!-- 		"hugePagesSurp": 0, -->
+<!-- 		"cached": 2690548, -->
+<!-- 		"hugePagesSize": 2048, -->
+<!-- 		"free": 10488404, -->
+<!-- 		"hugePagesTotal": 0, -->
+<!-- 		"inactive": 370396, -->
+<!-- 		"pageTables": 137580, -->
+<!-- 		"dirty": 236, -->
+<!-- 		"mapped": 33576, -->
+<!-- 		"active": 3952116, -->
+<!-- 		"total": 15404800, -->
+<!-- 		"slab": 305144, -->
+<!-- 		"buffers": 297736 -->
+<!-- 	}, -->
+<!-- 	"tasks": { -->
+<!-- 		"sleeping": 224, -->
+<!-- 		"zombie": 0, -->
+<!-- 		"running": 1, -->
+<!-- 		"stopped": 0, -->
+<!-- 		"total": 225, -->
+<!-- 		"blocked": 0 -->
+<!-- 	}, -->
+<!-- 	"swap": { -->
+<!-- 		"cached": 0, -->
+<!-- 		"total": 15406328, -->
+<!-- 		"out": 0.00, -->
+<!-- 		"free": 15406328, -->
+<!-- 		"in": 0.00 -->
+<!-- 	}, -->
+<!-- 	"network": [ -->
+<!-- 		{ -->
+<!-- 			"interface": "eth0", -->
+<!-- 			"rx": 6152.25, -->
+<!-- 			"tx": 47244.00 -->
+<!-- 		} -->
+<!-- 	], -->
+<!-- 	"diskIO": [ -->
+<!-- 		{ -->
+<!-- 			"writeKbPS": 16.87, -->
+<!-- 			"readIOsPS": 0.00, -->
+<!-- 			"await": 1.50, -->
+<!-- 			"readKbPS": 0.00, -->
+<!-- 			"rrqmPS": 0.00, -->
+<!-- 			"util": 0.43, -->
+<!-- 			"avgQueueLen": 0.37, -->
+<!-- 			"tps": 4.08, -->
+<!-- 			"readKb": 0, -->
+<!-- 			"device": "rdsdev", -->
+<!-- 			"writeKb": 1012, -->
+<!-- 			"avgReqSz": 4.13, -->
+<!-- 			"wrqmPS": 0.00, -->
+<!-- 			"writeIOsPS": 4.08 -->
+<!-- 		} -->
+<!-- 	], -->
+<!-- 	"fileSys": [ -->
+<!-- 		{ -->
+<!-- 			"used": 355980, -->
+<!-- 			"name": "rdsfilesys", -->
+<!-- 			"usedFiles": 298, -->
+<!-- 			"usedFilePercent": 0.00, -->
+<!-- 			"maxFiles": 6553600, -->
+<!-- 			"mountPoint": "/rdsdbdata", -->
+<!-- 			"total": 103053476, -->
+<!-- 			"usedPercent": 0.35 -->
+<!-- 		} -->
+<!-- 	], -->
+<!-- 	"processList": [ -->
+<!-- 		{ -->
+<!-- 			"vss": 79723320, -->
+<!-- 			"name": "mysqld", -->
+<!-- 			"tgid": 6869, -->
+<!-- 			"vmlimit": "unlimited", -->
+<!-- 			"parentID": 1, -->
+<!-- 			"memoryUsedPc": 7.05, -->
+<!-- 			"cpuUsedPc": 0.00, -->
+<!-- 			"id": 6869, -->
+<!-- 			"rss": 1085388 -->
+<!-- 		}, -->
+<!-- 		{ -->
+<!-- 			"vss": 977900, -->
+<!-- 			"name": "OS processes", -->
+<!-- 			"tgid": 0, -->
+<!-- 			"vmlimit": "", -->
+<!-- 			"parentID": 0, -->
+<!-- 			"memoryUsedPc": 0.23, -->
+<!-- 			"cpuUsedPc": 0.00, -->
+<!-- 			"id": 0, -->
+<!-- 			"rss": 30144 -->
+<!-- 		}, -->
+<!-- 		{ -->
+<!-- 			"vss": 2513376, -->
+<!-- 			"name": "RDS processes", -->
+<!-- 			"tgid": 0, -->
+<!-- 			"vmlimit": "", -->
+<!-- 			"parentID": 0, -->
+<!-- 			"memoryUsedPc": 1.80, -->
+<!-- 			"cpuUsedPc": 0.18, -->
+<!-- 			"id": 0, -->
+<!-- 			"rss": 277864 -->
+<!-- 		} -->
+<!-- 	] -->
+<!-- } -->

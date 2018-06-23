@@ -24,7 +24,7 @@ if(b.intValue()==1) {
 } else if (b.intValue()==3) {
   return "DERIVE";
 } else if (b.intValue()==4) {
-  return "GUAGE";
+  return "GAUGE";
 } 
 return "unknown type:"+b.intValue(); ' ;
 

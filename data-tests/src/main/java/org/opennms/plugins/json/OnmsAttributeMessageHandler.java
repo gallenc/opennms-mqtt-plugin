@@ -180,7 +180,7 @@ public class OnmsAttributeMessageHandler {
 
 							//builder.withAttribute(collectionResource, group.getName(), object.getName(), obj.toString(), object.getDataType());
 						}
-					} catch (Exception ex) {
+					} catch (JXPathException ex) {
 						LOG.warn("fillAttributeMap Unable to get value for {}: {}", object.getXpath(), ex.getMessage());
 					}
 				}
