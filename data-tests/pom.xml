@@ -7,7 +7,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>MqttClient.data-tests</artifactId>
-  <name>qttClient.data-tests</name>
+  <name>MqttClient.data-tests</name>
   <description>Large Data Tests for MqttClient</description>
   <packaging>bundle</packaging>
 
@@ -207,6 +207,12 @@
       <groupId>org.eclipse.paho</groupId>
       <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
       <scope>provided</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.opennms.plugins</groupId>
+      <artifactId>${productName}.main-module</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
 

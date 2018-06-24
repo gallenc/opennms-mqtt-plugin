@@ -47,6 +47,7 @@
 
   <modules>
     <module>main-module</module>
+    <module>data-tests</module>
     <module>product-descriptor</module>
     <module>feature</module>
     <module>kar-descriptor</module>

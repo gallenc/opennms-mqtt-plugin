@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
-  <xml-group name="amazon" resource-type="cloudwatch" resource-xpath="/" key-xpath="@instanceID" timestamp-xpath="@timestamp" timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
+
+  <!-- node level compute resources -->
+  <xml-group name="amazon-cloudwatch-rds-compute" resource-type="compute" resource-xpath="/" key-xpath="@instanceID" timestamp-xpath="@timestamp"
+    timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
     <xml-object name="timestamp" type="string" xpath="@timestamp" />
     <xml-object name="instanceResourceID" type="string" xpath="@instanceResourceID" />
     <xml-object name="version" type="string" xpath="@version" />
@@ -56,7 +59,73 @@
     <xml-object name="swapOut" type="GAUGE" xpath="swap/out" />
     <xml-object name="swapFree" type="GAUGE" xpath="swap/free" />
     <xml-object name="swapIn" type="GAUGE" xpath="swap/in" />
+
   </xml-group>
+  
+  <!-- network - array of interfaces each named eth0, 1 etc. -->
+  <xml-group name="amazon-cloudwatch-rds-interfaces" resource-type="interface" resource-xpath="/network" key-xpath="../instanceID" timestamp-xpath="../timestamp" timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
+    <resource-key>
+      <key-xpath>@interface</key-xpath>
+    </resource-key>
+    <xml-object name="interface" type="string" xpath="@interface" />
+    <xml-object name="rx" type="GAUGE" xpath="@rx" />
+    <xml-object name="tx" type="GAUGE" xpath="@tx" />
+  </xml-group>
+  
+  <!--  diskIO disks are explicitly identified by device -->
+  <xml-group name="amazon-cloudwatch-rds-disks" resource-type="disk" resource-xpath="/diskIO" key-xpath="../instanceID" timestamp-xpath="../timestamp" timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
+    <resource-key>
+      <key-xpath>@device</key-xpath>
+    </resource-key>
+    <xml-object name="writeKbPS" type="GAUGE" xpath="@writeKbPS" />
+    <xml-object name="readIOsPS" type="GAUGE" xpath="@readIOsPS" />
+    <xml-object name="await" type="GAUGE" xpath="@await" />
+    <xml-object name="readKbPS" type="GAUGE" xpath="@readKbPS" />
+    <xml-object name="rrqmPS" type="GAUGE" xpath="@rrqmPS" />
+    <xml-object name="util" type="GAUGE" xpath="@util" />
+    <xml-object name="avgQueueLen" type="GAUGE" xpath="@avgQueueLen" />
+    <xml-object name="tps" type="GAUGE" xpath="@tps" />
+    <xml-object name="readKb" type="GAUGE" xpath="@readKb" />
+    <xml-object name="writeKb" type="GAUGE" xpath="@writeKb" />
+    <xml-object name="avgReqSz" type="GAUGE" xpath="@avgReqSz" />
+    <xml-object name="wrqmPS" type="GAUGE" xpath="@wrqmPS" />
+    <xml-object name="writeIOsPS" type="GAUGE" xpath="@writeIOsPS" />
+    <xml-object name="device" type="string" xpath="@device" />
+  </xml-group>
+  
+    <!--  diskIO disks are explicitly identified by name -->
+  <xml-group name="amazon-cloudwatch-rds-filesystem" resource-type="filesystem" resource-xpath="/fileSys" key-xpath="../instanceID" timestamp-xpath="../timestamp"
+    timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
+    <resource-key>
+      <key-xpath>@name</key-xpath>
+    </resource-key>
+    <xml-object name="used" type="GAUGE" xpath="@used" />
+    <xml-object name="usedFiles" type="GAUGE" xpath="@usedFiles" />
+    <xml-object name="usedFilePercent" type="GAUGE" xpath="@usedFilePercent" />
+    <xml-object name="maxFiles" type="GAUGE" xpath="@maxFiles" />
+    <xml-object name="total" type="GAUGE" xpath="@total" />
+    <xml-object name="usedPercent" type="GAUGE" xpath="@usedPercent" />
+    <xml-object name="name" type="string" xpath="@name" />
+    <xml-object name="mountPoint" type="string" xpath="@mountPoint" />
+  </xml-group>
+
+  <!-- processList processes are identified by name-->
+  <xml-group name="amazon-cloudwatch-rds-processlist" resource-type="process" resource-xpath="/processList" key-xpath="../instanceID" timestamp-xpath="../timestamp"
+    timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
+    <resource-key>
+      <key-xpath>@name</key-xpath>
+    </resource-key>
+    <xml-object name="vss" type="GAUGE" xpath="@vss" />
+    <xml-object name="tgid" type="GUAGE" xpath="@tgid" />
+    <xml-object name="parentID" type="GUAGE" xpath="@parentID" />
+    <xml-object name="memoryUsedPc" type="GUAGE" xpath="@memoryUsedPc" />
+    <xml-object name="cpuUsedPc" type="GUAGE" xpath="@cpuUsedPc" />
+    <xml-object name="id" type="GUAGE" xpath="@id" />
+    <xml-object name="rss" type="GUAGE" xpath="@rss" />
+    <xml-object name="name" type="string" xpath="@name" />
+    <xml-object name="vmlimit" type="string" xpath="@vmlimit" />
+  </xml-group>
+  
 </xml-groups>
 
 <!-- Example Cloudwatch Group -->
