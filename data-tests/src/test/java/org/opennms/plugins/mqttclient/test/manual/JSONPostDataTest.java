@@ -27,7 +27,7 @@ public class JSONPostDataTest {
 			+ " \"PM10\": 1000"
 			+ "}";
 
-	@Test
+	//@Test  // disabled for now
 	public void test1message() {
 		 LOG.debug("JSON tester starting up");
 

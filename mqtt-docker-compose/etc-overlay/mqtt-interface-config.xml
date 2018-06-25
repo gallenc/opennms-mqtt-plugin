@@ -20,12 +20,13 @@
   <messageDataParsers>
     <!-- payloadType determines how the payload is parsed; JSON, XML, PROTOBUF ot TEXT. Note only JSON is supported in present release -->
     <!-- foreignSource defines the foreign source to be used when referencing or creating a new node -->
-    <!-- compression determines the processing of compressed messages GZIP, UNCOMPRESSED, AUTOMATIC_GZIP (tries to guess if gzip compressed - small chance of false positives)-->
-    <messageDataParser  foreignSource="mqtt" payloadType="JSON" compression="UNCOMPRESSED" >
+    <!-- compression determines the processing of compressed messages GZIP, UNCOMPRESSED, AUTOMATIC_GZIP  -->
+    <!-- (tries to guess if gzip compressed - small chance of false  positives) -->
+    <messageDataParser foreignSource="mqtt" payloadType="JSON" compression="UNCOMPRESSED">
       <subscriptionTopics>
         <topic>mqtt-data</topic>
       </subscriptionTopics>
-      <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS --> 
+      <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS -->
       <!-- however multiple readings with different timestamps can be received. The timestamp-xpath is relative to the start of the message -->
       <!-- the key-xpath defines the key which will give the node its foreignId. Thus the foreignSource defined above is combined with -->
       <!-- the foreignId retrieved by the key-xpath to give a reference to the node for which the data is persisted. -->
@@ -52,9 +53,163 @@
         <ns2:rra>RRA:MIN:0.5:288:366</ns2:rra>
       </xmlRrd>
     </messageDataParser>
-    <!-- message event parsers follow the same pattern as message data pasrsers.-->
-    <!-- however the Xpath defines which name value pairs are saved as params in the resulting opennms events -->
+
+    <!-- *********************************** -->
+    <!-- message data parser for amazon aws -->
+    <!-- *********************************** -->
+    <messageDataParser foreignSource="aws-" payloadType="JSON" compression="UNCOMPRESSED">
+      <subscriptionTopics>
+        <topic>aws-data</topic>
+      </subscriptionTopics>
+
+      <xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+
+        <!-- node level compute resources -->
+        <xml-group name="amazon-cloudwatch-rds-compute" resource-type="compute" resource-xpath="/" key-xpath="@instanceID" timestamp-xpath="@timestamp"
+          timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
+          <xml-object name="timestamp" type="string" xpath="@timestamp" />
+          <xml-object name="instanceResourceID" type="string" xpath="@instanceResourceID" />
+          <xml-object name="version" type="string" xpath="@version" />
+          <xml-object name="numVCPUs" type="GAUGE" xpath="@numVCPUs" />
+          <xml-object name="uptime" type="string" xpath="@uptime" />
+
+          <!-- cpuUtilization -->
+          <xml-object name="cpuUtilizationGuest" type="GAUGE" xpath="cpuUtilization/guest" />
+          <xml-object name="cpuUtilizationIrq" type="GAUGE" xpath="cpuUtilization/irq" />
+          <xml-object name="cpuUtilizationSystem" type="GAUGE" xpath="cpuUtilization/system" />
+          <xml-object name="cpuUtilizationWait" type="GAUGE" xpath="cpuUtilization/wait" />
+          <xml-object name="cpuUtilizationIdle" type="GAUGE" xpath="cpuUtilization/idle" />
+          <xml-object name="cpuUtilizationUser" type="GAUGE" xpath="cpuUtilization/user" />
+          <xml-object name="cpuUtilizationTotal" type="GAUGE" xpath="cpuUtilization/total" />
+          <xml-object name="cpuUtilizationSteal" type="GAUGE" xpath="cpuUtilization/steal" />
+          <xml-object name="cpuUtilizationNice" type="GAUGE" xpath="cpuUtilization/nice" />
+
+          <!-- loadAverageMinute -->
+          <xml-object name="loadAverage15Minute" type="GAUGE" xpath="loadAverageMinute/fifteen" />
+          <xml-object name="loadAverage5Minute" type="GAUGE" xpath="loadAverageMinute/five" />
+          <xml-object name="loadAverage1Minute" type="GAUGE" xpath="loadAverageMinute/one" />
+
+          <!-- memory -->
+          <xml-object name="memWriteback" type="GAUGE" xpath="memory/writeback" />
+          <xml-object name="memHugePagesFree" type="GAUGE" xpath="memory/hugePagesFree" />
+          <xml-object name="memHugePagesRsvd" type="GAUGE" xpath="memory/hugePagesRsvd" />
+          <xml-object name="memhugePagesSurp" type="GAUGE" xpath="memory/hugePagesSurp" />
+          <xml-object name="memCached" type="GAUGE" xpath="memory/cached" />
+          <xml-object name="memHugePagesSize" type=" GAUGE " xpath="memory/hugePagesSize" />
+          <xml-object name="memFree" type="GAUGE" xpath="memory/free" />
+          <xml-object name="memHugePagesTotal" type="GAUGE" xpath="memory/hugePagesTotal" />
+          <xml-object name="memInactive" type="GAUGE" xpath="memory/inactive" />
+          <xml-object name="memPageTables" type="GAUGE" xpath="memory/pageTables" />
+          <xml-object name="memDirty" type="GAUGE" xpath="memory/dirty" />
+          <xml-object name="memMapped" type="GAUGE" xpath="memory/mapped" />
+          <xml-object name="memActive" type="GAUGE" xpath="memory/active" />
+          <xml-object name="memTotal" type="GAUGE" xpath="memory/total" />
+          <xml-object name="memSlab" type="GAUGE" xpath="memory/slab" />
+          <xml-object name="memBuffers" type="GAUGE" xpath="memory/buffers" />
+
+          <!-- tasks -->
+          <xml-object name="tasksSleeping" type="GAUGE" xpath="tasks/sleeping" />
+          <xml-object name="tasksZombie" type="GAUGE" xpath="tasks/zombie" />
+          <xml-object name="tasksRunning" type="GAUGE" xpath="tasks/running" />
+          <xml-object name="tasksStopped" type="GAUGE" xpath="tasks/stopped" />
+          <xml-object name="tasksTotal" type="GAUGE" xpath="tasks/total" />
+          <xml-object name="tasksBlocked" type="GAUGE" xpath="tasks/blocked" />
+
+
+          <!-- swap -->
+          <xml-object name="swapCached" type="GAUGE" xpath="swap/cached" />
+          <xml-object name="swapTotal" type="GAUGE" xpath="swap/total" />
+          <xml-object name="swapOut" type="GAUGE" xpath="swap/out" />
+          <xml-object name="swapFree" type="GAUGE" xpath="swap/free" />
+          <xml-object name="swapIn" type="GAUGE" xpath="swap/in" />
+
+        </xml-group>
+
+        <!-- network - array of interfaces each named eth0, 1 etc. -->
+        <xml-group name="amazon-cloudwatch-rds-interfaces" resource-type="interface" resource-xpath="/network" key-xpath="../instanceID"
+          timestamp-xpath="../timestamp" timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
+          <resource-key>
+            <key-xpath>@interface</key-xpath>
+          </resource-key>
+          <xml-object name="interface" type="string" xpath="@interface" />
+          <xml-object name="rx" type="GAUGE" xpath="@rx" />
+          <xml-object name="tx" type="GAUGE" xpath="@tx" />
+        </xml-group>
+
+        <!-- diskIO disks are explicitly identified by device -->
+        <xml-group name="amazon-cloudwatch-rds-disks" resource-type="disk" resource-xpath="/diskIO" key-xpath="../instanceID" timestamp-xpath="../timestamp"
+          timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
+          <resource-key>
+            <key-xpath>@device</key-xpath>
+          </resource-key>
+          <xml-object name="writeKbPS" type="GAUGE" xpath="@writeKbPS" />
+          <xml-object name="readIOsPS" type="GAUGE" xpath="@readIOsPS" />
+          <xml-object name="await" type="GAUGE" xpath="@await" />
+          <xml-object name="readKbPS" type="GAUGE" xpath="@readKbPS" />
+          <xml-object name="rrqmPS" type="GAUGE" xpath="@rrqmPS" />
+          <xml-object name="util" type="GAUGE" xpath="@util" />
+          <xml-object name="avgQueueLen" type="GAUGE" xpath="@avgQueueLen" />
+          <xml-object name="tps" type="GAUGE" xpath="@tps" />
+          <xml-object name="readKb" type="GAUGE" xpath="@readKb" />
+          <xml-object name="writeKb" type="GAUGE" xpath="@writeKb" />
+          <xml-object name="avgReqSz" type="GAUGE" xpath="@avgReqSz" />
+          <xml-object name="wrqmPS" type="GAUGE" xpath="@wrqmPS" />
+          <xml-object name="writeIOsPS" type="GAUGE" xpath="@writeIOsPS" />
+          <xml-object name="device" type="string" xpath="@device" />
+        </xml-group>
+
+        <!-- diskIO disks are explicitly identified by name -->
+        <xml-group name="amazon-cloudwatch-rds-filesystem" resource-type="filesystem" resource-xpath="/fileSys" key-xpath="../instanceID"
+          timestamp-xpath="../timestamp" timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
+          <resource-key>
+            <key-xpath>@name</key-xpath>
+          </resource-key>
+          <xml-object name="used" type="GAUGE" xpath="@used" />
+          <xml-object name="usedFiles" type="GAUGE" xpath="@usedFiles" />
+          <xml-object name="usedFilePercent" type="GAUGE" xpath="@usedFilePercent" />
+          <xml-object name="maxFiles" type="GAUGE" xpath="@maxFiles" />
+          <xml-object name="total" type="GAUGE" xpath="@total" />
+          <xml-object name="usedPercent" type="GAUGE" xpath="@usedPercent" />
+          <xml-object name="name" type="string" xpath="@name" />
+          <xml-object name="mountPoint" type="string" xpath="@mountPoint" />
+        </xml-group>
+
+        <!-- processList processes are identified by name -->
+        <xml-group name="amazon-cloudwatch-rds-processlist" resource-type="process" resource-xpath="/processList" key-xpath="../instanceID"
+          timestamp-xpath="../timestamp" timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
+          <resource-key>
+            <key-xpath>@name</key-xpath>
+          </resource-key>
+          <xml-object name="vss" type="GAUGE" xpath="@vss" />
+          <xml-object name="tgid" type="GUAGE" xpath="@tgid" />
+          <xml-object name="parentID" type="GUAGE" xpath="@parentID" />
+          <xml-object name="memoryUsedPc" type="GUAGE" xpath="@memoryUsedPc" />
+          <xml-object name="cpuUsedPc" type="GUAGE" xpath="@cpuUsedPc" />
+          <xml-object name="id" type="GUAGE" xpath="@id" />
+          <xml-object name="rss" type="GUAGE" xpath="@rss" />
+          <xml-object name="name" type="string" xpath="@name" />
+          <xml-object name="vmlimit" type="string" xpath="@vmlimit" />
+        </xml-group>
+
+      </xml-groups>
+
+      <!-- xmlRRD us set up exactly as it is for xml data collection. step (in seconds ) is the interval expected between data received from the same node -->
+      <xmlRrd step="300">
+        <ns2:rra>RRA:AVERAGE:0.5:1:2016</ns2:rra>
+        <ns2:rra>RRA:AVERAGE:0.5:12:1488</ns2:rra>
+        <ns2:rra>RRA:AVERAGE:0.5:288:366</ns2:rra>
+        <ns2:rra>RRA:MAX:0.5:288:366</ns2:rra>
+        <ns2:rra>RRA:MIN:0.5:288:366</ns2:rra>
+      </xmlRrd>
+    </messageDataParser>
+
+
+
   </messageDataParsers>
+  
+  <!-- message event parsers follow the same pattern as message data parsers. -->
+  <!-- however the Xpath defines which name value pairs are saved as params in the resulting opennms events -->
+  
   <messageEventParsers>
     <messageEventParser  foreignSource="mqtt" payloadType="JSON" compression="UNCOMPRESSED" >
       <subscriptionTopics>
@@ -92,6 +247,7 @@
       <topicList>
         <topic qos="0" topic="mqtt-events" />
         <topic qos="0" topic="mqtt-data" />
+        <topic qos="0" topic="aws-data" />
       </topicList>
       <userName>mqtt-user</userName>
       <password>mqtt-password</password>
@@ -112,6 +268,7 @@
       <topicList>
         <topic qos="0" topic="mqtt-events" />
         <topic qos="0" topic="mqtt-data" />
+        <topic qos="0" topic="aws-data" />
       </topicList>
     </message-client>
   </messageClients>
