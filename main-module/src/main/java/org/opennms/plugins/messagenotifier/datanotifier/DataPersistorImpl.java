@@ -210,10 +210,10 @@ public class DataPersistorImpl implements DataPersistor {
 			this.foreignSource=foreignSource;
 		}
 
-		@Override
-		public int getType() {
-			return 0;
-		}
+//		@Override
+//		public int getType() {
+//			return 0;
+//		}
 
 		@Override
 		public InetAddress getAddress() {
@@ -245,10 +245,10 @@ public class DataPersistorImpl implements DataPersistor {
 			return null;
 		}
 
-		@Override
-		public void setSavedIfCount(int ifCount) {
-			// pass
-		}
+//		@Override
+//		public void setSavedIfCount(int ifCount) {
+//			// pass
+//		}
 
 		@Override
 		public int getNodeId() {
@@ -291,10 +291,10 @@ public class DataPersistorImpl implements DataPersistor {
 			return dir;
 		}
 
-		@Override
-		public String getSysObjectId() {
-			return null;
-		}
+//		@Override
+//		public String getSysObjectId() {
+//			return null;
+//		}
 
 		@Override
 		public long getSavedSysUpTime() {
