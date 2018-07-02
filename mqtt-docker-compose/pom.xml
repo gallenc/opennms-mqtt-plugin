@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.opennms.plugins</groupId>
     <artifactId>MqttClient.parent</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>MqttClient.mqtt-docker-compose</artifactId>
