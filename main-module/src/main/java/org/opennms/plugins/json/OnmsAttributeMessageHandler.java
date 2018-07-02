@@ -30,6 +30,7 @@ package org.opennms.plugins.json;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.json.simple.JSONObject;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.JXPathException;
 import org.apache.commons.jxpath.Pointer;
+import org.apache.commons.jxpath.Variables;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -60,11 +62,17 @@ public class OnmsAttributeMessageHandler {
 	private XmlGroups source=null;
 	
 	private XmlRrd xmlRrd=null;
+	
+	private List<String> topicLevels = new ArrayList<String>();
 
-	public OnmsAttributeMessageHandler(XmlGroups source, XmlRrd xmlRrd){
+	public OnmsAttributeMessageHandler(XmlGroups source, XmlRrd xmlRrd, String topic){
 		if(source==null)throw new IllegalStateException("XmlGroups source must not be null");
 		this.source = source;
 		this.xmlRrd=xmlRrd;
+		if(topic !=null) {
+			// split by topic level separator /
+			topicLevels = Arrays.asList(topic.split("/"));
+		}
 	}
 
 
@@ -137,6 +145,13 @@ public class OnmsAttributeMessageHandler {
 
 	public void fillAttributeMap(List<OnmsCollectionAttributeMap> attributeMapList, XmlGroups source, Object inputObject) throws ParseException {
 		JXPathContext context = JXPathContext.newContext(inputObject);
+		
+		// add additional variables to context to be referenced within the context
+		// XPath can reference variables using the "$varname" syntax
+		// this injects the topicLevels list which can be referenced as $topicLevels[0] etc
+		context.getVariables().declareVariable("topicLevels", topicLevels);
+		LOG.debug("fillAttributeMap: setting $topicLevels in jxpath context as "+topicLevels);
+
 		for (XmlGroup group : source.getXmlGroups()) {
 			LOG.debug("fillAttributeMap: getting resources for XML group '{}' using XPATH '{}'", group.getName(), group.getResourceXpath());
 

@@ -66,16 +66,17 @@ public class OnmsAttributeJsonHandlerTest {
 	// Laurawan test - Herb Garcea
 	private static final String TEST_JSON_7 = "src/test/resources/JsonParserTests/testJson7.json";
 	private static final String TEST_XMLGROUP_7 = "src/test/resources/JsonParserTests/testXmlGroup7.xml";
-
-
+	private static final String TEST_XMLGROUP_7b = "src/test/resources/JsonParserTests/testXmlGroup7b.xml";
+	
 	@Test
 	public void test1() {
 		LOG.debug("start OnmsAttributeJsonHandlerTest test1");
 
 		String xmlGroupFile = TEST_XMLGROUP_1;
 		String jsonFile = TEST_JSON_1;
+		String topic=null;  // not used but needed by class declaration
 
-		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, topic);
 
 		assertTrue(attributeMapList.size()==2);
 
@@ -100,8 +101,9 @@ public class OnmsAttributeJsonHandlerTest {
 
 		String xmlGroupFile = TEST_XMLGROUP_2;
 		String jsonFile = TEST_JSON_2;
+		String topic=null;  // not used but needed by class declaration
 
-		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, topic);
 
 		assertTrue(attributeMapList.size()==1);
 
@@ -123,8 +125,9 @@ public class OnmsAttributeJsonHandlerTest {
 
 		String xmlGroupFile = TEST_XMLGROUP_3;
 		String jsonFile = TEST_JSON_3;
+		String topic=null;  // not used but needed by class declaration
 
-		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, topic);
 		
 		assertTrue(attributeMapList.size()==2); 
 		
@@ -158,8 +161,9 @@ public class OnmsAttributeJsonHandlerTest {
 
 		String xmlGroupFile = TEST_XMLGROUP_4;
 		String jsonFile = TEST_JSON_4;
+		String topic=null;  // not used but needed by class declaration
 
-		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, topic);
 		
 		assertTrue(attributeMapList.size()==1); 
 		
@@ -184,8 +188,9 @@ public class OnmsAttributeJsonHandlerTest {
 
 		String xmlGroupFile = TEST_XMLGROUP_5;
 		String jsonFile = TEST_JSON_5;
+		String topic=null;  // not used but needed by class declaration
 
-		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, topic);
 		
 		// message 1
 		assertTrue("A23D44567Q".equals(attributeMapList.get(0).getForeignId()));
@@ -209,8 +214,9 @@ public class OnmsAttributeJsonHandlerTest {
 
 		String xmlGroupFile = TEST_XMLGROUP_6;
 		String jsonFile = TEST_JSON_6;
+		String topic=null;  // not used but needed by class declaration
 
-		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, topic);
 
 		assertTrue(attributeMapList.size()==2);
 
@@ -238,8 +244,9 @@ public class OnmsAttributeJsonHandlerTest {
 
 		String xmlGroupFile = TEST_XMLGROUP_6;
 		String jsonFile = TEST_JSON_6;
+		String topic=null;  // not used but needed by class declaration
 
-		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, CompressionMethods.GZIP);
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, CompressionMethods.GZIP, topic);
 
 		assertTrue(attributeMapList.size()==2);
 
@@ -268,8 +275,9 @@ public class OnmsAttributeJsonHandlerTest {
 
 		String xmlGroupFile = TEST_XMLGROUP_6;
 		String jsonFile = TEST_JSON_6;
+		String topic=null;  // not used but needed by class declaration
 
-		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, CompressionMethods.AUTOMATIC_GZIP);
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, CompressionMethods.AUTOMATIC_GZIP, topic);
 
 		assertTrue(attributeMapList.size()==2);
 
@@ -289,14 +297,16 @@ public class OnmsAttributeJsonHandlerTest {
 	}
 	
 	// test of Herb's Laurawan
+	// with id in message as 'd'
 	@Test
 	public void test7() {
 		LOG.debug("start OnmsAttributeJsonHandlerTest test7");
 
 		String xmlGroupFile = TEST_XMLGROUP_7;
 		String jsonFile = TEST_JSON_7;
+		String topic=null;  // not used but needed by class declaration
 
-		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile);
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, topic);
 
 		assertTrue(attributeMapList.size()==1);
 
@@ -311,18 +321,47 @@ public class OnmsAttributeJsonHandlerTest {
 
 		LOG.debug("end OnmsAttributeJsonHandlerTest test7");
 	}
+	
+	// test of Herb's Laurawan
+	// with id in topic
+	@Test
+	public void test7b() {
+		LOG.debug("start OnmsAttributeJsonHandlerTest test7b");
+
+		String xmlGroupFile = TEST_XMLGROUP_7b;
+		String jsonFile = TEST_JSON_7;
+		
+		// laurawan topic parsed by xpath	PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/datapoint/fmt/json
+		//           $topicLevels[1]       /[2] /[3]      /[4]/[5]             /[6] etc...
+		String topic="PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/datapoint/fmt/json"; 
+
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, topic);
+
+		assertTrue(attributeMapList.size()==1);
+
+		assertTrue("00-08-00-4A-4F-F6".equals(attributeMapList.get(0).getForeignId()));
+
+		assertEquals("462",attributeMapList.get(0).getAttributeMap().get("light").getValue() );
+		assertEquals("97.34025",attributeMapList.get(0).getAttributeMap().get("moisture").getValue() );
+		assertEquals("29.8125",attributeMapList.get(0).getAttributeMap().get("temperature").getValue() );
+		assertEquals("0.1875",attributeMapList.get(0).getAttributeMap().get("x_acc").getValue() );
+		assertEquals("0.375",attributeMapList.get(0).getAttributeMap().get("y_acc").getValue() );
+		assertEquals("0.8125",attributeMapList.get(0).getAttributeMap().get("z_acc").getValue() );
+
+		LOG.debug("end OnmsAttributeJsonHandlerTest test7b");
+	}
 
 	/*
 	 * Test with no compression
 	 */
-	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String jsonFile){
-		return testMethod(xmlGroupFile, jsonFile, CompressionMethods.UNCOMPRESSED);
+	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String jsonFile, String topic){
+		return testMethod(xmlGroupFile, jsonFile, CompressionMethods.UNCOMPRESSED, topic);
 	}
 
 	/*
 	 * Test with compression selection
 	 */
-	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String jsonFile, String compression){
+	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String jsonFile, String compression, String topic){
 		// read xpath configuration
 		XmlGroups xmlGroups = unmarshalXmlGroups(xmlGroupFile);
 		// read json string
@@ -348,7 +387,7 @@ public class OnmsAttributeJsonHandlerTest {
 		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.JSON,compression);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration
-		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd );
+		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd, topic );
 		List<OnmsCollectionAttributeMap> attributeMapList = onmsAttributeMessageHandler.payloadObjectToAttributeMap(payloadObj);
 
 		LOG.debug("attributeMap: \n    attributeMap.size: "+attributeMapList.size()+"\n    attributeMap.toString: "+attributeMapList.toString().replaceAll("],", "],\n    "));

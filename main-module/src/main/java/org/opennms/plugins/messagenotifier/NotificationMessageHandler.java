@@ -127,7 +127,7 @@ public class NotificationMessageHandler implements NotificationClient {
 
 				XmlGroups dataSource = dataParserConfig.getXmlGroups();
 				XmlRrd xmlRrd = dataParserConfig.getXmlRrd();
-				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(dataSource, xmlRrd);
+				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(dataSource, xmlRrd, topic);
 
 				List<OnmsCollectionAttributeMap> dataAttributeMap = onmsAttributeMessageHandler.payloadObjectToAttributeMap(dataPayloadObject);
 
@@ -163,7 +163,7 @@ public class NotificationMessageHandler implements NotificationClient {
 				// if an object returned try and parse object using jxpath
 				XmlGroups eventSource = eventParserConfig.getXmlGroups();
 				XmlRrd xmlRrd=null; // xmlRrd not defined for events
-				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(eventSource, xmlRrd);
+				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(eventSource, xmlRrd, topic);
 				eventAttributeMap = onmsAttributeMessageHandler.payloadObjectToAttributeMap(eventPayloadObject);
 			} catch (Exception ex){
 				LOG.error("saving event data as string because unable to use jxpath to convert message from topic:"+topic, ex);

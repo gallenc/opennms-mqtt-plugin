@@ -66,13 +66,14 @@ public class OnmsAttributeJsonCloudWatchHandlerTest {
 	 * Test with no compression
 	 */
 	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String jsonFile){
-		return testMethod(xmlGroupFile, jsonFile, CompressionMethods.UNCOMPRESSED);
+		String topic=null;  // not used but needed by class declaration
+		return testMethod(xmlGroupFile, jsonFile, CompressionMethods.UNCOMPRESSED, topic);
 	}
 
 	/*
 	 * Test with compression selection
 	 */
-	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String jsonFile, String compression){
+	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String jsonFile, String compression, String topic){
 		// read xpath configuration
 		XmlGroups xmlGroups = unmarshalXmlGroups(xmlGroupFile);
 		// read json string
@@ -98,7 +99,7 @@ public class OnmsAttributeJsonCloudWatchHandlerTest {
 		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.JSON,compression);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration
-		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd );
+		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd, topic );
 		List<OnmsCollectionAttributeMap> attributeMapList = onmsAttributeMessageHandler.payloadObjectToAttributeMap(payloadObj);
 
 		LOG.debug("attributeMap: \n    attributeMap.size: "+attributeMapList.size()+"\n    attributeMap.toString: "+attributeMapList.toString().replaceAll("],", "],\n    "));

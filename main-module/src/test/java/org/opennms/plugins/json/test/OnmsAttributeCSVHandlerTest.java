@@ -104,8 +104,9 @@ public class OnmsAttributeCSVHandlerTest {
 
 		String xmlGroupFile = TEST_XMLGROUP_CSV_1;
 		String csvFile = TEST_CSV_1;
+		String topic=null;  // not used but needed by class declaration
 
-		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, csvFile);
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, csvFile, topic);
 
 		
 		//		assertTrue(attributeMapList.size()==2);
@@ -126,7 +127,7 @@ public class OnmsAttributeCSVHandlerTest {
 	}
 
 
-	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String csvFile){
+	public List<OnmsCollectionAttributeMap> testMethod(String xmlGroupFile, String csvFile, String topic ){
 		// read xpath configuration
 		XmlGroups xmlGroups = unmarshalXmlGroups(xmlGroupFile);
 		// read csv string
@@ -145,7 +146,7 @@ public class OnmsAttributeCSVHandlerTest {
 		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV_HEADER, compression);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration
-		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd );
+		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd, topic );
 		List<OnmsCollectionAttributeMap> attributeMapList = onmsAttributeMessageHandler.payloadObjectToAttributeMap(payloadObj);
 
 		LOG.debug("attributeMap: \n    attributeMap.size: "+attributeMapList.size()+"\n    attributeMap.toString: "+attributeMapList.toString().replaceAll("],", "],\n    "));
