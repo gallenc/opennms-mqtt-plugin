@@ -40,7 +40,7 @@
 		<osgiVersion>4.2.0</osgiVersion>
 		<osgiCompendiumVersion>4.2.0</osgiCompendiumVersion>
 		<maven.surefire.plugin.version>2.18</maven.surefire.plugin.version>
-		<pahoVersion>1.0.2</pahoVersion>
+		<pahoVersion>1.1.1</pahoVersion>
 		<jerseyVersion>1.19.3</jerseyVersion>
 		<jsr311Version>1.1.1</jsr311Version>
 		<servletApiVersion>3.1.0</servletApiVersion>
