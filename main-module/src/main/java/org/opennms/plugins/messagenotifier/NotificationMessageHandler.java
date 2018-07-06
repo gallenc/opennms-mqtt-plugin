@@ -30,10 +30,12 @@ package org.opennms.plugins.messagenotifier;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.paho.client.mqttv3.MqttTopic;
 import org.opennms.plugins.json.OnmsAttributeMessageHandler;
 import org.opennms.plugins.json.OnmsCollectionAttribute;
 import org.opennms.plugins.json.OnmsCollectionAttributeMap;
@@ -41,7 +43,6 @@ import org.opennms.plugins.messagenotifier.datanotifier.DataPersistor;
 import org.opennms.plugins.messagenotifier.eventnotifier.EventPersistor;
 import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
 import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
-import org.opennms.plugins.mqtt.config.MessageParserConfig;
 import org.opennms.protocols.xml.config.XmlGroups;
 import org.opennms.protocols.xml.config.XmlRrd;
 import org.slf4j.Logger;
@@ -104,8 +105,47 @@ public class NotificationMessageHandler implements NotificationClient {
 			LOG.debug(sb.toString());
 		}
 
+		// see if this topic should be processed as a data source
+		// looks for direct match of incoming topic against topicFilter map
+		// e.g. subscribed topic filter /a/b == received topic name /a/b
+		// if no direct match, iterate and try and match each topicFilter
+		// e.g. topicFilter "foo/+" matches received topic "foo/bar/baz"
 		MessageDataParserConfig dataParserConfig = m_topicDataParserMap.get(topic);
+		if (dataParserConfig == null){
+			boolean configFound=false;
+			String topicFilter=null;
+			Iterator<String> itr = m_topicDataParserMap.keySet().iterator();
+			while(!configFound && itr.hasNext()){
+				topicFilter= itr.next();
+				configFound = MqttTopic.isMatched(topicFilter, topic);
+			}
+			if(configFound){
+				dataParserConfig = m_topicDataParserMap.get(topicFilter);
+			}
+			if(LOG.isDebugEnabled()){
+				if(configFound) LOG.debug("matched incoming topic {} against data topicFilter {}", topic, topicFilter);
+				else LOG.debug("no data topicFilter match found against incoming topic {}", topic);
+			} 
+		}
+
+		// see if this topic should be processed as an event
 		MessageEventParserConfig eventParserConfig = m_topicEventParserMap.get(topic);
+		if (eventParserConfig == null){
+			boolean configFound=false;
+			String topicFilter=null;
+			Iterator<String> itr = m_topicEventParserMap.keySet().iterator();
+			while(!configFound && itr.hasNext()){
+				topicFilter= itr.next();
+				configFound = MqttTopic.isMatched(topicFilter, topic);
+			}
+			if(configFound){
+				eventParserConfig = m_topicEventParserMap.get(topicFilter);
+			}
+			if(LOG.isDebugEnabled()){
+				if(configFound) LOG.debug("matched incoming topic {} against event topicFilter {}", topic, topicFilter);
+				else LOG.debug("no event topicFilter match found against incoming topic {}", topic);
+			} 
+		}
 
 		if (dataParserConfig==null && eventParserConfig==null){
 			LOG.warn("Ignoring message recieved from unknown topic:"+topic);

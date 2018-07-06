@@ -36,9 +36,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.paho.client.mqttv3.MqttTopic;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClient;
 import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
+import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,8 +100,30 @@ public class MqttRxServiceImpl implements  MqttRxService {
 	@Override
 	public void messageArrived(MessageNotification messageNotification) throws Exception {
 
-		// if message not in known topic log warning and throw exception
-		if (!topicMap.containsKey(messageNotification.getTopic())) {
+		// if message not in matching log warning and throw exception
+		
+		// see if this topic should be processed
+		// looks for direct match of incoming topic against topicFilter map
+		// e.g. subscribed topic filter /a/b == received topic name /a/b
+		// if no direct match, iterate and try and match each topicFilter
+		// e.g. topicFilter "foo/+" matches received topic "foo/bar/baz"
+		String topic= messageNotification.getTopic();
+		boolean topicFound = topicMap.containsKey(topic);
+		if (!topicFound){
+			
+			String topicFilter=null;
+			Iterator<String> itr = topicMap.keySet().iterator();
+			while(!topicFound && itr.hasNext()){
+				topicFilter= itr.next();
+				topicFound = MqttTopic.isMatched(topicFilter, topic);
+			}
+			if(LOG.isDebugEnabled()){
+				if(topicFound) LOG.debug("matched incoming topic {} against message topicFilter {}", topic, topicFilter);
+				else LOG.debug("no message topicFilter match found against incoming topic {}", topic);
+			} 
+		}
+
+		if (! topicFound) {
 			String time = new Timestamp(System.currentTimeMillis()).toString();
 			String msg ="Message received from unknown topic. Time:\t" +time +
 					"  Topic:\t" + messageNotification.getTopic() +

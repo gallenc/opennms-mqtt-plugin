@@ -14,6 +14,9 @@
     <messageDataParser foreignSource="mqtt" payloadType="JSON" compression="UNCOMPRESSED">
       <subscriptionTopics>
         <topic>mqtt-data1</topic>
+        
+        <!-- to match data topic PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/datapoint/fmt/json -->
+        <topic>PMc178e3c2.6637eiot-2/type/mosquitto/id/+/evt/datapoint/fmt/json</topic>
       </subscriptionTopics>
       <xml-groups>
         <ns2:xml-group name="sniffy" resource-type="sniffy" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
@@ -68,6 +71,9 @@
     <messageEventParser foreignSource="mqtt" payloadType="JSON" compression="AUTOMATIC_GZIP">
       <subscriptionTopics>
         <topic>mqtt-events1</topic>
+        
+        <!-- to match event topic PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/EVENTpoint/fmt/json -->
+        <topic>PMc178e3c2.6637eiot-2/type/mosquitto/id/+/evt/EVENTpoint/fmt/json</topic>
       </subscriptionTopics>
       <xml-groups>
         <ns2:xml-group name="sniffy" resource-type="sniffy" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
@@ -131,6 +137,10 @@
 
         <topic qos="0" topic="mqtt-data1" />
         <topic qos="0" topic="mqtt-data2" />
+        
+        <!-- catch all for topics starting with PMc178e3c2.6637eiot-2 -->
+        <topic qos="0" topic="PMc178e3c2.6637eiot-2/#" />
+        
       </topicList>
     </message-client>
   </messageClients>

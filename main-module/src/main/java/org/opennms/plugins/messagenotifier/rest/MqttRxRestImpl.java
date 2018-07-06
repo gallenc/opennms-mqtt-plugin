@@ -30,7 +30,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-
+//TODO WEB REST SERVICE NEEDS FIXED FOR PATH PARAMETERS
 /**
  * REST service to post mqtt data to opennms
  */

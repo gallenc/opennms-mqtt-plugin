@@ -263,6 +263,102 @@ public class TestController {
 
 		LOG.debug("end testSendMessagesCompressed()");
 	}
+	
+	
+	@Test
+	public void testSendMessagesMultipleMatchingTopics() {
+		LOG.debug("start testSendMessagesMultipleMatchingTopics()");
+
+		LOG.debug("testSendMessages() loading controller configuration:");
+		Controller controller = loadClients(TEST_CONFIG_FILE);
+
+		LOG.debug("testSendMessages() starting controller:");
+		controller.start();
+
+		// reset counters
+		dataMessagesReceived.set(0);
+		eventMessagesReceived.set(0);
+
+		// send 1 matching event message
+		try {
+			String topic = "PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/EVENTpoint/fmt/json";
+			int qos = 0 ;
+			byte[] payload = TestingSniffyKuraMessages.SNIFFY_TEST_MESSAGE.getBytes(StandardCharsets.UTF_8);
+			MessageNotification messageNotification = new MessageNotification(topic, qos, payload);
+			mockMqttRxService.messageArrived(messageNotification);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		// send 1 matching event message FROM DIFFERNT DEVICE
+		try {
+			String topic = "PMc178e3c2.6637eiot-2/type/mosquitto/id/AA-AA-AA-AA-AA-AA/evt/EVENTpoint/fmt/json";
+			int qos = 0 ;
+			byte[] payload = TestingSniffyKuraMessages.SNIFFY_TEST_MESSAGE.getBytes(StandardCharsets.UTF_8);
+			MessageNotification messageNotification = new MessageNotification(topic, qos, payload);
+			mockMqttRxService.messageArrived(messageNotification);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		// send 1 not matching event message
+		try {
+			String topic = "PMc178e3c2.6637eiot-3/type/mosquitto/id/00-08-00-4A-4F-F6/evt/EVENTpoint/fmt/json";
+			int qos = 0 ;
+			byte[] payload = TestingSniffyKuraMessages.SNIFFY_TEST_MESSAGE.getBytes(StandardCharsets.UTF_8);
+			MessageNotification messageNotification = new MessageNotification(topic, qos, payload);
+			mockMqttRxService.messageArrived(messageNotification);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		// send 1 matching data message
+		try {
+			String topic = "PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/datapoint/fmt/json";
+			int qos = 0 ;
+			byte[] payload = TestingSniffyKuraMessages.SNIFFY_TEST_MESSAGE.getBytes(StandardCharsets.UTF_8);
+			MessageNotification messageNotification = new MessageNotification(topic, qos, payload);
+			mockMqttRxService.messageArrived(messageNotification);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		// send 1 not matching data message
+		try {
+			String topic = "PMc178e3c2.6637eiot-3/type/mosquitto/id/00-08-00-4A-4F-F6/evt/datapoint/fmt/json";
+			int qos = 0 ;
+			byte[] payload = TestingSniffyKuraMessages.SNIFFY_TEST_MESSAGE.getBytes(StandardCharsets.UTF_8);
+			MessageNotification messageNotification = new MessageNotification(topic, qos, payload);
+			mockMqttRxService.messageArrived(messageNotification);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		// wait for all messages to arrive before testing
+		try {
+			Thread.sleep(5000); // 5 seconds
+		} catch(InterruptedException ex) {
+			Thread.currentThread().interrupt();
+		}
+
+		assertEquals(1,dataMessagesReceived.get());
+		assertEquals(2, eventMessagesReceived.get());
+
+		// clean up
+		controller.destroy();
+
+		// reset counters
+		dataMessagesReceived.set(0);
+		eventMessagesReceived.set(0);
+
+		LOG.debug("end testSendMessagesMultipleMatchingTopics()");
+	}
+	
+
+	
+	// **************
+	// helper methods
+	// **************
 
 	private Controller loadClients(String configFile){
 
