@@ -10,29 +10,28 @@
   <createMissingNodes>true</createMissingNodes>
   <!-- if true a dummy interface will also be created when the node is created -->
   <createDummyInterfaces>true</createDummyInterfaces>
-  <!-- if true asset information will be copied to the node assed table when the node is created -->
+  <!-- if true asset information will be copied to the node asset table when the node is created -->
   <!-- this particularly applies to latitude and longitude if defined in the message -->
   <createNodeAssetData>true</createNodeAssetData>
 
   <!-- message data parsers define how data messages are converted into metrics to be stored in RRD's or Cassandra by OpenNMS -->
-  <!-- subscriptionTopics defines wich topic messages will be passed to this parser. -->
-  <!-- many messageDataParsers can be defined but only one per topic altough events can also be driven off the same topic) -->
+  <!-- subscriptionTopics defines which topic messages will be passed to this parser. -->
+  <!-- many messageDataParsers can be defined but only one per topic although events can also be driven off the same topic) -->
   <messageDataParsers>
     <!-- payloadType determines how the payload is parsed; JSON, XML, PROTOBUF ot TEXT. Note only JSON is supported in present release -->
     <!-- foreignSource defines the foreign source to be used when referencing or creating a new node -->
-    <!-- compression determines the processing of compressed messages GZIP, UNCOMPRESSED, AUTOMATIC_GZIP (tries to guess if gzip compressed - small chance of false 
-      positives) -->
+    <!-- compression determines the processing of compressed messages GZIP, UNCOMPRESSED, AUTOMATIC_GZIP  -->
+    <!-- (tries to guess if gzip compressed - small chance of false  positives) -->
     <messageDataParser foreignSource="mqtt" payloadType="JSON" compression="UNCOMPRESSED">
       <subscriptionTopics>
         <topic>mqtt-data</topic>
       </subscriptionTopics>
       <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS -->
-      <!-- however multiple readings with different timestamps can be received. The timsetamp-xpath is relative to the start of the message -->
+      <!-- however multiple readings with different timestamps can be received. The timestamp-xpath is relative to the start of the message -->
       <!-- the key-xpath defines the key which will give the node its foreignId. Thus the foreignSource defined above is combined with -->
       <!-- the foreignId retrieved by the key-xpath to give a reference to the node for which the data is persisted. -->
       <xml-groups>
-        <ns2:xml-group name="sniffy" resource-type="sniffy" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time"
-          timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+        <ns2:xml-group name="sniffy" resource-type="sniffy" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
           <ns2:xml-object name="time" type="string" xpath="@time" />
           <ns2:xml-object name="id" type="string" xpath="@id" />
           <ns2:xml-object name="cityName" type="string" xpath="@cityName" />
@@ -106,6 +105,7 @@
   <!-- the clientConnectionMaxWait tetermins the time the client will wait for the broker to respond before abandoning a connection attempt -->
   <!-- the connectionRetryInterval is the interval before hte client will try again to connect after failing to connect previously -->
   <!-- the topic list determines which topics the client will subscribe to once it has established a connection -->
+  <!-- Note that the subscribed topic can also be a filter e.g. topic="/+/foo/# -->
   <mqttClients>
     <client clientInstanceId="client1">
       <brokerUrl>tcp://localhost:1883</brokerUrl>
@@ -124,9 +124,11 @@
   <!-- messageClients are alternative message sources defined within OpenNMS -->
   <!-- In this case, the opennms-rest-client is an in built rest client which can receive messages on a particular topic and qos -->
   <!-- determined by the url. The topicList determines which topics will be accepted by the ReST api and passed to the message queue for processing -->
-  <!-- the ReST url pattern is <opennms base url>/plugin/mqtt/v1-0/receive/<topic>/<qos>/ -->
+  <!-- the ReST url pattern is <opennms base url>/plugin/mqtt/v1-0/postmessage/<QOS>/TOPIC... -->
+  <!-- where the resource identifier is /postmessage/<QOS>/TOPIC... and TOPIC is a topic path e.g. /postmessage/0/foo/barr  -->
+  <!-- Note that the subscribed topic can also be a filter e.g. topic="/+/foo/# -->
   <!-- e.g. the following configuration allows json data to be POSTed to the mqtt-events topic with qos 0 at -->
-  <!-- http://localhost:8980/opennms/plugin/mqtt/v1-0/receive/mqtt-events/0/ -->
+  <!-- http://localhost:8980/opennms/plugin/mqtt/v1-0/postmessage/0/mqtt-events -->
   <messageClients>
     <message-client clientInstanceId="opennms-rest-client" clientType="opennms-rest-client">
       <configuration>

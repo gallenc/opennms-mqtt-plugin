@@ -257,9 +257,11 @@
   <!-- messageClients are alternative message sources defined within OpenNMS -->
   <!-- In this case, the opennms-rest-client is an in built rest client which can receive messages on a particular topic and qos -->
   <!-- determined by the url. The topicList determines which topics will be accepted by the ReST api and passed to the message queue for processing -->
-  <!-- the ReST url pattern is <opennms base url>/plugin/mqtt/v1-0/receive/<topic>/<qos>/ -->
+  <!-- the ReST url pattern is <opennms base url>/plugin/mqtt/v1-0/postmessage/<QOS>/TOPIC... -->
+  <!-- where the resource identifier is /postmessage/<QOS>/TOPIC... and TOPIC is a topic path e.g. /postmessage/0/foo/barr  -->
+  <!-- Note that the subscribed topic can also be a filter e.g. topic="/+/foo/# -->
   <!-- e.g. the following configuration allows json data to be POSTed to the mqtt-events topic with qos 0 at -->
-  <!-- http://localhost:8980/opennms/plugin/mqtt/v1-0/receive/mqtt-events/0/ -->
+  <!-- http://localhost:8980/opennms/plugin/mqtt/v1-0/postmessage/0/mqtt-events -->
   <messageClients>
     <message-client clientInstanceId="opennms-rest-client" clientType="opennms-rest-client">
       <configuration>

@@ -37,8 +37,9 @@ public class JSONPosTestDataTransmitter {
 	public static final String TEST_JSON_FILE="./src/test/resources/TestData/testData2.json";
 
 	public static final String MAIN_PROPERTIES_FILE="./src/test/resources/TestData/clienttest.properties";
-
-	public static final String SERVER_URL = "http://localhost:8980/opennms/plugin/mqtt/v1-0/receive/mqtt-events/0/"; 
+	
+    // /postmessage/<QOS>/TOPIC
+	public static final String SERVER_URL = "http://localhost:8980/opennms/plugin/mqtt/v1-0/postmessage/0/mqtt-events"; 
 
 	public static final String OPENNMS_REST_USERNAME = "admin";
 	public static final String OPENNMS_REST_PASSWORD = "admin";

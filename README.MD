@@ -80,7 +80,7 @@ If you log into the karaf consol (using ssh -p 8101 admin@localhost) and execute
 
 you can send an example test message to the ReST interface using the Firefox HttpRequester plugin with the following raw (sniffy) request;
 ```
-POST http://localhost:8980/opennms/plugin/mqtt/v1-0/receive/mqtt-events/0/
+POST http://localhost:8980/opennms/plugin/mqtt/v1-0/postmessage/0/mqtt-events
 Username: admin
 Content-Type: application/json;charset=utf-8
 {"time":"2017-12-13 09:03:43.004000","id":"6","formula1":"PM1.constant1+PM1.constant2", "constant1":"1200.0", "constant2":"34.0"}

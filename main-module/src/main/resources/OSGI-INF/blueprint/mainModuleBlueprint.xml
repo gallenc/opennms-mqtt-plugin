@@ -115,7 +115,8 @@
     <argument index="0" ref="mqttRxService" />
   </bean>
 
-  <!-- ReST Servelet configuration for jersey. Service will be at /opennms/plugin/mqtt/v1-0/receive/mqtt-events/0/ -->
+  <!-- ReST Servelet configuration for jersey. Service will be at /opennms/plugin/mqtt/v1-0/postmessage/0/mqtt-events -->
+  <!-- where resource identifier is /postmessage/<QOS>/TOPIC... and TOPIC is a topic path e.g. /postmessage/0/foo/barr  -->
   <service interface="javax.servlet.http.HttpServlet">
     <service-properties>
       <entry key="alias" value="/plugin/mqtt/v1-0" />
@@ -124,128 +125,6 @@
       <argument ref="mqttRestApplication" />
     </bean>
   </service>
-
-  <!-- ReST Servelet configuration for jersey -->
-  <!-- <bean id="mqttRestServlet" class="com.sun.jersey.spi.container.servlet.ServletContainer"> -->
-  <!-- <argument ref="mqttRestApplication" /> -->
-  <!-- </bean> -->
-
-  <!-- service will be at service will be at /opennms/plugin/mqtt/v1-0/receive/mqtt-events/0/ -->
-  <!-- <service interface="javax.servlet.Servlet" ref="mqttRestServlet"> -->
-  <!-- <service-properties> -->
-  <!-- <entry key="alias" value="/rest/mqtt/v1-0" /> -->
-  <!-- </service-properties> -->
-  <!-- </service> -->
-
-
-  <!-- <bean id="valuePersister" class="org.opennms.plugins.messagenotifier.datanotifier.ValuePersister" init-method="init" destroy-method="destroy"> -->
-  <!-- <property name="nodeByForeignSourceCache" ref="nodeByForeignSourceCache" /> -->
-  <!-- <property name="persisterFactory" ref="persisterFactory" /> -->
-  <!-- <property name="configDao" ref="configDao" /> -->
-  <!-- </bean> -->
-
-  <!-- <bean id="configDao" class="org.opennms.plugins.messagenotifier.datanotifier.ConfigDao"> -->
-
-  <!-- <property name="foreignSource" value="${org.opennms.plugin.mqttclient.message.foreignsource}" /> -->
-  <!-- <property name="foreignIdKey" value="${org.opennms.plugin.mqttclient.message.foreignidkey}" /> -->
-  <!-- <property name="timeStampKey" value="${org.opennms.plugin.mqttclient.message.timestampkey}" /> -->
-
-  <!-- <property name="latitudeKey" value="${org.opennms.plugin.mqttclient.message.latitudekey}" /> -->
-  <!-- <property name="longitudeKey" value="${org.opennms.plugin.mqttclient.message.longitudekey}" /> -->
-
-  <!-- <property name="dateTimeFormatPattern" value="${org.opennms.plugin.mqttclient.message.time-format-pattern}" /> -->
-  <!-- <property name="timeZoneOffset" value="${org.opennms.plugin.mqttclient.message.time-zone-offset}" /> -->
-
-  <!-- <property name="guageKeysProperty" value="${org.opennms.plugin.mqttclient.message.persist.guagekeys}" /> -->
-  <!-- <property name="counterKeysProperty" value="${org.opennms.plugin.mqttclient.message.persist.counterkeys}" /> -->
-  <!-- <property name="stringKeysProperty" value="${org.opennms.plugin.mqttclient.message.persist.stringkeys}" /> -->
-
-  <!-- <property name="group" value="${org.opennms.plugin.mqttclient.message.persist.group}" /> -->
-  <!-- <property name="intervalInSecondsStr" value="${org.opennms.plugin.mqttclient.message.persist.interval}" /> -->
-  <!-- <property name="rrasProperty" value="${org.opennms.plugin.mqttclient.message.persist.rras}" /> -->
-
-  <!-- </bean> -->
-
-
-
-  <!-- Configuration properties -->
-  <!-- <cm:property-placeholder id="mqttClientProperties" persistent-id="org.opennms.plugin.mqttclient" update-strategy="reload"> -->
-  <!-- <cm:default-properties> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.brokerUrl" value="tcp://localhost:1883" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.clientId" value="opennms" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.userName" value="" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.password" value="" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.connectionRetryInterval" value="30000" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.qos" value="0" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.eventtopic" value="mqtt-events" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.datatopic" value="mqtt-data" /> -->
-
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.create-missing-nodes" value="true" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.create-dummy-interfaces" value="true" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.create-node-asset-data" value="false" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.cache_max_ttl" value="0" /> Set to zero to disable TTL -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.cache_max_size" value="10000" /> Set to zero to disable max size -->
-
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.foreignsource" value="mqtt" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.foreignidkey" value="id" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.timestampkey" value="time" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.latitudekey" value="latitude" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.longitudekey" value="longitude" /> -->
-
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.time-format-pattern" value="yyyy-MM-dd HH:mm:ss.SSSSSS" /> works with 2017-10-19 10:15:02.854888 -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.time-zone-offset" value="" /> "" = use local time zone -->
-
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.persist.guagekeys" value="PM1,PM25,PM10,latitude,longitude,averaging" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.persist.counterkeys" value="" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.persist.stringkeys" value="" /> -->
-
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.persist.group" value="sniffy" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.persist.interval" value="300" /> -->
-  <!-- <cm:property name="org.opennms.plugin.mqttclient.message.persist.rras" value="RRA:AVERAGE:0.5:1:2016,RRA:AVERAGE:0.5:12:1488,RRA:AVERAGE:0.5:288:366,RRA:MAX:0.5:288:366,RRA:MIN:0.5:288:366" 
-    /> -->
-  <!-- </cm:default-properties> -->
-  <!-- </cm:property-placeholder> -->
-
-  <!-- MQTTClientImpl(String brokerUrl, String clientId, String userName, String password, String connectionRetryInterval) -->
-  <!-- <bean id="mqttClientMessageNotifier" class="org.opennms.plugins.mqttclient.MQTTClientImpl" init-method="init" destroy-method="destroy"> -->
-  <!-- <argument index="0" value="${org.opennms.plugin.mqttclient.brokerUrl}" /> -->
-  <!-- <argument index="1" value="${org.opennms.plugin.mqttclient.clientId}" /> -->
-  <!-- <argument index="2" value="${org.opennms.plugin.mqttclient.userName}" /> -->
-  <!-- <argument index="3" value="${org.opennms.plugin.mqttclient.password}" /> -->
-  <!-- <argument index="4" value="${org.opennms.plugin.mqttclient.connectionRetryInterval}" /> -->
-
-  <!-- <property name="topicList"> -->
-  <!-- <list> -->
-  <!-- <bean class="org.opennms.plugins.mqtt.config.MQTTTopicSubscription"> -->
-  <!-- <property name="qos" value="${org.opennms.plugin.mqttclient.qos}" /> -->
-  <!-- <property name="topic" value="${org.opennms.plugin.mqttclient.eventtopic}" /> -->
-  <!-- </bean> -->
-  <!-- <bean class="org.opennms.plugins.mqtt.config.MQTTTopicSubscription"> -->
-  <!-- <property name="qos" value="${org.opennms.plugin.mqttclient.qos}" /> -->
-  <!-- <property name="topic" value="${org.opennms.plugin.mqttclient.datatopic}" /> -->
-  <!-- </bean> -->
-  <!-- </list> -->
-  <!-- </property> -->
-
-  <!-- </bean> -->
-
-  <!-- <bean id="messageNotifierClient" class="org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl" init-method="init" destroy-method="destroy"> -->
-  <!-- <property name="messageNotifiers"> -->
-  <!-- <list> -->
-  <!-- <ref component-id="mqttClientMessageNotifier" /> Mqtt Client -->
-  <!-- <ref component-id="mqttRxService" /> ReST Client -->
-  <!-- </list> -->
-  <!-- </property> -->
-
-  <!-- <property name="maxMessageQueueLength" value="1000" /> -->
-
-  <!-- <property name="topicHandlingClients"> -->
-  <!-- <map> -->
-  <!-- <entry key="${org.opennms.plugin.mqttclient.eventtopic}" value-ref="mqttEventNotificationClient" /> -->
-  <!-- <entry key="${org.opennms.plugin.mqttclient.datatopic}" value-ref="mqttDataNotificationClient" /> -->
-  <!-- </map> -->
-  <!-- </property> -->
-  <!-- </bean> -->
 
   <!-- used for testing only -->
   <!-- <bean id="verySimpleClient" class="org.opennms.plugins.dbnotifier.VerySimpleNotificationClient" /> -->
