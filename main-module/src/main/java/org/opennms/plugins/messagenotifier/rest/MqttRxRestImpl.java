@@ -58,17 +58,18 @@ public class MqttRxRestImpl {
 	 * @throws Exception
 	 */
 	@POST
-	@Path("/{qos}/")
+	@Path("/{qos}/{topicSegments: .*}")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public Response mqttPostMessage(@Context UriInfo uriInfo, @PathParam("qos") String qosStr, String payloadStr) throws Exception {
+	public Response mqttPostMessage(@PathParam("qos") String qosStr, @PathParam("topicSegments") List<PathSegment> segments, String payloadStr) throws Exception {
 		
 		// decode path segments and extract topic
-		List<PathSegment> segments = uriInfo.getPathSegments(true);
-		
+		// see https://stackoverflow.com/questions/29014737/how-to-write-single-jax-rs-resource-for-variable-number-of-path-parameters
 		StringBuilder topicBuilder = new StringBuilder();
-		for(int i=1 ; i< segments.size(); i++){
+		
+		for(int i=0 ; i< segments.size(); i++){
 			topicBuilder.append(segments.get(i).getPath());
+			if(i<segments.size()-1)topicBuilder.append("/");
 		}
 		String topic = topicBuilder.toString();
 

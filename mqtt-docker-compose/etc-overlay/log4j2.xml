@@ -148,6 +148,10 @@
       <appender-ref ref="RoutingAppender"/>
     </logger>
 
+    <logger name="org.opennms.plugins" additivity="false" level="DEBUG">
+      <appender-ref ref="RoutingAppender"/>
+    </logger>
+    
     <!-- Allow any message to pass through the root logger -->
     <root level="DEBUG">
       <!-- 

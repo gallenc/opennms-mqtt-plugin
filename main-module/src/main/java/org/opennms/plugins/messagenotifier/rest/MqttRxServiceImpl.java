@@ -134,7 +134,7 @@ public class MqttRxServiceImpl implements  MqttRxService {
 		} else {
 			// forward messages to receivers
 			
-			if(LOG.isDebugEnabled()){
+			if(LOG.isDebugEnabled()) {
 				String time = new Timestamp(System.currentTimeMillis()).toString();
 				LOG.debug("Message received. Forwarding to "+messageNotificationClientList.size()+ " clients."
 						+ " Time:\t" +time +
