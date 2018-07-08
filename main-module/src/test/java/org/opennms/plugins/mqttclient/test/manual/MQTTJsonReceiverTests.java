@@ -62,7 +62,7 @@ public class MQTTJsonReceiverTests {
 	public static final String MQTT_PASSWORD = "mqtt-password";
 
 	public static final String CLIENT_ID = "receiver1";
-	public static final String TOPIC_NAME = "mqtt-events";
+	public static final String TOPIC_NAME = "mqtt-data";
 	public static final int QOS_LEVEL = 0;
 
 	public static final String CONNECTION_RETRY_INTERVAL = "60000"; 

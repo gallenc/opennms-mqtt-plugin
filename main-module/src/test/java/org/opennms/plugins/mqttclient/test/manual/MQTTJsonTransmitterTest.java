@@ -61,7 +61,6 @@ public class MQTTJsonTransmitterTest {
 	// works with 2017-10-19 10:15:02.854888
 	public static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
 
-	//public static final String jsonTestFile="./src/test/resources/testData.json";
 	public static final String TEST_JSON_FILE="./src/test/resources/TestData/testData2.json";
 
 	public static final String MAIN_PROPERTIES_FILE="./src/test/resources/TestData/mqttclienttest.properties";
@@ -156,7 +155,9 @@ public class MQTTJsonTransmitterTest {
 
 		// wait for connection
 		try {
+			LOG.debug("waiting for client to connect");
 			Thread.sleep(3000);
+			LOG.debug("testing if connected");
 			assertTrue(client.isClientConnected());
 		} catch(InterruptedException ex) {
 			Thread.currentThread().interrupt();
@@ -343,7 +344,10 @@ public class MQTTJsonTransmitterTest {
 			qos= Integer.parseInt(prop.getProperty("org.opennms.plugin.mqttclient.qos",Integer.toString(QOS_LEVEL)));
 
 			//If client fails to connect to the broker, interval (ms) before re attempting connection
-			connectionRetryInterval= prop.getProperty("org.opennms.plugin.mqttclient.connectionRetryInterval","1000");
+			connectionRetryInterval= prop.getProperty("org.opennms.plugin.mqttclient.connectionRetryInterval",CONNECTION_RETRY_INTERVAL);
+			
+			
+			connectionRetryInterval= prop.getProperty("org.opennms.plugin.mqttclient.clientConnectionMaxWait",CLIENT_CONNECTION_MAX_WAIT);
 
 			//time format pattern. Determines how json date time is interpreted  
 			//yyyy-MM-dd HH:mm:ss.SSSSSS works with 2017-10-19 10:15:02.854888
