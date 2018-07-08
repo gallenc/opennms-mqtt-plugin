@@ -12,7 +12,7 @@
   <packaging>pom</packaging>
   <name>MqttClient.mqtt-docker-compose</name>
 
-  <!--  copies build kar file to opennms docker deploy directory -->
+  <!-- copies built kar file to opennms docker deploy directory -->
   <build>
     <plugins>
       <plugin>
@@ -40,6 +40,39 @@
                 </artifactItem>
               </artifactItems>
               <!-- other configurations here -->
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>default-clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+          <!-- cleans deployed files from opennms docker deploy directory -->
+          <execution>
+            <id>dependency-clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <configuration>
+              <filesets>
+                <fileset>
+                  <directory>${project.basedir}/opennms-deploy</directory>
+                  <followSymlinks>false</followSymlinks>
+                  <excludes>
+                    <exclude>**/README.md</exclude>
+                  </excludes>
+                </fileset>
+              </filesets>
             </configuration>
           </execution>
         </executions>
