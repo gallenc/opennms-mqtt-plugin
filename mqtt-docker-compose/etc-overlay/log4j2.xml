@@ -22,7 +22,7 @@
 
   <properties>
     <property name="prefix">uncategorized</property>
-    <property name="logdir">/home/admin/devel/dist/logs</property>
+    <property name="logdir">/opt/opennms/logs</property>
   </properties>
 
   <!--
@@ -59,7 +59,7 @@
           <RollingFile name="Rolling-instrumentation" fileName="${logdir}/instrumentation.log"
                        filePattern="${logdir}/instrumentation.%i.log">
             <PatternLayout>
-              <!-- the logging class is not included here since its is verbose and always the same -->
+             <!-- the logging class is not included here since its is verbose and always the same -->
               <pattern>%d %-5p [%t] %m%n</pattern>
             </PatternLayout>
 
@@ -148,10 +148,6 @@
       <appender-ref ref="RoutingAppender"/>
     </logger>
 
-    <logger name="org.opennms.plugins" additivity="false" level="DEBUG">
-      <appender-ref ref="RoutingAppender"/>
-    </logger>
-    
     <!-- Allow any message to pass through the root logger -->
     <root level="DEBUG">
       <!-- 

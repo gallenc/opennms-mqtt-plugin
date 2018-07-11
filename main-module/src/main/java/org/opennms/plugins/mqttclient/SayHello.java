@@ -43,6 +43,7 @@ public class SayHello {
 	public SayHello(){
 		super();
 		LOG.warn("Hello - MqttClient started");
+		LOG.debug("MqttClient Debug log enabled");
 		System.out.println("Hello - MqttClient started");
 	}
 	
