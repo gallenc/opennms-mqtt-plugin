@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!-- *********************************************************************** -->
+<!-- This example shows how to receive data and events from a laurawan probe -->
+<!-- *********************************************************************** -->
+
+<mqtt-receiver xmlns="http://xmlns.opennms.org/xsd/config/mqtt-datacollection" xmlns:ns2="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+  <!-- optional tuning parameters -->
+  <nodeCacheMaxSize>1000</nodeCacheMaxSize>
+  <nodeCacheMaxTtl>0</nodeCacheMaxTtl>
+  <maxMessageQueueLength>1000</maxMessageQueueLength>
+  <maxMessageQueueThreads>2</maxMessageQueueThreads>
+
+  <!-- if true new nodes will be created for messages referencing an unknown node -->
+  <createMissingNodes>true</createMissingNodes>
+  <!-- if true a dummy interface will also be created when the node is created -->
+  <createDummyInterfaces>true</createDummyInterfaces>
+  <!-- if true asset information will be copied to the node asset table when the node is created -->
+  <!-- this particularly applies to latitude and longitude if defined in the message -->
+  <createNodeAssetData>true</createNodeAssetData>
+
+  <!-- message data parsers define how data messages are converted into metrics to be stored in RRD's or Cassandra by OpenNMS -->
+  <!-- subscriptionTopics defines which topic messages will be passed to this parser. -->
+  <!-- many messageDataParsers can be defined but only one per topic although events can also be driven off the same topic) -->
+  <messageDataParsers>
+    <!-- payloadType determines how the payload is parsed; JSON, XML, PROTOBUF ot TEXT. Note only JSON is supported in present release -->
+    <!-- foreignSource defines the foreign source to be used when referencing or creating a new node -->
+    <!-- compression determines the processing of compressed messages GZIP, UNCOMPRESSED, AUTOMATIC_GZIP -->
+    <!-- (tries to guess if gzip compressed - small chance of false positives) -->
+
+    <!-- *********************************** -->
+    <!-- message data parser for laurawan probes -->
+    <!-- *********************************** -->
+    <messageDataParser foreignSource="laurawan" payloadType="JSON" compression="UNCOMPRESSED">
+      <subscriptionTopics>
+        <topic>PMc178e3c2.6637eiot-2/type/mosquitto/id/+/evt/datapoint/fmt/json</topic>
+      </subscriptionTopics>
+      <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS -->
+      <!-- however multiple readings with different timestamps can be received. The timestamp-xpath is relative to the start of the message -->
+      <!-- the key-xpath defines the key which will give the node its foreignId. Thus the foreignSource defined above is combined with -->
+      <!-- the foreignId retrieved by the key-xpath to give a reference to the node for which the data is persisted. -->
+      <!-- NOTE -->
+      <!-- The foreign id can now also be obtained by parsing the topic which is split by -->
+      <!-- the topic level separator '/' and injected as an array of separate strings -->
+      <!-- into a jxpath context variable identified by $topicLevels[n] (where n begins at 1) -->
+      <!-- For example the node id 00-08-00-4A-4F-F6 is parsed -->
+      <!-- from topic PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/datapoint/fmt/json -->
+      <!-- payload { "d": { "light": 462, "moisture": 97.34025, "temperature": 29.8125, "x_acc": 0.1875,"y_acc": 0.375,"z_acc": 0.8125 } } -->
+      <!-- using the following configuration -->
+      <ns2:xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/*" key-xpath="$topicLevels[5]">
+          <ns2:xml-object name="light" type="GAUGE" xpath="@light" />
+          <ns2:xml-object name="moisture" type="GAUGE" xpath="@moisture" />
+          <ns2:xml-object name="temperature" type="GAUGE" xpath="@temperature" />
+          <ns2:xml-object name="x_acc" type="GAUGE" xpath="@x_acc" />
+          <ns2:xml-object name="y_acc" type="GAUGE" xpath="@y_acc" />
+          <ns2:xml-object name="z_acc" type="GAUGE" xpath="@z_acc" />
+        </ns2:xml-group>
+      </ns2:xml-groups>
+
+      <!-- xmlRRD us set up exactly as it is for xml data collection. step (in seconds ) is the interval expected between data received from the same node -->
+      <xmlRrd step="300">
+        <ns2:rra>RRA:AVERAGE:0.5:1:2016</ns2:rra>
+        <ns2:rra>RRA:AVERAGE:0.5:12:1488</ns2:rra>
+        <ns2:rra>RRA:AVERAGE:0.5:288:366</ns2:rra>
+        <ns2:rra>RRA:MAX:0.5:288:366</ns2:rra>
+        <ns2:rra>RRA:MIN:0.5:288:366</ns2:rra>
+      </xmlRrd>
+    </messageDataParser>
+
+
+
+  </messageDataParsers>
+
+  <!-- message event parsers follow the same pattern as message data parsers. -->
+  <!-- however the Xpath defines which name value pairs are saved as params in the resulting opennms events -->
+
+  <messageEventParsers>
+
+    <!-- *********************************** -->
+    <!-- message event parser for laurawan json -->
+    <!-- *********************************** -->
+    <messageEventParser>
+      <subscriptionTopics>
+        <topic>PMc178e3c2.6637eiot-2/type/mosquitto/id/+/evt/datapoint/fmt/json</topic>
+      </subscriptionTopics>
+      <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS -->
+      <!-- however multiple readings with different timestamps can be received. The timestamp-xpath is relative to the start of the message -->
+      <!-- the key-xpath defines the key which will give the node its foreignId. Thus the foreignSource defined above is combined with -->
+      <!-- the foreignId retrieved by the key-xpath to give a reference to the node for which the data is persisted. -->
+      <!-- NOTE -->
+      <!-- The foreign id can now also be obtained by parsing the topic which is split by -->
+      <!-- the topic level separator '/' and injected as an array of separate strings -->
+      <!-- into a jxpath context variable identified by $topicLevels[n] (where n begins at 1) -->
+      <!-- For example the node id 00-08-00-4A-4F-F6 is parsed -->
+      <!-- from topic PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/datapoint/fmt/json -->
+      <!-- payload { "d": { "light": 462, "moisture": 97.34025, "temperature": 29.8125, "x_acc": 0.1875,"y_acc": 0.375,"z_acc": 0.8125 } } -->
+      <!-- using the following configuration -->
+      <ns2:xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/*" key-xpath="$topicLevels[5]">
+          <ns2:xml-object name="light" type="GAUGE" xpath="@light" />
+          <ns2:xml-object name="moisture" type="GAUGE" xpath="@moisture" />
+          <ns2:xml-object name="temperature" type="GAUGE" xpath="@temperature" />
+          <ns2:xml-object name="x_acc" type="GAUGE" xpath="@x_acc" />
+          <ns2:xml-object name="y_acc" type="GAUGE" xpath="@y_acc" />
+          <ns2:xml-object name="z_acc" type="GAUGE" xpath="@z_acc" />
+        </ns2:xml-group>
+      </ns2:xml-groups>
+
+    </messageEventParser>
+
+  </messageEventParsers>
+
+  <!-- mqttClients define connections to mqtt brokers. (This follows the paho client model). -->
+  <!-- each client must have a unique instanceId - this is used in OpenNMS logging. -->
+  <!-- the clienid must be unique for a given mqtt broker -->
+  <!-- the clientConnectionMaxWait tetermins the time the client will wait for the broker to respond before abandoning a connection attempt -->
+  <!-- the connectionRetryInterval is the interval before the client will try again to connect after failing to connect previously -->
+  <!-- the topic list determines which topics the client will subscribe to once it has established a connection -->
+  <mqttClients>
+    <client clientInstanceId="client1">
+      <brokerUrl>tcp://mqtt-broker:1883</brokerUrl>
+      <clientId>opennms</clientId>
+      <connectionRetryInterval>3000</connectionRetryInterval>
+      <clientConnectionMaxWait>20000</clientConnectionMaxWait>
+      <topicList>
+
+        <!-- used to match laurawan probes -->
+        <topic qos="0" topic="PMc178e3c2.6637eiot-2/#" />
+
+      </topicList>
+      <userName>mqtt-user</userName>
+      <password>mqtt-password</password>
+    </client>
+  </mqttClients>
+
+  <!-- messageClients are alternative message sources defined within OpenNMS -->
+  <!-- In this case, the opennms-rest-client is an in built rest client which can receive messages on a particular topic and qos -->
+  <!-- determined by the url. The topicList determines which topics will be accepted by the ReST api and passed to the message queue for processing -->
+  <!-- the ReST url pattern is <opennms base url>/plugin/mqtt/v1-0/postmessage/<QOS>/TOPIC... -->
+  <!-- where the resource identifier is /postmessage/<QOS>/TOPIC... and TOPIC is a topic path e.g. /postmessage/0/foo/barr -->
+  <!-- Note that the subscribed topic can also be a filter e.g. topic="/+/foo/# -->
+  <!-- e.g. the following configuration allows json data to be POSTed to the mqtt-events topic with qos 0 at -->
+  <!-- http://localhost:8980/opennms/plugin/mqtt/v1-0/postmessage/0/PMc178e3c2.6637eiot-2/type/mosquitto/id/BB-BB-BB-BB-BB-BB/evt/datapoint/fmt/json -->
+
+  <!-- to use in Firefox HttpRequester plugin -->
+  <!-- POST http://192.168.75.129:8980/opennms/plugin/mqtt/v1-0/postmessage/0/PMc178e3c2.6637eiot-2/type/mosquitto/id/BB-BB-BB-BB-BB-BB/evt/datapoint/fmt/json -->
+  <!-- Content-Type: application/json;charset=utf-8 -->
+  <!-- {"cityName":"Southampton","PM1":"0.956375928404503","PM25":"0.23909398210112576","latitude":50.9246217,"averaging":0,"PM10":"0.09563759284045031","stationName":"Common#1","time":"2017-12-13 
+    09:03:43.004000","id":"monitorID","longitude":-1.374114} -->
+
+
+  <messageClients>
+    <message-client clientInstanceId="opennms-rest-client" clientType="opennms-rest-client">
+      <configuration>
+        <client-configuration name="TBD" value="TBD" />
+      </configuration>
+      <topicList>
+
+        <!-- used to match laurawan probes -->
+        <topic qos="0" topic="PMc178e3c2.6637eiot-2/#" />
+      </topicList>
+    </message-client>
+  </messageClients>
+</mqtt-receiver>
