@@ -11,7 +11,9 @@ volumes:
     driver: local
   cassandra1-data:
     driver: local
-  servicemix1-data:
+  mosquitto-data:
+    driver: local
+  mosquitto-log:
     driver: local
 
 networks:
@@ -115,28 +117,18 @@ services:
     ports:
       - "3000:3000"
       
-  # servicemix1 is acting as ActiveMQ / MQTT Broker
-  # from https://hub.docker.com/r/mkroli/servicemix/
+  # mosquitto MQTT Broker
   mqtt-broker:
-    container_name: servicemix1
-    image: mkroli/servicemix:7.0 
+    image: eclipse-mosquitto:1.4.12
+    restart: always
     ports:
-      - "11099:1099"
-      - "14444:44444"
-      - "51616:61616" # active mq  (avoid opennms clash)
-      - "18101:8101"  # ssh consol (avoid opennms clash)
-      - "18181:8181"  # web consol (avoid opennms clash)
-      - "1883:1883"   # active mq mqtt
+      - "1883:1883"
+      - "9001:9001"
     volumes:
-      - servicemix1-data:/opt/servicemix/data
-      - ./servicemix1/deploy:/opt/servicemix/deploy
-      - ./servicemix1/etc/activemq.xml:/opt/servicemix/etc/activemq.xml
-      # - ./servicemix1/etc/users.properties:/opt/servicemix/etc/users.properties
-      # - ./karaf1/karaf-config/org.apache.karaf.features.cfg:/opt/karaf/etc/org.apache.karaf.features.cfg        
-      # restart: always
-    entrypoint: /opt/servicemix/bin/servicemix
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto/config/mosquitto.conf
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-data:/mosquitto/log
     networks:
       - opennms.net
-
-
-
+  
+ 

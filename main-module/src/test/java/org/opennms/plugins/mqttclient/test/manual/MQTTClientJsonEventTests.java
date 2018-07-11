@@ -152,19 +152,25 @@ public class MQTTClientJsonEventTests {
 		}
 
 		// try sending messages
-		String topic=TOPIC_NAME;
+		String topic=TOPIC_NAME+"/txt";
 		int qos=QOS_LEVEL;
 
-		// send text message
+		// send text message to topic <topicname>/txt with format
+		// SH0,NO,01/01/2018 00:00,5.0,ug m-3,P
 		try{
-			String message="text message not json";
+			
+			String timeStamp = new SimpleDateFormat("dd/mm/yyyy HH:mm").format(new Date());
+			String message="SH0,NO,"+timeStamp+",5.0,ug m-3,P";
+			LOG.debug("sending csv value: "+message);
+			
 			byte[] payload = message.getBytes();
 			client.publishSynchronous(topic, qos, payload);
 		} catch(Exception e){
 			LOG.debug("problem publishing message", e);
 		}
 
-		// send json message
+		// send json message to topic <topicname>/json
+		topic=TOPIC_NAME+"/json";
 		try{
 			JSONObject jsonobj = parseJson(jsonTestMessage);
 			String message=jsonobj.toJSONString();
@@ -264,8 +270,8 @@ public class MQTTClientJsonEventTests {
 				Thread.currentThread().interrupt();
 			}
 
-			// try sending message
-			String topic=TOPIC_NAME;
+			// try subscribing for message
+			String topic=TOPIC_NAME+"/#";
 			int qos=QOS_LEVEL;
 			try{
 				client.subscribe(topic, qos);

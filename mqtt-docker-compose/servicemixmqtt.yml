@@ -22,7 +22,7 @@ services:
  
   # servicemix1 is acting as ActiveMQ / MQTT Broker
   # from https://hub.docker.com/r/mkroli/servicemix/
-  servicemix1:
+  mqtt-broker:
     container_name: servicemix1
     image: mkroli/servicemix:7.0 
     ports:
