@@ -31,7 +31,10 @@
     <!-- *********************************** -->
     <!-- message data parser for laurawan probes -->
     <!-- *********************************** -->
-    <messageDataParser foreignSource="laurawan" payloadType="JSON" compression="UNCOMPRESSED">
+    <!-- if foreignSource contains the string $topicLevels[n] then we use the nth element in the topic as the foreignSource -->
+    <!-- note that to match jxpath, n begins at 1 not zero -->
+    <!-- The following configuration will extract foreign source as PMc178e3c2.6637eiot-2 -->
+    <messageDataParser foreignSource="$topicLevels[1]" payloadType="JSON" compression="UNCOMPRESSED">
       <subscriptionTopics>
         <topic>PMc178e3c2.6637eiot-2/type/mosquitto/id/+/evt/datapoint/fmt/json</topic>
       </subscriptionTopics>
