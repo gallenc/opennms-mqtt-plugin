@@ -146,7 +146,9 @@ public class OnmsAttributeCSVHandlerTest {
 		Object payloadObj = MessagePayloadTypeHandler.parsePayload(payload , MessagePayloadTypeHandler.TEXT_CSV_HEADER, compression);
 
 		XmlRrd xmlRrd = null; // not used but needed by class declaration
-		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd, topic );
+		String defaultForeignSource=null;
+		int qos=0;
+		OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(xmlGroups, xmlRrd, topic, defaultForeignSource, qos );
 		List<OnmsCollectionAttributeMap> attributeMapList = onmsAttributeMessageHandler.payloadObjectToAttributeMap(payloadObj);
 
 		LOG.debug("attributeMap: \n    attributeMap.size: "+attributeMapList.size()+"\n    attributeMap.toString: "+attributeMapList.toString().replaceAll("],", "],\n    "));

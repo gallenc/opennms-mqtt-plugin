@@ -22,7 +22,7 @@
     <!-- foreignSource defines the foreign source to be used when referencing or creating a new node -->
     <!-- compression determines the processing of compressed messages GZIP, UNCOMPRESSED, AUTOMATIC_GZIP -->
     <!-- (tries to guess if gzip compressed - small chance of false positives) -->
-    
+
     <!-- *********************************** -->
     <!-- message data parser for sniffy probes -->
     <!-- *********************************** -->
@@ -61,7 +61,10 @@
     <!-- *********************************** -->
     <!-- message data parser for laurawan probes -->
     <!-- *********************************** -->
-    <messageDataParser foreignSource="laurawan" payloadType="JSON" compression="UNCOMPRESSED">
+    <!-- if foreignSource contains the string $topicLevels[n] then we use the nth element in the topic as the foreignSource -->
+    <!-- note that to match jxpath, n begins at 1 not zero -->
+    <!-- The following configuration will extract foreign source as PMc178e3c2.6637eiot-2 -->
+    <messageDataParser foreignSource="$topicLevels[1]" payloadType="JSON" compression="UNCOMPRESSED">
       <subscriptionTopics>
         <topic>PMc178e3c2.6637eiot-2/type/mosquitto/id/+/evt/datapoint/fmt/json</topic>
       </subscriptionTopics>
@@ -253,7 +256,7 @@
   <!-- however the Xpath defines which name value pairs are saved as params in the resulting opennms events -->
 
   <messageEventParsers>
-  
+
     <!-- *********************************** -->
     <!-- message event parser for json -->
     <!-- *********************************** -->
@@ -314,10 +317,10 @@
         <topic qos="0" topic="mqtt-events/#" />
         <topic qos="0" topic="mqtt-data" />
         <topic qos="0" topic="aws-data" />
-        
-        <!--  used to match laurawan probes -->
+
+        <!-- used to match laurawan probes -->
         <topic qos="0" topic="PMc178e3c2.6637eiot-2/#" />
-        
+
       </topicList>
       <userName>mqtt-user</userName>
       <password>mqtt-password</password>
@@ -342,8 +345,8 @@
         <topic qos="0" topic="mqtt-events/#" />
         <topic qos="0" topic="mqtt-data" />
         <topic qos="0" topic="aws-data" />
-        
-        <!--  used to match laurawan probes -->
+
+        <!-- used to match laurawan probes -->
         <topic qos="0" topic="PMc178e3c2.6637eiot-2/#" />
       </topicList>
     </message-client>

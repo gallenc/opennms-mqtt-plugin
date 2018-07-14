@@ -37,9 +37,7 @@ import java.util.List;
 
 import org.json.simple.JSONObject;
 import org.apache.commons.jxpath.JXPathContext;
-import org.apache.commons.jxpath.JXPathException;
 import org.apache.commons.jxpath.Pointer;
-import org.apache.commons.jxpath.Variables;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -63,19 +61,44 @@ public class OnmsAttributeMessageHandler {
 	
 	private XmlRrd xmlRrd=null;
 	
+	private String foreignSource=null;
+	private int qos=0;
+	
+	private String topic=null;
+	
 	private List<String> topicLevels = new ArrayList<String>();
 
-	public OnmsAttributeMessageHandler(XmlGroups source, XmlRrd xmlRrd, String topic){
+	/*
+	 * if foreignSourceIdentifier contains $topicLevels[n] then we use the nth element in the topic as the foreignSource
+	 * note that to match jxpath, n begins at 1 not zero
+	 * else we simply use the string
+	 */
+	public OnmsAttributeMessageHandler(XmlGroups source, XmlRrd xmlRrd, String topic, String foreignSourceIdentifier, int qos){
 		if(source==null)throw new IllegalStateException("XmlGroups source must not be null");
 		this.source = source;
 		this.xmlRrd=xmlRrd;
+		this.topic=topic;
 		if(topic !=null) {
 			// split by topic level separator /
 			topicLevels = Arrays.asList(topic.split("/"));
 		}
+		
+		this.foreignSource=foreignSourceIdentifier;
+		
+		if(foreignSourceIdentifier!=null && foreignSourceIdentifier.startsWith("$topicLevels[")){
+			try{
+				//find n in $topicLevels[n] note to match jxpath, n begins at 1 not zero
+				String topicId= foreignSourceIdentifier.replace("$topicLevels[", "").replace("]","");
+				int n=Integer.parseInt(topicId) -1 ;
+				this.foreignSource = topicLevels.get(n);
+			} catch (Exception ex){
+				LOG.error("cannot parse topicLevel definition for foreignSource definition:"+foreignSourceIdentifier+" against topic:"+topic, ex);
+			}
+		}
+		this.qos=qos;
 	}
 
-
+//TODO REMOVE
 //	@SuppressWarnings("unchecked")
 //	public List<OnmsCollectionAttributeMap> jsonToAttributeMap(String jsonStr){
 //		JSONObject jsonObject=null;
@@ -171,6 +194,11 @@ public class OnmsAttributeMessageHandler {
 				//LOG.debug("fillCollectionSet: processing resource {}", collectionResource);
 				OnmsCollectionAttributeMap onmsCollectionAttributeMap= new OnmsCollectionAttributeMap();
 				onmsCollectionAttributeMap.setXmlRrd(xmlRrd);
+				
+				//add topic and qos from notification
+				onmsCollectionAttributeMap.setQos(qos);
+				onmsCollectionAttributeMap.setForeignSource(foreignSource);
+				onmsCollectionAttributeMap.setTopic(topic);
 				
 				onmsCollectionAttributeMap.setForeignId(foreignId);
 				onmsCollectionAttributeMap.setResourceName(resourceName);

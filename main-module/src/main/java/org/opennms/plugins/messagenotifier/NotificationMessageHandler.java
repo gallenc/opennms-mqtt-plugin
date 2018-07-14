@@ -155,7 +155,7 @@ public class NotificationMessageHandler implements NotificationClient {
 		// see if topic creates data
 		if (dataParserConfig!=null) try{
 
-			String dataForeignSource = dataParserConfig.getForeignSource();
+			String defaultDataForeignSource = dataParserConfig.getForeignSource();
 			
 			String dataPayloadType = dataParserConfig.getPayloadType();
 			Object dataPayloadObject = MessagePayloadTypeHandler.parsePayload(payload, dataPayloadType, dataParserConfig.getCompression());
@@ -167,16 +167,16 @@ public class NotificationMessageHandler implements NotificationClient {
 
 				XmlGroups dataSource = dataParserConfig.getXmlGroups();
 				XmlRrd xmlRrd = dataParserConfig.getXmlRrd();
-				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(dataSource, xmlRrd, topic);
+				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(dataSource, xmlRrd, topic, defaultDataForeignSource, qos);
 
 				List<OnmsCollectionAttributeMap> dataAttributeMap = onmsAttributeMessageHandler.payloadObjectToAttributeMap(dataPayloadObject);
 
-				//add topic and qos from notification, foreign source from configuration
-				for(OnmsCollectionAttributeMap dataAttribute:dataAttributeMap){
-					dataAttribute.setTopic(topic);
-					dataAttribute.setQos(qos);
-					dataAttribute.setForeignSource(dataForeignSource);
-				}
+				//add topic and qos from notification, foreign source from configuration //TODO REMOVE
+//				for(OnmsCollectionAttributeMap dataAttribute:dataAttributeMap){
+//					dataAttribute.setTopic(topic);
+//					dataAttribute.setQos(qos);
+//					dataAttribute.setForeignSource(defaultDataForeignSource);
+//				}
 
 				dataPersistor.persistAttributeMapList(dataAttributeMap);
 			}
@@ -190,7 +190,7 @@ public class NotificationMessageHandler implements NotificationClient {
 		if (eventParserConfig!=null) try{
 			List<OnmsCollectionAttributeMap> eventAttributeMap;
 
-			String eventForeignSource = eventParserConfig.getForeignSource();
+			String defaultEventForeignSource = eventParserConfig.getForeignSource();
 			
 			String eventPayloadType = eventParserConfig.getPayloadType();
 			
@@ -203,19 +203,19 @@ public class NotificationMessageHandler implements NotificationClient {
 				// if an object returned try and parse object using jxpath
 				XmlGroups eventSource = eventParserConfig.getXmlGroups();
 				XmlRrd xmlRrd=null; // xmlRrd not defined for events
-				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(eventSource, xmlRrd, topic);
+				OnmsAttributeMessageHandler onmsAttributeMessageHandler = new OnmsAttributeMessageHandler(eventSource, xmlRrd, topic, defaultEventForeignSource, qos);
 				eventAttributeMap = onmsAttributeMessageHandler.payloadObjectToAttributeMap(eventPayloadObject);
 			} catch (Exception ex){
 				LOG.error("saving event data as string because unable to use jxpath to convert message from topic:"+topic, ex);
 				eventAttributeMap =  stringToAttributeMap(eventPayloadObject.toString());
 			}
 
-			//add topic and qos from notification
-			for(OnmsCollectionAttributeMap eventAttribute:eventAttributeMap){
-				eventAttribute.setTopic(topic);
-				eventAttribute.setQos(qos);
-				eventAttribute.setForeignSource(eventForeignSource);
-			}
+			//add topic and qos from notification //TODO REMOVE
+//			for(OnmsCollectionAttributeMap eventAttribute:eventAttributeMap){
+//				eventAttribute.setTopic(topic);
+//				eventAttribute.setQos(qos);
+//				eventAttribute.setForeignSource(defaultEventForeignSource);
+//			}
 
 			eventPersistor.persistAttributeMapList(eventAttributeMap);
 
