@@ -2,6 +2,25 @@
 
 <!-- *********************************************************************** -->
 <!-- This example shows how to receive data and events from a laurawan probe -->
+<!--  topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json -->
+<!--  qos:0 -->
+<!--  payload:{"metrics":{"gweui":"00-08-00-4A-4F-F6","deveui":"00-80-00-00-00-01-1e-e8","node":"00-80-00-00-00-01-1e-e8","timestamp":"2018-07-18T17:01:15.247467Z","lsnr":"10","light":0,"air_pressure":0,"temperature":32.1875,"x_acc":0,"y_acc":0,"z_acc":0.9375}} -->
+
+<!-- { -->
+<!--   "metrics": { -->
+<!--     "gweui": "00-08-00-4A-4F-F6", -->
+<!--     "deveui": "00-80-00-00-00-01-1e-e8", -->
+<!--     "node": "00-80-00-00-00-01-1e-e8", -->
+<!--     "timestamp": "2018-07-18T17:01:15.247467Z", -->
+<!--     "lsnr": "10", -->
+<!--     "light": 0, -->
+<!--     "air_pressure": 0, -->
+<!--     "temperature": 32.1875, -->
+<!--     "x_acc": 0, -->
+<!--     "y_acc": 0, -->
+<!--     "z_acc": 0.9375 -->
+<!--   } -->
+<!-- } -->
 <!-- *********************************************************************** -->
 
 <mqtt-receiver xmlns="http://xmlns.opennms.org/xsd/config/mqtt-datacollection" xmlns:ns2="http://xmlns.opennms.org/xsd/config/xml-datacollection">
@@ -10,7 +29,13 @@
   <nodeCacheMaxTtl>0</nodeCacheMaxTtl>
   <maxMessageQueueLength>1000</maxMessageQueueLength>
   <maxMessageQueueThreads>2</maxMessageQueueThreads>
+  public static final String SERVER_URL = "tcp://63.231.197.29:1883";
+  
+  public static final String MQTT_USERNAME = "cgallen";
+  public static final String MQTT_PASSWORD = "solentdolphin";
 
+  public static final String CLIENT_ID = "receiver1";
+  public static final String TOPIC_NAME = "iot/#";
   <!-- if true new nodes will be created for messages referencing an unknown node -->
   <createMissingNodes>true</createMissingNodes>
   <!-- if true a dummy interface will also be created when the node is created -->
@@ -33,27 +58,37 @@
     <!-- *********************************** -->
     <!-- if foreignSource contains the string $topicLevels[n] then we use the nth element in the topic as the foreignSource -->
     <!-- note that to match jxpath, n begins at 1 not zero -->
-    <!-- The following configuration will extract foreign source as PMc178e3c2.6637eiot-2 -->
-    <messageDataParser foreignSource="$topicLevels[1]" payloadType="JSON" compression="UNCOMPRESSED">
+    <!-- topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json  -->
+    <!-- The following configuration will extract foreign source as 00-08-00-4A-4F-F6 -->
+    <messageDataParser foreignSource="$topicLevels[5]" payloadType="JSON" compression="UNCOMPRESSED">
       <subscriptionTopics>
-        <topic>PMc178e3c2.6637eiot-2/type/mosquitto/id/+/evt/datapoint/fmt/json</topic>
+        <topic>iot/type/mosquito/id/+/device/+/app/opennms/fmt/json</topic>
       </subscriptionTopics>
       <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS -->
       <!-- however multiple readings with different timestamps can be received. The timestamp-xpath is relative to the start of the message -->
       <!-- the key-xpath defines the key which will give the node its foreignId. Thus the foreignSource defined above is combined with -->
       <!-- the foreignId retrieved by the key-xpath to give a reference to the node for which the data is persisted. -->
+
       <!-- NOTE -->
       <!-- The foreign id can now also be obtained by parsing the topic which is split by -->
       <!-- the topic level separator '/' and injected as an array of separate strings -->
       <!-- into a jxpath context variable identified by $topicLevels[n] (where n begins at 1) -->
-      <!-- For example the node id 00-08-00-4A-4F-F6 is parsed -->
-      <!-- from topic PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/datapoint/fmt/json -->
-      <!-- payload { "d": { "light": 462, "moisture": 97.34025, "temperature": 29.8125, "x_acc": 0.1875,"y_acc": 0.375,"z_acc": 0.8125 } } -->
+      <!-- For example the node id 00-80-00-00-00-01-1e-e8 is parsed -->
+      <!-- from topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json  -->
+
+      <!--  payload:{"metrics":{"gweui":"00-08-00-4A-4F-F6","deveui":"00-80-00-00-00-01-1e-e8","node":"00-80-00-00-00-01-1e-e8","timestamp":"2018-07-18T17:01:15.247467Z","lsnr":"10","light":0,"air_pressure":0,"temperature":32.1875,"x_acc":0,"y_acc":0,"z_acc":0.9375}} -->
+
       <!-- using the following configuration -->
       <ns2:xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
-        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/*" key-xpath="$topicLevels[5]">
+        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/metrics" key-xpath="$topicLevels[7]" 
+        timestamp-xpath="@timestamp" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+          <ns2:xml-object name="gweui" type="string" xpath="@gweui" />
+          <ns2:xml-object name="deveui" type="string" xpath="@deveui" />
+          <ns2:xml-object name="node" type="string" xpath="@node" />
+          <ns2:xml-object name="timestamp" type="string" xpath="@timestamp" />
+          <ns2:xml-object name="lsnr" type="GAUGE" xpath="@lsnr" />
           <ns2:xml-object name="light" type="GAUGE" xpath="@light" />
-          <ns2:xml-object name="moisture" type="GAUGE" xpath="@moisture" />
+          <ns2:xml-object name="air_pressure" type="GAUGE" xpath="@air_pressure" />
           <ns2:xml-object name="temperature" type="GAUGE" xpath="@temperature" />
           <ns2:xml-object name="x_acc" type="GAUGE" xpath="@x_acc" />
           <ns2:xml-object name="y_acc" type="GAUGE" xpath="@y_acc" />
@@ -83,32 +118,30 @@
     <!-- *********************************** -->
     <!-- message event parser for laurawan json -->
     <!-- *********************************** -->
-    <messageEventParser>
+    <messageEventParser foreignSource="$topicLevels[5]" payloadType="JSON" compression="UNCOMPRESSED">
       <subscriptionTopics>
-        <topic>PMc178e3c2.6637eiot-2/type/mosquitto/id/+/evt/datapoint/fmt/json</topic>
+        <topic>iot/type/mosquito/id/+/device/+/app/opennms/fmt/json</topic>
       </subscriptionTopics>
+
       <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS -->
-      <!-- however multiple readings with different timestamps can be received. The timestamp-xpath is relative to the start of the message -->
-      <!-- the key-xpath defines the key which will give the node its foreignId. Thus the foreignSource defined above is combined with -->
-      <!-- the foreignId retrieved by the key-xpath to give a reference to the node for which the data is persisted. -->
-      <!-- NOTE -->
-      <!-- The foreign id can now also be obtained by parsing the topic which is split by -->
-      <!-- the topic level separator '/' and injected as an array of separate strings -->
-      <!-- into a jxpath context variable identified by $topicLevels[n] (where n begins at 1) -->
-      <!-- For example the node id 00-08-00-4A-4F-F6 is parsed -->
-      <!-- from topic PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/datapoint/fmt/json -->
-      <!-- payload { "d": { "light": 462, "moisture": 97.34025, "temperature": 29.8125, "x_acc": 0.1875,"y_acc": 0.375,"z_acc": 0.8125 } } -->
       <!-- using the following configuration -->
       <ns2:xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
-        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/*" key-xpath="$topicLevels[5]">
+        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/metrics" key-xpath="$topicLevels[7]" 
+        timestamp-xpath="@timestamp" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+          <ns2:xml-object name="gweui" type="string" xpath="@gweui" />
+          <ns2:xml-object name="deveui" type="string" xpath="@deveui" />
+          <ns2:xml-object name="node" type="string" xpath="@node" />
+          <ns2:xml-object name="timestamp" type="string" xpath="@timestamp" />
+          <ns2:xml-object name="lsnr" type="GAUGE" xpath="@lsnr" />
           <ns2:xml-object name="light" type="GAUGE" xpath="@light" />
-          <ns2:xml-object name="moisture" type="GAUGE" xpath="@moisture" />
+          <ns2:xml-object name="air_pressure" type="GAUGE" xpath="@air_pressure" />
           <ns2:xml-object name="temperature" type="GAUGE" xpath="@temperature" />
           <ns2:xml-object name="x_acc" type="GAUGE" xpath="@x_acc" />
           <ns2:xml-object name="y_acc" type="GAUGE" xpath="@y_acc" />
           <ns2:xml-object name="z_acc" type="GAUGE" xpath="@z_acc" />
         </ns2:xml-group>
       </ns2:xml-groups>
+
 
     </messageEventParser>
 
@@ -129,11 +162,13 @@
       <topicList>
 
         <!-- used to match laurawan probes -->
-        <topic qos="0" topic="PMc178e3c2.6637eiot-2/#" />
+        <topic qos="0" topic="iot/#" />
 
       </topicList>
-      <userName>mqtt-user</userName>
-      <password>mqtt-password</password>
+      <userName>cgallen</userName>
+      <password>solentdolphin</password>
+      <userName>xxx</userName>
+      <password>yyy</password>
     </client>
   </mqttClients>
 
@@ -147,12 +182,9 @@
   <!-- http://localhost:8980/opennms/plugin/mqtt/v1-0/postmessage/0/PMc178e3c2.6637eiot-2/type/mosquitto/id/BB-BB-BB-BB-BB-BB/evt/datapoint/fmt/json -->
 
   <!-- to use in Firefox HttpRequester plugin -->
-  <!-- POST http://192.168.75.129:8980/opennms/plugin/mqtt/v1-0/postmessage/0/PMc178e3c2.6637eiot-2/type/mosquitto/id/BB-BB-BB-BB-BB-BB/evt/datapoint/fmt/json -->
+  <!-- POST http://192.168.75.129:8980/opennms/plugin/mqtt/v1-0/postmessage/0/iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json -->
   <!-- Content-Type: application/json;charset=utf-8 -->
-  <!-- {"cityName":"Southampton","PM1":"0.956375928404503","PM25":"0.23909398210112576","latitude":50.9246217,"averaging":0,"PM10":"0.09563759284045031","stationName":"Common#1","time":"2017-12-13 
-    09:03:43.004000","id":"monitorID","longitude":-1.374114} -->
-
-
+  <!-- {"metrics":{"gweui":"00-08-00-4A-4F-F6","deveui":"00-80-00-00-00-01-1e-e8","node":"00-80-00-00-00-01-1e-e8","timestamp":"2018-07-18T17:01:15.247467Z","lsnr":"10","light":0,"air_pressure":0,"temperature":32.1875,"x_acc":0,"y_acc":0,"z_acc":0.9375}} -->
   <messageClients>
     <message-client clientInstanceId="opennms-rest-client" clientType="opennms-rest-client">
       <configuration>
@@ -161,7 +193,7 @@
       <topicList>
 
         <!-- used to match laurawan probes -->
-        <topic qos="0" topic="PMc178e3c2.6637eiot-2/#" />
+        <topic qos="0" topic="iot/#" />
       </topicList>
     </message-client>
   </messageClients>
