@@ -155,7 +155,7 @@
   <!-- the topic list determines which topics the client will subscribe to once it has established a connection -->
   <mqttClients>
     <client clientInstanceId="client1">
-      <brokerUrl>tcp://mqtt-broker:1883</brokerUrl>
+      <brokerUrl>tcp://63.231.197.29:1883</brokerUrl>
       <clientId>opennms</clientId>
       <connectionRetryInterval>3000</connectionRetryInterval>
       <clientConnectionMaxWait>20000</clientConnectionMaxWait>
@@ -165,8 +165,6 @@
         <topic qos="0" topic="iot/#" />
 
       </topicList>
-      <userName>cgallen</userName>
-      <password>solentdolphin</password>
       <userName>xxx</userName>
       <password>yyy</password>
     </client>
