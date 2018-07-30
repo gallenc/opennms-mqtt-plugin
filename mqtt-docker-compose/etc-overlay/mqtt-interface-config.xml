@@ -2,24 +2,24 @@
 
 <!-- *********************************************************************** -->
 <!-- This example shows how to receive data and events from a laurawan probe -->
-<!--  topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json -->
-<!--  qos:0 -->
-<!--  payload:{"metrics":{"gweui":"00-08-00-4A-4F-F6","deveui":"00-80-00-00-00-01-1e-e8","node":"00-80-00-00-00-01-1e-e8","timestamp":"2018-07-18T17:01:15.247467Z","lsnr":"10","light":0,"air_pressure":0,"temperature":32.1875,"x_acc":0,"y_acc":0,"z_acc":0.9375}} -->
+<!-- topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json -->
+<!-- qos:0 -->
+<!-- payload:{"metrics":{"gweui":"00-08-00-4A-4F-F6","deveui":"00-80-00-00-00-01-1e-e8","node":"00-80-00-00-00-01-1e-e8","timestamp":"2018-07-18T17:01:15.247467Z","lsnr":"10","light":0,"air_pressure":0,"temperature":32.1875,"x_acc":0,"y_acc":0,"z_acc":0.9375}} -->
 
 <!-- { -->
-<!--   "metrics": { -->
-<!--     "gweui": "00-08-00-4A-4F-F6", -->
-<!--     "deveui": "00-80-00-00-00-01-1e-e8", -->
-<!--     "node": "00-80-00-00-00-01-1e-e8", -->
-<!--     "timestamp": "2018-07-18T17:01:15.247467Z", -->
-<!--     "lsnr": "10", -->
-<!--     "light": 0, -->
-<!--     "air_pressure": 0, -->
-<!--     "temperature": 32.1875, -->
-<!--     "x_acc": 0, -->
-<!--     "y_acc": 0, -->
-<!--     "z_acc": 0.9375 -->
-<!--   } -->
+<!-- "metrics": { -->
+<!-- "gweui": "00-08-00-4A-4F-F6", -->
+<!-- "deveui": "00-80-00-00-00-01-1e-e8", -->
+<!-- "node": "00-80-00-00-00-01-1e-e8", -->
+<!-- "timestamp": "2018-07-18T17:01:15.247467Z", -->
+<!-- "lsnr": "10", -->
+<!-- "light": 0, -->
+<!-- "air_pressure": 0, -->
+<!-- "temperature": 32.1875, -->
+<!-- "x_acc": 0, -->
+<!-- "y_acc": 0, -->
+<!-- "z_acc": 0.9375 -->
+<!-- } -->
 <!-- } -->
 <!-- *********************************************************************** -->
 
@@ -29,7 +29,7 @@
   <nodeCacheMaxTtl>0</nodeCacheMaxTtl>
   <maxMessageQueueLength>1000</maxMessageQueueLength>
   <maxMessageQueueThreads>2</maxMessageQueueThreads>
-  
+
   <!-- if true new nodes will be created for messages referencing an unknown node -->
   <createMissingNodes>true</createMissingNodes>
   <!-- if true a dummy interface will also be created when the node is created -->
@@ -52,7 +52,7 @@
     <!-- *********************************** -->
     <!-- if foreignSource contains the string $topicLevels[n] then we use the nth element in the topic as the foreignSource -->
     <!-- note that to match jxpath, n begins at 1 not zero -->
-    <!-- topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json  -->
+    <!-- topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json -->
     <!-- The following configuration will extract foreign source as 00-08-00-4A-4F-F6 -->
     <messageDataParser foreignSource="$topicLevels[5]" payloadType="JSON" compression="UNCOMPRESSED">
       <subscriptionTopics>
@@ -68,14 +68,14 @@
       <!-- the topic level separator '/' and injected as an array of separate strings -->
       <!-- into a jxpath context variable identified by $topicLevels[n] (where n begins at 1) -->
       <!-- For example the node id 00-80-00-00-00-01-1e-e8 is parsed -->
-      <!-- from topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json  -->
+      <!-- from topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json -->
 
-      <!--  payload:{"metrics":{"gweui":"00-08-00-4A-4F-F6","deveui":"00-80-00-00-00-01-1e-e8","node":"00-80-00-00-00-01-1e-e8","timestamp":"2018-07-18T17:01:15.247467Z","lsnr":"10","light":0,"air_pressure":0,"temperature":32.1875,"x_acc":0,"y_acc":0,"z_acc":0.9375}} -->
+      <!-- payload:{"metrics":{"gweui":"00-08-00-4A-4F-F6","deveui":"00-80-00-00-00-01-1e-e8","node":"00-80-00-00-00-01-1e-e8","timestamp":"2018-07-18T17:01:15.247467Z","lsnr":"10","light":0,"air_pressure":0,"temperature":32.1875,"x_acc":0,"y_acc":0,"z_acc":0.9375}} -->
 
       <!-- using the following configuration -->
       <ns2:xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
-        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/metrics" key-xpath="$topicLevels[7]" 
-        timestamp-xpath="@timestamp" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/metrics" key-xpath="$topicLevels[7]" timestamp-xpath="@timestamp"
+          timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
           <ns2:xml-object name="gweui" type="string" xpath="@gweui" />
           <ns2:xml-object name="deveui" type="string" xpath="@deveui" />
           <ns2:xml-object name="node" type="string" xpath="@node" />
@@ -117,11 +117,15 @@
         <topic>iot/type/mosquito/id/+/device/+/app/opennms/fmt/json</topic>
       </subscriptionTopics>
 
+      <!-- it is possible to specify a specific uri to associete with this event -->
+      <!-- if ueiRoot is not specified then a default generic value is used -->
+      <ueiRoot>uei.opennms.org/plugin/MqttReceiver/laurawan</ueiRoot>
+
       <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS -->
       <!-- using the following configuration -->
       <ns2:xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
-        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/metrics" key-xpath="$topicLevels[7]" 
-        timestamp-xpath="@timestamp" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/metrics" key-xpath="$topicLevels[7]" timestamp-xpath="@timestamp"
+          timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
           <ns2:xml-object name="gweui" type="string" xpath="@gweui" />
           <ns2:xml-object name="deveui" type="string" xpath="@deveui" />
           <ns2:xml-object name="node" type="string" xpath="@node" />
@@ -133,9 +137,16 @@
           <ns2:xml-object name="x_acc" type="GAUGE" xpath="@x_acc" />
           <ns2:xml-object name="y_acc" type="GAUGE" xpath="@y_acc" />
           <ns2:xml-object name="z_acc" type="GAUGE" xpath="@z_acc" />
+
+          <!-- if ueiRoot is specified and in addition, the xml-group contains a definition labled "UEI_SUFFIX" -->
+          <!-- then the value UEI_SUFFIX parsed from the message context will be appended to the ueiRoot -->
+          <!-- to form a message specific uei. Thus if the following line is added -->
+          <!-- <ns2:xml-object name="UEI_SUFFIX" type="string" xpath="@deveui" /> -->
+          <!-- the generated event uei will be -->
+          <!-- uei.opennms.org/plugin/MqttReceiver/laurawan/{@deveui value} -->
+
         </ns2:xml-group>
       </ns2:xml-groups>
-
 
     </messageEventParser>
 
