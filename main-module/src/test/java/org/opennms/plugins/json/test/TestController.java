@@ -398,10 +398,10 @@ public class TestController {
 	private EventPersistor mockEventPersistor = new EventPersistor(){
 
 		@Override
-		public void persistAttributeMapList(List<OnmsCollectionAttributeMap> attributeMap) {
+		public void persistAttributeMapList(List<OnmsCollectionAttributeMap> attributeMap, String ueiRoot) {
 			int eventMessagesRx = eventMessagesReceived.addAndGet(1);
 			LOG.debug("eventPersistor (eventMessagesRx="+eventMessagesRx+") persisting attributeMap: "+attributeMap.toString());
-
+			
 		}
 
 	};

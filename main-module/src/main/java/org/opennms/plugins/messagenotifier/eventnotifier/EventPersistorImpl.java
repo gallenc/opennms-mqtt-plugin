@@ -54,6 +54,8 @@ public class EventPersistorImpl implements EventPersistor {
 
     public static final String MESSAGE_RESOURCE_NAME = "message-resource-name";
 
+	private static final String UEI_SUFFIX_KEY = "UEI_SUFFIX"; // used to find uei
+
 	private NodeByForeignSourceCache m_nodeByForeignSourceCache;
 
 	private EventProxy eventProxy = null;
@@ -78,7 +80,7 @@ public class EventPersistorImpl implements EventPersistor {
 	 * @see org.opennms.plugins.messagenotifier.eventnotifier.EventPersistor#persistAttributeMapList(java.util.List)
 	 */
 	@Override
-	public void persistAttributeMapList(List<OnmsCollectionAttributeMap> attributeMapList){
+	public void persistAttributeMapList(List<OnmsCollectionAttributeMap> attributeMapList, String ueiRoot){
 		LOG.debug("eventPersistor persisting attributeMap: "+attributeMapList.toString());
 
 		for(OnmsCollectionAttributeMap onmsCollectionAttributeMap: attributeMapList){
@@ -91,8 +93,21 @@ public class EventPersistorImpl implements EventPersistor {
 				String foreignId = onmsCollectionAttributeMap.getForeignId();
 				String resourceName = onmsCollectionAttributeMap.getResourceName();
 				Map<String, OnmsCollectionAttribute> attributeMap = onmsCollectionAttributeMap.getAttributeMap();
+				
+				EventBuilder eb=null;
+				if (ueiRoot==null) {
+					eb = new EventBuilder(MESSAGE_GENERIC_CONTENT_EVENT, topic);
+				} else {
+					OnmsCollectionAttribute value = attributeMap.get(UEI_SUFFIX_KEY);
+					String uei=null;
+					if (value!=null) {
+						uei = ueiRoot +"/"+ value.getValue();
+					} else uei= ueiRoot;
+					
+					eb = new EventBuilder(uei, topic);
+				}
 
-				EventBuilder eb= new EventBuilder(MESSAGE_GENERIC_CONTENT_EVENT, topic);
+				 
 				eb.setTime(timestamp);
 				eb.addParam(MESSAGE_TOPIC_PARAM,topic);
 				eb.addParam(MESSAGE_QOS_PARAM,qosStr);

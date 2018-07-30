@@ -194,6 +194,8 @@ public class NotificationMessageHandler implements NotificationClient {
 			
 			String eventPayloadType = eventParserConfig.getPayloadType();
 			
+			String ueiRoot = eventParserConfig.getUeiRoot();
+			
 			Object eventPayloadObject = MessagePayloadTypeHandler.parsePayload(payload, eventPayloadType, eventParserConfig.getCompression());
 
 			// if string returned simply create event with string value
@@ -217,7 +219,7 @@ public class NotificationMessageHandler implements NotificationClient {
 //				eventAttribute.setForeignSource(defaultEventForeignSource);
 //			}
 
-			eventPersistor.persistAttributeMapList(eventAttributeMap);
+			eventPersistor.persistAttributeMapList(eventAttributeMap, ueiRoot);
 
 		} catch (Exception ex){
 			LOG.error("unable to persist event message from topic:"+topic, ex);

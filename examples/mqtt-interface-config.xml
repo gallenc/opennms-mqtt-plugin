@@ -29,13 +29,7 @@
   <nodeCacheMaxTtl>0</nodeCacheMaxTtl>
   <maxMessageQueueLength>1000</maxMessageQueueLength>
   <maxMessageQueueThreads>2</maxMessageQueueThreads>
-  public static final String SERVER_URL = "tcp://63.231.197.29:1883";
-  
-  public static final String MQTT_USERNAME = "cgallen";
-  public static final String MQTT_PASSWORD = "solentdolphin";
 
-  public static final String CLIENT_ID = "receiver1";
-  public static final String TOPIC_NAME = "iot/#";
   <!-- if true new nodes will be created for messages referencing an unknown node -->
   <createMissingNodes>true</createMissingNodes>
   <!-- if true a dummy interface will also be created when the node is created -->
@@ -142,7 +136,7 @@
         </ns2:xml-group>
       </ns2:xml-groups>
 
-
+      <ueiRoot>uei.opennms.org/plugin/MqttReceiver/laurawan</ueiRoot>
     </messageEventParser>
 
   </messageEventParsers>

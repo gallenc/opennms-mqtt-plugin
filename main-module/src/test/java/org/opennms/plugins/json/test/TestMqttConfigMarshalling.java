@@ -105,7 +105,9 @@ public class TestMqttConfigMarshalling {
 
 	private Integer nodeCacheMaxTtl=0;
 	
-	String compression = CompressionMethods.UNCOMPRESSED;
+	private String compression = CompressionMethods.UNCOMPRESSED;
+
+	private String ueiRoot = "uei.opennms.org/plugin/MqttReceiver/TestEvent";
 
 	@Test
 	public void testMQTTClientConfig() {
@@ -196,6 +198,7 @@ public class TestMqttConfigMarshalling {
 		eventconfig.setPayloadType(MessagePayloadTypeHandler.JSON);
 		eventconfig.setForeignSource(foreignSource);
 		eventconfig.setCompression(compression);
+		eventconfig.setUeiRoot(ueiRoot);
 		messageEventParsers.add(eventconfig);
 		
 		eventconfig.setXmlGroups(xmlGroups);

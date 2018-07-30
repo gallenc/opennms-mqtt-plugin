@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!-- *********************************************************************** -->
+<!-- This example shows how to receive data and events from a laurawan probe -->
+<!--  topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json -->
+<!--  qos:0 -->
+<!--  payload:{"metrics":{"gweui":"00-08-00-4A-4F-F6","deveui":"00-80-00-00-00-01-1e-e8","node":"00-80-00-00-00-01-1e-e8","timestamp":"2018-07-18T17:01:15.247467Z","lsnr":"10","light":0,"air_pressure":0,"temperature":32.1875,"x_acc":0,"y_acc":0,"z_acc":0.9375}} -->
+
+<!-- { -->
+<!--   "metrics": { -->
+<!--     "gweui": "00-08-00-4A-4F-F6", -->
+<!--     "deveui": "00-80-00-00-00-01-1e-e8", -->
+<!--     "node": "00-80-00-00-00-01-1e-e8", -->
+<!--     "timestamp": "2018-07-18T17:01:15.247467Z", -->
+<!--     "lsnr": "10", -->
+<!--     "light": 0, -->
+<!--     "air_pressure": 0, -->
+<!--     "temperature": 32.1875, -->
+<!--     "x_acc": 0, -->
+<!--     "y_acc": 0, -->
+<!--     "z_acc": 0.9375 -->
+<!--   } -->
+<!-- } -->
+<!-- *********************************************************************** -->
+
 <mqtt-receiver xmlns="http://xmlns.opennms.org/xsd/config/mqtt-datacollection" xmlns:ns2="http://xmlns.opennms.org/xsd/config/xml-datacollection">
   <!-- optional tuning parameters -->
   <nodeCacheMaxSize>1000</nodeCacheMaxSize>
   <nodeCacheMaxTtl>0</nodeCacheMaxTtl>
   <maxMessageQueueLength>1000</maxMessageQueueLength>
   <maxMessageQueueThreads>2</maxMessageQueueThreads>
-
+  
   <!-- if true new nodes will be created for messages referencing an unknown node -->
   <createMissingNodes>true</createMissingNodes>
   <!-- if true a dummy interface will also be created when the node is created -->
@@ -24,66 +48,41 @@
     <!-- (tries to guess if gzip compressed - small chance of false positives) -->
 
     <!-- *********************************** -->
-    <!-- message data parser for sniffy probes -->
-    <!-- *********************************** -->
-    <messageDataParser foreignSource="mqtt" payloadType="JSON" compression="UNCOMPRESSED">
-      <subscriptionTopics>
-        <topic>mqtt-data</topic>
-      </subscriptionTopics>
-      <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS -->
-      <!-- however multiple readings with different timestamps can be received. The timestamp-xpath is relative to the start of the message -->
-      <!-- the key-xpath defines the key which will give the node its foreignId. Thus the foreignSource defined above is combined with -->
-      <!-- the foreignId retrieved by the key-xpath to give a reference to the node for which the data is persisted. -->
-      <xml-groups>
-        <ns2:xml-group name="sniffy" resource-type="sniffy" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
-          <ns2:xml-object name="time" type="string" xpath="@time" />
-          <ns2:xml-object name="id" type="string" xpath="@id" />
-          <ns2:xml-object name="cityName" type="string" xpath="@cityName" />
-          <ns2:xml-object name="stationName" type="string" xpath="@stationName" />
-          <ns2:xml-object name="latitude" type="GAUGE" xpath="@latitude" />
-          <ns2:xml-object name="longitude" type="GAUGE" xpath="@longitude" />
-          <ns2:xml-object name="averaging" type="GAUGE" xpath="@averaging" />
-          <ns2:xml-object name="PM1" type="GAUGE" xpath="@PM1" />
-          <ns2:xml-object name="PM25" type="GAUGE" xpath="@PM25" />
-          <ns2:xml-object name="PM10" type="GAUGE" xpath="@PM10" />
-        </ns2:xml-group>
-      </xml-groups>
-      <!-- xmlRRD us set up exactly as it is for xml data collection. step (in seconds ) is the interval expected between data received from the same node -->
-      <xmlRrd step="300">
-        <ns2:rra>RRA:AVERAGE:0.5:1:2016</ns2:rra>
-        <ns2:rra>RRA:AVERAGE:0.5:12:1488</ns2:rra>
-        <ns2:rra>RRA:AVERAGE:0.5:288:366</ns2:rra>
-        <ns2:rra>RRA:MAX:0.5:288:366</ns2:rra>
-        <ns2:rra>RRA:MIN:0.5:288:366</ns2:rra>
-      </xmlRrd>
-    </messageDataParser>
-
-    <!-- *********************************** -->
     <!-- message data parser for laurawan probes -->
     <!-- *********************************** -->
     <!-- if foreignSource contains the string $topicLevels[n] then we use the nth element in the topic as the foreignSource -->
     <!-- note that to match jxpath, n begins at 1 not zero -->
-    <!-- The following configuration will extract foreign source as PMc178e3c2.6637eiot-2 -->
-    <messageDataParser foreignSource="$topicLevels[1]" payloadType="JSON" compression="UNCOMPRESSED">
+    <!-- topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json  -->
+    <!-- The following configuration will extract foreign source as 00-08-00-4A-4F-F6 -->
+    <messageDataParser foreignSource="$topicLevels[5]" payloadType="JSON" compression="UNCOMPRESSED">
       <subscriptionTopics>
-        <topic>PMc178e3c2.6637eiot-2/type/mosquitto/id/+/evt/datapoint/fmt/json</topic>
+        <topic>iot/type/mosquito/id/+/device/+/app/opennms/fmt/json</topic>
       </subscriptionTopics>
       <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS -->
       <!-- however multiple readings with different timestamps can be received. The timestamp-xpath is relative to the start of the message -->
       <!-- the key-xpath defines the key which will give the node its foreignId. Thus the foreignSource defined above is combined with -->
       <!-- the foreignId retrieved by the key-xpath to give a reference to the node for which the data is persisted. -->
+
       <!-- NOTE -->
       <!-- The foreign id can now also be obtained by parsing the topic which is split by -->
       <!-- the topic level separator '/' and injected as an array of separate strings -->
       <!-- into a jxpath context variable identified by $topicLevels[n] (where n begins at 1) -->
-      <!-- For example the node id 00-08-00-4A-4F-F6 is parsed -->
-      <!-- from topic PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/datapoint/fmt/json -->
-      <!-- payload { "d": { "light": 462, "moisture": 97.34025, "temperature": 29.8125, "x_acc": 0.1875,"y_acc": 0.375,"z_acc": 0.8125 } } -->
+      <!-- For example the node id 00-80-00-00-00-01-1e-e8 is parsed -->
+      <!-- from topic:iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json  -->
+
+      <!--  payload:{"metrics":{"gweui":"00-08-00-4A-4F-F6","deveui":"00-80-00-00-00-01-1e-e8","node":"00-80-00-00-00-01-1e-e8","timestamp":"2018-07-18T17:01:15.247467Z","lsnr":"10","light":0,"air_pressure":0,"temperature":32.1875,"x_acc":0,"y_acc":0,"z_acc":0.9375}} -->
+
       <!-- using the following configuration -->
       <ns2:xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
-        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/*" key-xpath="$topicLevels[5]">
+        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/metrics" key-xpath="$topicLevels[7]" 
+        timestamp-xpath="@timestamp" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+          <ns2:xml-object name="gweui" type="string" xpath="@gweui" />
+          <ns2:xml-object name="deveui" type="string" xpath="@deveui" />
+          <ns2:xml-object name="node" type="string" xpath="@node" />
+          <ns2:xml-object name="timestamp" type="string" xpath="@timestamp" />
+          <ns2:xml-object name="lsnr" type="GAUGE" xpath="@lsnr" />
           <ns2:xml-object name="light" type="GAUGE" xpath="@light" />
-          <ns2:xml-object name="moisture" type="GAUGE" xpath="@moisture" />
+          <ns2:xml-object name="air_pressure" type="GAUGE" xpath="@air_pressure" />
           <ns2:xml-object name="temperature" type="GAUGE" xpath="@temperature" />
           <ns2:xml-object name="x_acc" type="GAUGE" xpath="@x_acc" />
           <ns2:xml-object name="y_acc" type="GAUGE" xpath="@y_acc" />
@@ -101,154 +100,7 @@
       </xmlRrd>
     </messageDataParser>
 
-    <!-- *********************************** -->
-    <!-- message data parser for amazon aws -->
-    <!-- *********************************** -->
-    <messageDataParser foreignSource="aws-" payloadType="JSON" compression="UNCOMPRESSED">
-      <subscriptionTopics>
-        <topic>aws-data</topic>
-      </subscriptionTopics>
 
-      <xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
-
-        <!-- node level compute resources -->
-        <xml-group name="amazon-cloudwatch-rds-compute" resource-type="compute" resource-xpath="/" key-xpath="@instanceID" timestamp-xpath="@timestamp"
-          timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
-          <xml-object name="timestamp" type="string" xpath="@timestamp" />
-          <xml-object name="instanceResourceID" type="string" xpath="@instanceResourceID" />
-          <xml-object name="version" type="string" xpath="@version" />
-          <xml-object name="numVCPUs" type="GAUGE" xpath="@numVCPUs" />
-          <xml-object name="uptime" type="string" xpath="@uptime" />
-
-          <!-- cpuUtilization -->
-          <xml-object name="cpuUtilizationGuest" type="GAUGE" xpath="cpuUtilization/guest" />
-          <xml-object name="cpuUtilizationIrq" type="GAUGE" xpath="cpuUtilization/irq" />
-          <xml-object name="cpuUtilizationSystem" type="GAUGE" xpath="cpuUtilization/system" />
-          <xml-object name="cpuUtilizationWait" type="GAUGE" xpath="cpuUtilization/wait" />
-          <xml-object name="cpuUtilizationIdle" type="GAUGE" xpath="cpuUtilization/idle" />
-          <xml-object name="cpuUtilizationUser" type="GAUGE" xpath="cpuUtilization/user" />
-          <xml-object name="cpuUtilizationTotal" type="GAUGE" xpath="cpuUtilization/total" />
-          <xml-object name="cpuUtilizationSteal" type="GAUGE" xpath="cpuUtilization/steal" />
-          <xml-object name="cpuUtilizationNice" type="GAUGE" xpath="cpuUtilization/nice" />
-
-          <!-- loadAverageMinute -->
-          <xml-object name="loadAverage15Minute" type="GAUGE" xpath="loadAverageMinute/fifteen" />
-          <xml-object name="loadAverage5Minute" type="GAUGE" xpath="loadAverageMinute/five" />
-          <xml-object name="loadAverage1Minute" type="GAUGE" xpath="loadAverageMinute/one" />
-
-          <!-- memory -->
-          <xml-object name="memWriteback" type="GAUGE" xpath="memory/writeback" />
-          <xml-object name="memHugePagesFree" type="GAUGE" xpath="memory/hugePagesFree" />
-          <xml-object name="memHugePagesRsvd" type="GAUGE" xpath="memory/hugePagesRsvd" />
-          <xml-object name="memhugePagesSurp" type="GAUGE" xpath="memory/hugePagesSurp" />
-          <xml-object name="memCached" type="GAUGE" xpath="memory/cached" />
-          <xml-object name="memHugePagesSize" type=" GAUGE " xpath="memory/hugePagesSize" />
-          <xml-object name="memFree" type="GAUGE" xpath="memory/free" />
-          <xml-object name="memHugePagesTotal" type="GAUGE" xpath="memory/hugePagesTotal" />
-          <xml-object name="memInactive" type="GAUGE" xpath="memory/inactive" />
-          <xml-object name="memPageTables" type="GAUGE" xpath="memory/pageTables" />
-          <xml-object name="memDirty" type="GAUGE" xpath="memory/dirty" />
-          <xml-object name="memMapped" type="GAUGE" xpath="memory/mapped" />
-          <xml-object name="memActive" type="GAUGE" xpath="memory/active" />
-          <xml-object name="memTotal" type="GAUGE" xpath="memory/total" />
-          <xml-object name="memSlab" type="GAUGE" xpath="memory/slab" />
-          <xml-object name="memBuffers" type="GAUGE" xpath="memory/buffers" />
-
-          <!-- tasks -->
-          <xml-object name="tasksSleeping" type="GAUGE" xpath="tasks/sleeping" />
-          <xml-object name="tasksZombie" type="GAUGE" xpath="tasks/zombie" />
-          <xml-object name="tasksRunning" type="GAUGE" xpath="tasks/running" />
-          <xml-object name="tasksStopped" type="GAUGE" xpath="tasks/stopped" />
-          <xml-object name="tasksTotal" type="GAUGE" xpath="tasks/total" />
-          <xml-object name="tasksBlocked" type="GAUGE" xpath="tasks/blocked" />
-
-
-          <!-- swap -->
-          <xml-object name="swapCached" type="GAUGE" xpath="swap/cached" />
-          <xml-object name="swapTotal" type="GAUGE" xpath="swap/total" />
-          <xml-object name="swapOut" type="GAUGE" xpath="swap/out" />
-          <xml-object name="swapFree" type="GAUGE" xpath="swap/free" />
-          <xml-object name="swapIn" type="GAUGE" xpath="swap/in" />
-
-        </xml-group>
-
-        <!-- network - array of interfaces each named eth0, 1 etc. -->
-        <xml-group name="amazon-cloudwatch-rds-interfaces" resource-type="interface" resource-xpath="/network" key-xpath="../instanceID"
-          timestamp-xpath="../timestamp" timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
-          <resource-key>
-            <key-xpath>@interface</key-xpath>
-          </resource-key>
-          <xml-object name="interface" type="string" xpath="@interface" />
-          <xml-object name="rx" type="GAUGE" xpath="@rx" />
-          <xml-object name="tx" type="GAUGE" xpath="@tx" />
-        </xml-group>
-
-        <!-- diskIO disks are explicitly identified by device -->
-        <xml-group name="amazon-cloudwatch-rds-disks" resource-type="disk" resource-xpath="/diskIO" key-xpath="../instanceID" timestamp-xpath="../timestamp"
-          timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
-          <resource-key>
-            <key-xpath>@device</key-xpath>
-          </resource-key>
-          <xml-object name="writeKbPS" type="GAUGE" xpath="@writeKbPS" />
-          <xml-object name="readIOsPS" type="GAUGE" xpath="@readIOsPS" />
-          <xml-object name="await" type="GAUGE" xpath="@await" />
-          <xml-object name="readKbPS" type="GAUGE" xpath="@readKbPS" />
-          <xml-object name="rrqmPS" type="GAUGE" xpath="@rrqmPS" />
-          <xml-object name="util" type="GAUGE" xpath="@util" />
-          <xml-object name="avgQueueLen" type="GAUGE" xpath="@avgQueueLen" />
-          <xml-object name="tps" type="GAUGE" xpath="@tps" />
-          <xml-object name="readKb" type="GAUGE" xpath="@readKb" />
-          <xml-object name="writeKb" type="GAUGE" xpath="@writeKb" />
-          <xml-object name="avgReqSz" type="GAUGE" xpath="@avgReqSz" />
-          <xml-object name="wrqmPS" type="GAUGE" xpath="@wrqmPS" />
-          <xml-object name="writeIOsPS" type="GAUGE" xpath="@writeIOsPS" />
-          <xml-object name="device" type="string" xpath="@device" />
-        </xml-group>
-
-        <!-- diskIO disks are explicitly identified by name -->
-        <xml-group name="amazon-cloudwatch-rds-filesystem" resource-type="filesystem" resource-xpath="/fileSys" key-xpath="../instanceID"
-          timestamp-xpath="../timestamp" timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
-          <resource-key>
-            <key-xpath>@name</key-xpath>
-          </resource-key>
-          <xml-object name="used" type="GAUGE" xpath="@used" />
-          <xml-object name="usedFiles" type="GAUGE" xpath="@usedFiles" />
-          <xml-object name="usedFilePercent" type="GAUGE" xpath="@usedFilePercent" />
-          <xml-object name="maxFiles" type="GAUGE" xpath="@maxFiles" />
-          <xml-object name="total" type="GAUGE" xpath="@total" />
-          <xml-object name="usedPercent" type="GAUGE" xpath="@usedPercent" />
-          <xml-object name="name" type="string" xpath="@name" />
-          <xml-object name="mountPoint" type="string" xpath="@mountPoint" />
-        </xml-group>
-
-        <!-- processList processes are identified by name -->
-        <xml-group name="amazon-cloudwatch-rds-processlist" resource-type="process" resource-xpath="/processList" key-xpath="../instanceID"
-          timestamp-xpath="../timestamp" timestamp-format="yyyy-MM-dd'T'HH:mm:ss'Z'">
-          <resource-key>
-            <key-xpath>@name</key-xpath>
-          </resource-key>
-          <xml-object name="vss" type="GAUGE" xpath="@vss" />
-          <xml-object name="tgid" type="GUAGE" xpath="@tgid" />
-          <xml-object name="parentID" type="GUAGE" xpath="@parentID" />
-          <xml-object name="memoryUsedPc" type="GUAGE" xpath="@memoryUsedPc" />
-          <xml-object name="cpuUsedPc" type="GUAGE" xpath="@cpuUsedPc" />
-          <xml-object name="id" type="GUAGE" xpath="@id" />
-          <xml-object name="rss" type="GUAGE" xpath="@rss" />
-          <xml-object name="name" type="string" xpath="@name" />
-          <xml-object name="vmlimit" type="string" xpath="@vmlimit" />
-        </xml-group>
-
-      </xml-groups>
-
-      <!-- xmlRRD us set up exactly as it is for xml data collection. step (in seconds ) is the interval expected between data received from the same node -->
-      <xmlRrd step="300">
-        <ns2:rra>RRA:AVERAGE:0.5:1:2016</ns2:rra>
-        <ns2:rra>RRA:AVERAGE:0.5:12:1488</ns2:rra>
-        <ns2:rra>RRA:AVERAGE:0.5:288:366</ns2:rra>
-        <ns2:rra>RRA:MAX:0.5:288:366</ns2:rra>
-        <ns2:rra>RRA:MIN:0.5:288:366</ns2:rra>
-      </xmlRrd>
-    </messageDataParser>
 
   </messageDataParsers>
 
@@ -258,45 +110,33 @@
   <messageEventParsers>
 
     <!-- *********************************** -->
-    <!-- message event parser for json -->
+    <!-- message event parser for laurawan json -->
     <!-- *********************************** -->
-    <messageEventParser foreignSource="mqtt" payloadType="JSON" compression="UNCOMPRESSED">
+    <messageEventParser foreignSource="$topicLevels[5]" payloadType="JSON" compression="UNCOMPRESSED">
       <subscriptionTopics>
-        <topic>mqtt-events/json</topic>
+        <topic>iot/type/mosquito/id/+/device/+/app/opennms/fmt/json</topic>
       </subscriptionTopics>
-      <xml-groups>
-        <ns2:xml-group name="sniffy" resource-type="sniffy" resource-xpath="/" key-xpath="@id" timestamp-xpath="@time" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
-          <ns2:xml-object name="time" type="string" xpath="@time" />
-          <ns2:xml-object name="id" type="string" xpath="@id" />
-          <ns2:xml-object name="cityName" type="string" xpath="@cityName" />
-          <ns2:xml-object name="stationName" type="string" xpath="@stationName" />
-          <ns2:xml-object name="latitude" type="GAUGE" xpath="@latitude" />
-          <ns2:xml-object name="longitude" type="GAUGE" xpath="@longitude" />
-          <ns2:xml-object name="averaging" type="GAUGE" xpath="@averaging" />
-          <ns2:xml-object name="PM1" type="GAUGE" xpath="@PM1" />
-          <ns2:xml-object name="PM25" type="GAUGE" xpath="@PM25" />
-          <ns2:xml-object name="PM10" type="GAUGE" xpath="@PM10" />
-        </ns2:xml-group>
-      </xml-groups>
-    </messageEventParser>
 
-    <!-- *********************************** -->
-    <!-- message event parser for csv text message -->
-    <!-- *********************************** -->
-    <messageEventParser foreignSource="mqtt" payloadType="TEXT_CSV" compression="UNCOMPRESSED">
-      <!-- Site,Species,ReadingDateTime,Value,Units,Provisional or Ratified -->
-      <!-- 1, 2 3 4 5 6 Note jxpath numbers indexes from 1 -->
-      <!-- SH0,NO,01/01/2018 00:00,5.0,ug m-3,P -->
-      <subscriptionTopics>
-        <topic>mqtt-events/txt</topic>
-      </subscriptionTopics>
-      <xml-groups>
-        <ns2:xml-group name="textMeasure" resource-type="testMeasure" resource-xpath="." key-xpath=".[1]" timestamp-xpath=".[3]" timestamp-format="dd/mm/yyyy HH:mm"> <!-- empty string indicates simple timestamp from epoch (Date.toString()) -->
-          <ns2:xml-object name="name" type="string" xpath=".[1]" />
-          <ns2:xml-object name="timestamp" type="string" xpath=".[3]" />
-          <ns2:xml-object name="value" type="GAUGE" xpath=".[4]" />
+      <!-- xmlgroups configuration is very similar to XMLData collection configuration for JSON in OpenNMS -->
+      <!-- using the following configuration -->
+      <ns2:xml-groups xmlns="http://xmlns.opennms.org/xsd/config/xml-datacollection">
+        <ns2:xml-group name="laurawan" resource-type="laurawan" resource-xpath="/metrics" key-xpath="$topicLevels[7]" 
+        timestamp-xpath="@timestamp" timestamp-format="yyyy-MM-dd HH:mm:ss.SSSSSS">
+          <ns2:xml-object name="gweui" type="string" xpath="@gweui" />
+          <ns2:xml-object name="deveui" type="string" xpath="@deveui" />
+          <ns2:xml-object name="node" type="string" xpath="@node" />
+          <ns2:xml-object name="timestamp" type="string" xpath="@timestamp" />
+          <ns2:xml-object name="lsnr" type="GAUGE" xpath="@lsnr" />
+          <ns2:xml-object name="light" type="GAUGE" xpath="@light" />
+          <ns2:xml-object name="air_pressure" type="GAUGE" xpath="@air_pressure" />
+          <ns2:xml-object name="temperature" type="GAUGE" xpath="@temperature" />
+          <ns2:xml-object name="x_acc" type="GAUGE" xpath="@x_acc" />
+          <ns2:xml-object name="y_acc" type="GAUGE" xpath="@y_acc" />
+          <ns2:xml-object name="z_acc" type="GAUGE" xpath="@z_acc" />
         </ns2:xml-group>
-      </xml-groups>
+      </ns2:xml-groups>
+
+
     </messageEventParser>
 
   </messageEventParsers>
@@ -309,21 +149,18 @@
   <!-- the topic list determines which topics the client will subscribe to once it has established a connection -->
   <mqttClients>
     <client clientInstanceId="client1">
-      <brokerUrl>tcp://mqtt-broker:1883</brokerUrl>
+      <brokerUrl>tcp://63.231.197.29:1883</brokerUrl>
       <clientId>opennms</clientId>
       <connectionRetryInterval>3000</connectionRetryInterval>
       <clientConnectionMaxWait>20000</clientConnectionMaxWait>
       <topicList>
-        <topic qos="0" topic="mqtt-events/#" />
-        <topic qos="0" topic="mqtt-data" />
-        <topic qos="0" topic="aws-data" />
 
         <!-- used to match laurawan probes -->
-        <topic qos="0" topic="PMc178e3c2.6637eiot-2/#" />
+        <topic qos="0" topic="iot/#" />
 
       </topicList>
-      <userName>mqtt-user</userName>
-      <password>mqtt-password</password>
+      <userName>xxx</userName>
+      <password>yyy</password>
     </client>
   </mqttClients>
 
@@ -334,20 +171,21 @@
   <!-- where the resource identifier is /postmessage/<QOS>/TOPIC... and TOPIC is a topic path e.g. /postmessage/0/foo/barr -->
   <!-- Note that the subscribed topic can also be a filter e.g. topic="/+/foo/# -->
   <!-- e.g. the following configuration allows json data to be POSTed to the mqtt-events topic with qos 0 at -->
-  <!-- http://localhost:8980/opennms/plugin/mqtt/v1-0/postmessage/0/mqtt-events -->
+  <!-- http://localhost:8980/opennms/plugin/mqtt/v1-0/postmessage/0/PMc178e3c2.6637eiot-2/type/mosquitto/id/BB-BB-BB-BB-BB-BB/evt/datapoint/fmt/json -->
+
+  <!-- to use in Firefox HttpRequester plugin -->
+  <!-- POST http://192.168.75.129:8980/opennms/plugin/mqtt/v1-0/postmessage/0/iot/type/mosquito/id/00-08-00-4A-4F-F6/device/00-80-00-00-00-01-1e-e8/app/opennms/fmt/json -->
+  <!-- Content-Type: application/json;charset=utf-8 -->
+  <!-- {"metrics":{"gweui":"00-08-00-4A-4F-F6","deveui":"00-80-00-00-00-01-1e-e8","node":"00-80-00-00-00-01-1e-e8","timestamp":"2018-07-18T17:01:15.247467Z","lsnr":"10","light":0,"air_pressure":0,"temperature":32.1875,"x_acc":0,"y_acc":0,"z_acc":0.9375}} -->
   <messageClients>
     <message-client clientInstanceId="opennms-rest-client" clientType="opennms-rest-client">
       <configuration>
         <client-configuration name="TBD" value="TBD" />
       </configuration>
       <topicList>
-        <topic qos="0" topic="mqtt-events" />
-        <topic qos="0" topic="mqtt-events/#" />
-        <topic qos="0" topic="mqtt-data" />
-        <topic qos="0" topic="aws-data" />
 
         <!-- used to match laurawan probes -->
-        <topic qos="0" topic="PMc178e3c2.6637eiot-2/#" />
+        <topic qos="0" topic="iot/#" />
       </topicList>
     </message-client>
   </messageClients>
