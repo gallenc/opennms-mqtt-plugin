@@ -50,6 +50,7 @@
 	</properties>
 
 	<modules>
+        <module>client-utils</module>
 		<module>main-module</module>
 		<module>data-tests</module>
 		<module>product-descriptor</module>

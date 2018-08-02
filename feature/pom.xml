@@ -48,6 +48,11 @@
     </dependency>
     <dependency>
       <groupId>org.opennms.plugins</groupId>
+      <artifactId>${productName}.client-utils</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.plugins</groupId>
       <artifactId>${productName}.main-module</artifactId>
       <version>${project.version}</version>
     </dependency>
