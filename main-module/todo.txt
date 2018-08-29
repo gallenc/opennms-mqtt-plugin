@@ -5,11 +5,22 @@ TODO SPRINT 12 jan 2017
 3. change event parser to use jxpath config DONE
 4. change data parser to use jxpath config  DONE
 5. change wiring to wire in controller      DONE
-5. add thread pool to queueImpl (optional)  DONE
+6. add thread pool to queueImpl (optional)  DONE
 
-TO DO  - NEXT SPRINT
-move to top level project and document
-add documentation project
+TODO - NEXT SPRINT
+7. add ability to use compressed messages DONE
+8. add ability to use XML messages DONE
+9. add ability to parse topics and route messages DONE
+10. move mqtt client to own jar with tests
+11. integrate certificates for ssh - get working with Amazon
+12. clean up code - licences and comments
+12. move to top level project and document
+13. move to opennms eu project git repo
+14. add documentation project
+
+TO-DO
+add ability to use protobuf encoded messages
+refactor tests - simplify code reuse
 remove old classes no longer needed
 test with live sniffy system
 test with live system and cassandra
@@ -24,8 +35,6 @@ add GIS coordinates into nodes added by events
 add node GIS coordinates into Measurements api
 Measurements api working with alternative grafana map plugins
 
-add ability to use compressed mesages
-add ability to use protobuf encoded messages
-add ability to use XML messages
+
 
 
