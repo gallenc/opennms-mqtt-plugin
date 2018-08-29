@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.mqttclient.test.manual;
+package org.opennms.plugins.messagenotifier.mqttclient.test.manual;
 
 import static org.junit.Assert.*;
 

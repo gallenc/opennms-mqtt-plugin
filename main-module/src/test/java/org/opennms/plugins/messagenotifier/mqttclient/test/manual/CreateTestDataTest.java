@@ -1,16 +1,14 @@
-package org.opennms.plugins.mqttclient.test.manual;
+package org.opennms.plugins.messagenotifier.mqttclient.test.manual;
 
 
 import static org.junit.Assert.*;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

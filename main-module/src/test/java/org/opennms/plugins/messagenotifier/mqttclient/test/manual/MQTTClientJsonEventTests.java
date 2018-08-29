@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.mqttclient.test.manual;
+package org.opennms.plugins.messagenotifier.mqttclient.test.manual;
 
 import static org.junit.Assert.*;
 
@@ -49,14 +49,8 @@ import org.opennms.plugins.messagenotifier.mqttclient.MQTTClientImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * sending data from topic PMc178e3c2.6637eiot-2/type/mosquitto/id/00-08-00-4A-4F-F6/evt/datapoint/fmt/json -->
-      <!-- payload { "d": { "light": 462, "moisture": 97.34025, "temperature": 29.8125, "x_acc": 0.1875,"y_acc": 0.375,"z_acc": 0.8125 } } -->
- * @author admin
- *
- */
-public class MQTTClientLauraWanDataTests {
-	private static final Logger LOG = LoggerFactory.getLogger(MQTTClientLauraWanDataTests.class);
+public class MQTTClientJsonEventTests {
+	private static final Logger LOG = LoggerFactory.getLogger(MQTTClientJsonEventTests.class);
 
 	// works with 2017-10-19 10:15:02.854888
 	private static final String DEFAULT_DATE_TIME_FORMAT_PATTERN="yyyy-MM-dd HH:mm:ss.SSSSSS";
@@ -70,24 +64,24 @@ public class MQTTClientLauraWanDataTests {
 
 	public static final String CLIENT_ID = "receiver1";
 	public static final String CLIENT_ID2 = "transmitter1";
+	public static final String TOPIC_NAME = "mqtt-events";
 
-	public static final String ROOT_TOPIC = "PMc178e3c2.6637eiot-2/type/mosquitto/id";
 
-	public static final List<String> TOPIC_IDS= Arrays.asList("00-08-00-4A-4F-F6","AA-AA-AA-AA-AA-AA","BB-BB-BB-BB-BB-BB","CC-CC-CC-CC-CC-CC");
-
-	public static final String SUBSCRIBE_TOPIC_NAME = ROOT_TOPIC+"/#";
-
-	public static final String TOPIC_SUFFIX= "evt/datapoint/fmt/json";
-
+	
 	public static final int QOS_LEVEL = 0;
 
-	public static final String jsonTestMessage="{ \"d\": {"
-			+ " \"light\": 462, "
-			+ "\"moisture\": 97.34025, "
-			+ "\"temperature\": 29.8125, "
-			+ "\"x_acc\": 0.1875,"
-			+ "\"y_acc\": 0.375,"
-			+ "\"z_acc\": 0.8125 } }";
+	public static final String jsonTestMessage="{"
+			+ " \"time\": \""+ jsonTime(new Date())+ "\","
+			+ " \"id\": \"monitorID\","
+			+ " \"cityName\": \"Southampton\","
+			+ " \"stationName\": \"Common#1\","
+			+ " \"latitude\": 0,"
+			+ " \"longitude\": 0,"
+			+ " \"averaging\": 0,"
+			+ " \"PM1\": 10,"
+			+ " \"PM25\": 100,"
+			+ " \"PM10\": 1000"
+			+ "}";
 
 	@Test
 	public void testJsonMessage(){
@@ -157,23 +151,33 @@ public class MQTTClientLauraWanDataTests {
 			Thread.currentThread().interrupt();
 		}
 
-
+		// try sending messages
+		String topic=TOPIC_NAME+"/txt";
 		int qos=QOS_LEVEL;
 
+		// send text message to topic <topicname>/txt with format
+		// SH0,NO,01/01/2018 00:00,5.0,ug m-3,P
+		try{
+			
+			String timeStamp = new SimpleDateFormat("dd/mm/yyyy HH:mm").format(new Date());
+			String message="SH0,NO,"+timeStamp+",5.0,ug m-3,P";
+			LOG.debug("sending csv value: "+message);
+			
+			byte[] payload = message.getBytes();
+			client.publishSynchronous(topic, qos, payload);
+		} catch(Exception e){
+			LOG.debug("problem publishing message", e);
+		}
 
-		// sending to multiple device topics
-		for(String topicid :TOPIC_IDS){
-			String topic = ROOT_TOPIC+"/"+topicid+"/"+TOPIC_SUFFIX;
-			LOG.debug("sending json message to topic "+topic);
-
-			try{
-				JSONObject jsonobj = parseJson(jsonTestMessage);
-				String message=jsonobj.toJSONString();
-				byte[] payload = message.getBytes();
-				client.publishSynchronous(topic, qos, payload);
-			} catch(Exception e){
-				LOG.debug("problem publishing json message", e);
-			}
+		// send json message to topic <topicname>/json
+		topic=TOPIC_NAME+"/json";
+		try{
+			JSONObject jsonobj = parseJson(jsonTestMessage);
+			String message=jsonobj.toJSONString();
+			byte[] payload = message.getBytes();
+			client.publishSynchronous(topic, qos, payload);
+		} catch(Exception e){
+			LOG.debug("problem publishing json message", e);
 		}
 
 		// wait for received messages
@@ -236,10 +240,10 @@ public class MQTTClientLauraWanDataTests {
 			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
 
 			messageNotificationClientQueueImpl = new MessageNotificationClientQueueImpl();
-
+						
 			List<MessageNotifier> mqttClientList = new ArrayList<MessageNotifier>();
 			mqttClientList.add(client);
-
+			
 			messageNotificationClientQueueImpl.setIncommingMessageNotifiers(mqttClientList);
 
 			messageNotificationClientQueueImpl.setMaxMessageQueueThreads(1);
@@ -267,7 +271,7 @@ public class MQTTClientLauraWanDataTests {
 			}
 
 			// try subscribing for message
-			String topic=SUBSCRIBE_TOPIC_NAME;
+			String topic=TOPIC_NAME+"/#";
 			int qos=QOS_LEVEL;
 			try{
 				client.subscribe(topic, qos);

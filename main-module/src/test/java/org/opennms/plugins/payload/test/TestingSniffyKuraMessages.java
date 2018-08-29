@@ -31,20 +31,15 @@ package org.opennms.plugins.payload.test;
 
 import static org.junit.Assert.*;
 
-import java.util.Iterator;
-
-import org.apache.commons.jxpath.JXPathContext;
-import org.apache.commons.jxpath.Pointer;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
-import org.opennms.plugins.mqttclient.test.manual.MQTTJsonTransmitterTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestingSniffyKuraMessages {
-	private static final Logger LOG = LoggerFactory.getLogger(MQTTJsonTransmitterTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TestingSniffyKuraMessages.class);
 
 	@Test
 	public void testParseTestMessages() {

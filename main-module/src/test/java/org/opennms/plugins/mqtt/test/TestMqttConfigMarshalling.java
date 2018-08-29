@@ -25,7 +25,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.payload.test;
+package org.opennms.plugins.mqtt.test;
 
 import static org.junit.Assert.*;
 

@@ -1,4 +1,4 @@
-package org.opennms.plugins.payload.test;
+package org.opennms.plugins.messagenotifier.mqttclient.test;
 
 import static org.junit.Assert.*;
 
