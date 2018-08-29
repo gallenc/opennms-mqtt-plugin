@@ -1,4 +1,4 @@
-package org.opennms.plugins.json.test;
+package org.opennms.plugins.payload.test;
 
 import static org.junit.Assert.*;
 
@@ -7,7 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.Test;
-import org.opennms.plugins.messagenotifier.CompressionMethods;
+import org.opennms.plugins.messagehandler.CompressionMethods;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

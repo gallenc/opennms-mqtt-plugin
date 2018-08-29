@@ -1,4 +1,4 @@
-package org.opennms.plugins.json.test;
+package org.opennms.plugins.payload.test;
 
 import static org.junit.Assert.*;
 

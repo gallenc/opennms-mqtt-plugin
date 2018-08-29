@@ -1,4 +1,4 @@
- /*******************************************************************************
+/*******************************************************************************
  * This file is part of OpenNMS(R).
  *
  * Copyright (C) 2002-2014 The OpenNMS Group, Inc.
@@ -28,6 +28,8 @@
 
 package org.opennms.plugins.mqtt.config;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -37,10 +39,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.opennms.plugins.messagenotifier.mqttclient.MQTTClientConfig;
+import org.opennms.plugins.messagenotifier.mqttclient.MQTTTopicSubscription;
+
 @XmlRootElement(name="mqtt-client")
 @XmlAccessorType(XmlAccessType.NONE)
-public class MQTTClientConfig {
-	
+public class MQTTClientConfigXml {
+
 	private String clientInstanceId=null;
 	private String brokerUrl=null;
 	private String clientId=null;
@@ -48,8 +53,8 @@ public class MQTTClientConfig {
 	private String password=null;
 	private String connectionRetryInterval=null;
 	private String clientConnectionMaxWait=null;
-	
-	private Set<MQTTTopicSubscription> topicList=null;
+
+	private Set<MQTTTopicSubscriptionXml> topicList=null;
 
 	public String getClientInstanceId() {
 		return clientInstanceId;
@@ -115,14 +120,36 @@ public class MQTTClientConfig {
 		this.clientConnectionMaxWait = clientConnectionMaxWait;
 	}
 
-	public Set<MQTTTopicSubscription> getTopicList() {
+	public Set<MQTTTopicSubscriptionXml> getTopicList() {
 		return topicList;
 	}
 
 	@XmlElementWrapper(required=true)
 	@XmlElement(name="topic")
-	public void setTopicList(Set<MQTTTopicSubscription> topicList) {
+	public void setTopicList(Set<MQTTTopicSubscriptionXml> topicList) {
 		this.topicList = topicList;
 	}
-	
+
+	/** 
+	 * converts xml instance to MQTTClientConfig configuration 
+	 * 
+	 * @return new MQTTClientConfig
+	 */
+	public MQTTClientConfig toMQTTClientConfig(){
+
+		Set<MQTTTopicSubscription> tlist= null;
+
+		if (topicList!=null){
+			tlist = (Set<MQTTTopicSubscription>) new LinkedHashSet<MQTTTopicSubscription>();
+			for (MQTTTopicSubscriptionXml mQTTTopicSubscriptionXml:topicList){
+				tlist.add(new MQTTTopicSubscription(mQTTTopicSubscriptionXml.getTopic(), mQTTTopicSubscriptionXml.getQos()));
+			}
+		}
+
+		return new MQTTClientConfig(clientInstanceId, brokerUrl,
+				clientId, userName, password,
+				connectionRetryInterval, clientConnectionMaxWait, tlist);
+
+	}
+
 }

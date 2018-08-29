@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.mqttclient;
+package org.opennms.plugins.persistor;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

@@ -32,11 +32,11 @@
   <reference id="persisterFactory" interface="org.opennms.netmgt.collection.api.PersisterFactory" availability="mandatory" />
 
   <!-- print startup message to karaf console -->
-  <bean id="sayHello" class="org.opennms.plugins.mqttclient.SayHello" destroy-method="destroyMethod">
+  <bean id="sayHello" class="org.opennms.plugins.mqtt.SayHello" destroy-method="destroyMethod">
   </bean>
 
   <!-- this bean is initialised by controller -->
-  <bean id="nodeByForeignSourceCache" class="org.opennms.plugins.mqttclient.NodeByForeignSourceCacheImpl" destroy-method="destroy">
+  <bean id="nodeByForeignSourceCache" class="org.opennms.plugins.persistor.NodeByForeignSourceCacheImpl" destroy-method="destroy">
     <property name="nodeDao" ref="nodeDao" />
     <property name="monitoringLocationDao" ref="monitoringLocationDao" />
     <property name="ipInterfaceDao" ref="ipInterfaceDao" />
@@ -51,18 +51,18 @@
     <!-- <property name="createNodeAssetData" value="${org.opennms.plugin.mqttclient.create-node-asset-data}" /> -->
   </bean>
 
-  <bean id="eventPersistor" class="org.opennms.plugins.messagenotifier.eventnotifier.EventPersistorImpl">
+  <bean id="eventPersistor" class="org.opennms.plugins.persistor.eventnotifier.EventPersistorImpl">
     <property name="eventProxy" ref="eventProxy" />
     <property name="nodeByForeignSourceCache" ref="nodeByForeignSourceCache" />
   </bean>
 
-  <bean id="dataPersistor" class="org.opennms.plugins.messagenotifier.datanotifier.DataPersistorImpl">
+  <bean id="dataPersistor" class="org.opennms.plugins.persistor.datanotifier.DataPersistorImpl">
     <property name="nodeByForeignSourceCache" ref="nodeByForeignSourceCache" />
     <property name="persisterFactory" ref="persisterFactory" /> 
   </bean>
 
   <!-- this bean is initialised by controller -->
-  <bean id="notificationMessageHandler" class=" org.opennms.plugins.messagenotifier.NotificationMessageHandler" destroy-method="destroy">
+  <bean id="notificationMessageHandler" class=" org.opennms.plugins.messagehandler.NotificationMessageHandler" destroy-method="destroy">
     <property name="dataPersistor" ref="dataPersistor" />
     <property name="eventPersistor" ref="eventPersistor" />
   </bean>
@@ -76,7 +76,7 @@
     </property>
   </bean>
 
-  <bean id="controller" class="org.opennms.plugins.messagenotifier.Controller" init-method="init" destroy-method="destroy">
+  <bean id="controller" class="org.opennms.plugins.mqtt.Controller" init-method="init" destroy-method="destroy">
     <property name="configFile" value="$[karaf.etc]$[file.separator]mqtt-interface-config.xml" />
     <property name="nodeByForeignSourceCacheImpl" ref="nodeByForeignSourceCache" />
     <property name="notificationMessageHandler" ref="notificationMessageHandler" />
@@ -96,11 +96,11 @@
     <!-- now configured in controller -->
     <!-- <property name="topicList"> -->
     <!-- <list> -->
-    <!-- <bean class="org.opennms.plugins.mqttclient.MQTTTopicSubscription"> -->
+    <!-- <bean class="org.opennms.plugins.messagenotifier.mqttclient.MQTTTopicSubscription"> -->
     <!-- <property name="qos" value="${org.opennms.plugin.mqttclient.qos}" /> -->
     <!-- <property name="topic" value="${org.opennms.plugin.mqttclient.eventtopic}" /> -->
     <!-- </bean> -->
-    <!-- <bean class="org.opennms.plugins.mqttclient.MQTTTopicSubscription"> -->
+    <!-- <bean class="org.opennms.plugins.messagenotifier.mqttclient.MQTTTopicSubscription"> -->
     <!-- <property name="qos" value="${org.opennms.plugin.mqttclient.qos}" /> -->
     <!-- <property name="topic" value="${org.opennms.plugin.mqttclient.datatopic}" /> -->
     <!-- </bean> -->

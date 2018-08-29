@@ -1,4 +1,4 @@
-package org.opennms.plugins.messagenotifier;
+package org.opennms.plugins.mqtt;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,15 +11,18 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.opennms.plugins.messagehandler.NotificationMessageHandler;
+import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
+import org.opennms.plugins.messagenotifier.MessageNotifier;
+import org.opennms.plugins.messagenotifier.mqttclient.MQTTClientImpl;
 import org.opennms.plugins.messagenotifier.rest.MqttRxService;
 import org.opennms.plugins.mqtt.config.ConfigProperty;
 import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
 import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
-import org.opennms.plugins.mqtt.config.MQTTClientConfig;
+import org.opennms.plugins.mqtt.config.MQTTClientConfigXml;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
 import org.opennms.plugins.mqtt.config.MessageClientConfig;
-import org.opennms.plugins.mqttclient.MQTTClientImpl;
-import org.opennms.plugins.mqttclient.NodeByForeignSourceCacheImpl;
+import org.opennms.plugins.persistor.NodeByForeignSourceCacheImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,19 +139,19 @@ public class Controller {
 		
 		// set up mqtt receivers
 		// m_clientMap will contain a list of all the mqtt clients 
-		for(MQTTClientConfig mqttConfig:m_MQTTReceiverConfig.getMqttClients()){
+		for(MQTTClientConfigXml mqttConfigXml:m_MQTTReceiverConfig.getMqttClients()){
 			
-			LOG.debug("adding mqtt receiver client:"+mqttConfig.getClientInstanceId());
+			LOG.debug("adding mqtt receiver client:"+mqttConfigXml.getClientInstanceId());
 			
-			if(mqttConfig.getClientInstanceId()==null || "".equals(mqttConfig.getClientInstanceId())) 
-				throw new IllegalArgumentException("clientInstanceId value is not defined for a MQTTClientConfig");
-			if (m_clientMap.containsKey(mqttConfig.getClientInstanceId())) 
-				throw new IllegalArgumentException("duplicate mqtt receiver ClientInstanceId '"+mqttConfig.getClientInstanceId()
+			if(mqttConfigXml.getClientInstanceId()==null || "".equals(mqttConfigXml.getClientInstanceId())) 
+				throw new IllegalArgumentException("clientInstanceId value is not defined for a MQTTClientConfigXml");
+			if (m_clientMap.containsKey(mqttConfigXml.getClientInstanceId())) 
+				throw new IllegalArgumentException("duplicate mqtt receiver ClientInstanceId '"+mqttConfigXml.getClientInstanceId()
 						+ "' in configuration");
 			
-			MQTTClientImpl client = new MQTTClientImpl(mqttConfig);
+			MQTTClientImpl client = new MQTTClientImpl(mqttConfigXml.toMQTTClientConfig());
 			
-			m_clientMap.put(mqttConfig.getClientInstanceId(), client);
+			m_clientMap.put(mqttConfigXml.getClientInstanceId(), client);
 		}
 		
 		// set up message receivers

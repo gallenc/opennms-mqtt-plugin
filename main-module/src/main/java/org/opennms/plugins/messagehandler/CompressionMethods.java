@@ -1,4 +1,4 @@
-package org.opennms.plugins.messagenotifier;
+package org.opennms.plugins.messagehandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

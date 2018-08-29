@@ -43,7 +43,7 @@ public class MessageClientConfig {
 	
 	private String clientInstanceId=null;
 	
-	private Set<MQTTTopicSubscription> topicList=null;
+	private Set<MQTTTopicSubscriptionXml> topicList=null;
 	
 	private String clientType=null;
 	
@@ -78,13 +78,13 @@ public class MessageClientConfig {
 		this.clientInstanceId = clientInstanceId;
 	}
 
-	public Set<MQTTTopicSubscription> getTopicList() {
+	public Set<MQTTTopicSubscriptionXml> getTopicList() {
 		return topicList;
 	}
 
 	@XmlElementWrapper(required=true)
 	@XmlElement(name="topic")
-	public void setTopicList(Set<MQTTTopicSubscription> topicList) {
+	public void setTopicList(Set<MQTTTopicSubscriptionXml> topicList) {
 		this.topicList = topicList;
 	}
 

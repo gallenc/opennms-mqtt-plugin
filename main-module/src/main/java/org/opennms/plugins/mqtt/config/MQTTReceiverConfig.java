@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public class MQTTReceiverConfig {
 
-	private Set<MQTTClientConfig> mqttClients=null;
+	private Set<MQTTClientConfigXml> mqttClients=null;
 	
 	private Set<MessageClientConfig> messageClients=null;
 
@@ -63,13 +63,13 @@ public class MQTTReceiverConfig {
 	private Integer nodeCacheMaxSize=null; // default 10000 (Set to zero to disable max size)
 
 
-	public Set<MQTTClientConfig> getMqttClients() {
+	public Set<MQTTClientConfigXml> getMqttClients() {
 		return mqttClients;
 	}
 
 	@XmlElementWrapper
 	@XmlElement(name="client")
-	public void setMqttClients(Set<MQTTClientConfig> mqttClients) {
+	public void setMqttClients(Set<MQTTClientConfigXml> mqttClients) {
 		this.mqttClients = mqttClients;
 	}
 

@@ -6,7 +6,7 @@ import java.util.Set;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClient;
 import org.opennms.plugins.messagenotifier.MessageNotifier;
-import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
+import org.opennms.plugins.mqtt.config.MQTTTopicSubscriptionXml;
 
 public interface MqttRxService extends MessageNotifier {
 	
@@ -28,9 +28,9 @@ public interface MqttRxService extends MessageNotifier {
 	
 	public void messageArrived(MessageNotification messageNotification) throws Exception;
 	
-	public Set<MQTTTopicSubscription> getTopicList();
+	public Set<MQTTTopicSubscriptionXml> getTopicList();
 
-	public void setTopicList(Set<MQTTTopicSubscription> topicList);
+	public void setTopicList(Set<MQTTTopicSubscriptionXml> topicList);
 
 	@Override
 	public void addMessageNotificationClient( MessageNotificationClient messageNotificationClient);

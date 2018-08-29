@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.mqttclient;
+package org.opennms.plugins.messagenotifier.mqttclient;
 
 import java.sql.Timestamp;
 import java.util.Collections;
@@ -47,8 +47,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClient;
 import org.opennms.plugins.messagenotifier.MessageNotifier;
-import org.opennms.plugins.mqtt.config.MQTTClientConfig;
-import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
+import org.opennms.plugins.messagenotifier.mqttclient.MQTTTopicSubscription;
+import org.opennms.plugins.messagenotifier.mqttclient.MQTTClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,7 +167,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	}
 	
 	/**
-	 * constructor using MQTTClientConfig
+	 * constructor using MQTTClientConfigXml
 	 * @param mQTTClientConfig
 	 */
 	public MQTTClientImpl(MQTTClientConfig mQTTClientConfig){
@@ -269,6 +269,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 		message.setQos(qos);
 
 		try {
+			@SuppressWarnings("unused")
 			IMqttDeliveryToken pubToken = m_client.publish(topicName, message, null, null);
 		} catch (MqttException e) {
 			throw new RuntimeException("client instanceId:"+m_instanceId+": problem synchronously publishing message",e);

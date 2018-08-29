@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.json;
+package org.opennms.plugins.messagehandler;
 
 import java.util.Date;
 import java.util.HashMap;

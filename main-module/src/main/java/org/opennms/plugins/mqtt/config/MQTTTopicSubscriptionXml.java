@@ -31,19 +31,18 @@ package org.opennms.plugins.mqtt.config;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement()
 @XmlAccessorType(XmlAccessType.NONE)
-public class MQTTTopicSubscription {
+public class MQTTTopicSubscriptionXml {
 
 	private String topic=null;
 	private String qos=null;
 	
-	public MQTTTopicSubscription(){};
+	public MQTTTopicSubscriptionXml(){};
 	
-	public MQTTTopicSubscription(String topic,String qos ){
+	public MQTTTopicSubscriptionXml(String topic,String qos ){
 		this.topic=topic;
 		this.qos=qos;
 	}

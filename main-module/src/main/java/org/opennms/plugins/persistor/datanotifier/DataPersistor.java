@@ -1,8 +1,8 @@
-package org.opennms.plugins.messagenotifier.datanotifier;
+package org.opennms.plugins.persistor.datanotifier;
 
 import java.util.List;
 
-import org.opennms.plugins.json.OnmsCollectionAttributeMap;
+import org.opennms.plugins.messagehandler.OnmsCollectionAttributeMap;
 
 public interface DataPersistor {
 

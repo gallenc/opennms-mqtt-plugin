@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.messagenotifier;
+package org.opennms.plugins.messagehandler;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -36,13 +36,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.paho.client.mqttv3.MqttTopic;
-import org.opennms.plugins.json.OnmsAttributeMessageHandler;
-import org.opennms.plugins.json.OnmsCollectionAttribute;
-import org.opennms.plugins.json.OnmsCollectionAttributeMap;
-import org.opennms.plugins.messagenotifier.datanotifier.DataPersistor;
-import org.opennms.plugins.messagenotifier.eventnotifier.EventPersistor;
+import org.opennms.plugins.messagenotifier.MessageNotification;
+import org.opennms.plugins.messagenotifier.NotificationClient;
 import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
 import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
+import org.opennms.plugins.persistor.datanotifier.DataPersistor;
+import org.opennms.plugins.persistor.eventnotifier.EventPersistor;
 import org.opennms.protocols.xml.config.XmlGroups;
 import org.opennms.protocols.xml.config.XmlRrd;
 import org.slf4j.Logger;

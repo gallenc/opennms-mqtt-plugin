@@ -1,14 +1,12 @@
-package org.opennms.plugins.messagenotifier.datanotifier;
+package org.opennms.plugins.persistor.datanotifier;
 
 import java.net.InetAddress;
 import java.nio.file.Paths;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 
 import org.opennms.netmgt.collection.api.AttributeType;
 import org.opennms.netmgt.collection.api.CollectionAgent;
@@ -24,9 +22,9 @@ import org.opennms.netmgt.model.OnmsGeolocation;
 import org.opennms.netmgt.model.ResourcePath;
 import org.opennms.netmgt.model.ResourceTypeUtils;
 import org.opennms.netmgt.rrd.RrdRepository;
-import org.opennms.plugins.json.OnmsCollectionAttribute;
-import org.opennms.plugins.json.OnmsCollectionAttributeMap;
-import org.opennms.plugins.mqttclient.NodeByForeignSourceCache;
+import org.opennms.plugins.messagehandler.OnmsCollectionAttribute;
+import org.opennms.plugins.messagehandler.OnmsCollectionAttributeMap;
+import org.opennms.plugins.persistor.NodeByForeignSourceCache;
 import org.opennms.protocols.xml.config.XmlRrd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +48,7 @@ public class DataPersistorImpl implements DataPersistor {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.opennms.plugins.messagenotifier.datanotifier.DataPersistor#persistAttributeMapList(java.util.List)
+	 * @see org.opennms.plugins.persistor.datanotifier.DataPersistor#persistAttributeMapList(java.util.List)
 	 */
 	@Override
 	public void persistAttributeMapList(List<OnmsCollectionAttributeMap> attributeMapList){

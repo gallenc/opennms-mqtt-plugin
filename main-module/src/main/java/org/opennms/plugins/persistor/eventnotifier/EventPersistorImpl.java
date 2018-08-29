@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.messagenotifier.eventnotifier;
+package org.opennms.plugins.persistor.eventnotifier;
 
 import java.util.Date;
 import java.util.List;
@@ -36,9 +36,9 @@ import org.opennms.netmgt.events.api.EventProxy;
 import org.opennms.netmgt.events.api.EventProxyException;
 import org.opennms.netmgt.model.events.EventBuilder;
 import org.opennms.netmgt.xml.event.Event;
-import org.opennms.plugins.json.OnmsCollectionAttribute;
-import org.opennms.plugins.json.OnmsCollectionAttributeMap;
-import org.opennms.plugins.mqttclient.NodeByForeignSourceCache;
+import org.opennms.plugins.messagehandler.OnmsCollectionAttribute;
+import org.opennms.plugins.messagehandler.OnmsCollectionAttributeMap;
+import org.opennms.plugins.persistor.NodeByForeignSourceCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +77,7 @@ public class EventPersistorImpl implements EventPersistor {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.opennms.plugins.messagenotifier.eventnotifier.EventPersistor#persistAttributeMapList(java.util.List)
+	 * @see org.opennms.plugins.persistor.eventnotifier.EventPersistor#persistAttributeMapList(java.util.List)
 	 */
 	@Override
 	public void persistAttributeMapList(List<OnmsCollectionAttributeMap> attributeMapList, String ueiRoot){

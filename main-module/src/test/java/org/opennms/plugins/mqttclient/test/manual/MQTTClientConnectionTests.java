@@ -31,7 +31,7 @@ package org.opennms.plugins.mqttclient.test.manual;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.opennms.plugins.mqttclient.MQTTClientImpl;
+import org.opennms.plugins.messagenotifier.mqttclient.MQTTClientImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

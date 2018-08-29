@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.mqttclient;
+package org.opennms.plugins.mqtt;
 
 
 import org.slf4j.Logger;

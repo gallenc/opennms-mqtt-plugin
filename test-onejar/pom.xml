@@ -22,7 +22,7 @@
         <executions>
           <execution>
             <configuration>
-              <mainClass>org.opennms.plugins.mqttclient.test.manual.Main</mainClass>
+              <mainClass>org.opennms.plugins.messagenotifier.mqttclient.test.manual.Main</mainClass>
               <onejarVersion>0.97</onejarVersion>
               <attachToBuild>true</attachToBuild>
               <!-- <filename>${project.artifactId}-${project.version}-onejar.jar</filename> -->

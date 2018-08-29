@@ -1,4 +1,4 @@
-package org.opennms.plugins.json.test;
+package org.opennms.plugins.payload.test;
 
 import static org.junit.Assert.*;
 
@@ -23,10 +23,10 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONObject;
 import org.junit.Test;
-import org.opennms.plugins.json.OnmsAttributeMessageHandler;
-import org.opennms.plugins.json.OnmsCollectionAttributeMap;
-import org.opennms.plugins.messagenotifier.CompressionMethods;
-import org.opennms.plugins.messagenotifier.MessagePayloadTypeHandler;
+import org.opennms.plugins.messagehandler.CompressionMethods;
+import org.opennms.plugins.messagehandler.MessagePayloadTypeHandler;
+import org.opennms.plugins.messagehandler.OnmsAttributeMessageHandler;
+import org.opennms.plugins.messagehandler.OnmsCollectionAttributeMap;
 import org.opennms.protocols.xml.config.XmlGroup;
 import org.opennms.protocols.xml.config.XmlGroups;
 import org.opennms.protocols.xml.config.XmlRrd;

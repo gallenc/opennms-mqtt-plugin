@@ -32,20 +32,19 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
-import org.opennms.plugins.messagenotifier.MessageNotification;
+
 import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
 import org.opennms.plugins.messagenotifier.MessageNotifier;
 import org.opennms.plugins.messagenotifier.NotificationClient;
 import org.opennms.plugins.messagenotifier.VerySimpleMessageNotificationClient;
-import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
-import org.opennms.plugins.mqttclient.MQTTClientImpl;
+import org.opennms.plugins.messagenotifier.mqttclient.MQTTClientImpl;
+import org.opennms.plugins.messagenotifier.mqttclient.MQTTTopicSubscription;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

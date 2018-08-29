@@ -25,7 +25,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.json.test;
+package org.opennms.plugins.payload.test;
 
 import static org.junit.Assert.*;
 
@@ -43,14 +43,14 @@ import javax.xml.bind.Unmarshaller;
 
 import org.junit.Test;
 import org.opennms.netmgt.collection.api.AttributeType;
-import org.opennms.plugins.messagenotifier.CompressionMethods;
-import org.opennms.plugins.messagenotifier.MessagePayloadTypeHandler;
+import org.opennms.plugins.messagehandler.CompressionMethods;
+import org.opennms.plugins.messagehandler.MessagePayloadTypeHandler;
 import org.opennms.plugins.mqtt.config.ConfigProperty;
 import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
 import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
-import org.opennms.plugins.mqtt.config.MQTTClientConfig;
+import org.opennms.plugins.mqtt.config.MQTTClientConfigXml;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
-import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
+import org.opennms.plugins.mqtt.config.MQTTTopicSubscriptionXml;
 import org.opennms.plugins.mqtt.config.MessageClientConfig;
 import org.opennms.protocols.xml.config.XmlGroup;
 import org.opennms.protocols.xml.config.XmlGroups;
@@ -137,19 +137,19 @@ public class TestMqttConfigMarshalling {
 		xmlGroups.addXmlGroup(xmlGroup);
 		
 		// create clients and topics
-		Set<MQTTTopicSubscription> topicList =  new LinkedHashSet<MQTTTopicSubscription>();
+		Set<MQTTTopicSubscriptionXml> topicList =  new LinkedHashSet<MQTTTopicSubscriptionXml>();
 		
-		MQTTTopicSubscription msub1= new MQTTTopicSubscription();
+		MQTTTopicSubscriptionXml msub1= new MQTTTopicSubscriptionXml();
 		msub1.setQos("0");
 		msub1.setTopic("mqtt-events");
 		topicList.add(msub1);
 		
-		MQTTTopicSubscription msub2= new MQTTTopicSubscription();
+		MQTTTopicSubscriptionXml msub2= new MQTTTopicSubscriptionXml();
 		msub2.setQos("1");
 		msub2.setTopic("mqtt-data");
 		topicList.add(msub2);
 		
-		MQTTClientConfig mConfig = new MQTTClientConfig();
+		MQTTClientConfigXml mConfig = new MQTTClientConfigXml();
 		
 		mConfig.setTopicList(topicList);
 		
@@ -186,7 +186,7 @@ public class TestMqttConfigMarshalling {
 		messageClients.add(messageClientConfig);
 		rxconfig.setMessageClients(messageClients);
 
-		Set<MQTTClientConfig> mqttClients = new LinkedHashSet<MQTTClientConfig>();
+		Set<MQTTClientConfigXml> mqttClients = new LinkedHashSet<MQTTClientConfigXml>();
 		mqttClients.add(mConfig);
 		rxconfig.setMqttClients(mqttClients);
 		
@@ -226,7 +226,7 @@ public class TestMqttConfigMarshalling {
 		dataconfig.setXmlRrd(xmlRrd);
 
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(MQTTClientConfig.class,MQTTReceiverConfig.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(MQTTClientConfigXml.class,MQTTReceiverConfig.class);
 			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

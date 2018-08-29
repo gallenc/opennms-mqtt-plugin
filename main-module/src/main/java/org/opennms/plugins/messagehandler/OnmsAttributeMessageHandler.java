@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.json;
+package org.opennms.plugins.messagehandler;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -42,8 +42,8 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.opennms.plugins.json.OnmsCollectionAttributeMap;
-import org.opennms.plugins.json.OnmsCollectionAttribute;
+import org.opennms.plugins.messagehandler.OnmsCollectionAttribute;
+import org.opennms.plugins.messagehandler.OnmsCollectionAttributeMap;
 import org.opennms.protocols.xml.config.XmlGroup;
 import org.opennms.protocols.xml.config.XmlGroups;
 import org.opennms.protocols.xml.config.XmlObject;

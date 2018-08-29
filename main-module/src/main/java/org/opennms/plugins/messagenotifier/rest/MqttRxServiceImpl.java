@@ -39,7 +39,7 @@ import java.util.Set;
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClient;
-import org.opennms.plugins.mqtt.config.MQTTTopicSubscription;
+import org.opennms.plugins.mqtt.config.MQTTTopicSubscriptionXml;
 import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +49,8 @@ public class MqttRxServiceImpl implements  MqttRxService {
 
 	private Set<MessageNotificationClient> messageNotificationClientList = Collections.synchronizedSet(new HashSet<MessageNotificationClient>());
 
-	// topic, MQTTTopicSubscription
-	private Map<String,MQTTTopicSubscription> topicMap = Collections.synchronizedMap(new HashMap<String,MQTTTopicSubscription>());
+	// topic, MQTTTopicSubscriptionXml
+	private Map<String,MQTTTopicSubscriptionXml> topicMap = Collections.synchronizedMap(new HashMap<String,MQTTTopicSubscriptionXml>());
 
 	// configuration properties name, value
 	private Map<String,String> configuration = Collections.synchronizedMap(new HashMap<String,String>());
@@ -60,15 +60,15 @@ public class MqttRxServiceImpl implements  MqttRxService {
 	private String serviceType="undefined";	
 
 	@Override
-	public Set<MQTTTopicSubscription> getTopicList() {
-		HashSet<MQTTTopicSubscription> topicValues = new HashSet<MQTTTopicSubscription>();
+	public Set<MQTTTopicSubscriptionXml> getTopicList() {
+		HashSet<MQTTTopicSubscriptionXml> topicValues = new HashSet<MQTTTopicSubscriptionXml>();
 		topicValues.addAll(topicMap.values());
 		return topicValues;
 	}
 
 	@Override
-	public void setTopicList(Set<MQTTTopicSubscription> topicList) {
-		for (MQTTTopicSubscription topicSubscription : topicList){
+	public void setTopicList(Set<MQTTTopicSubscriptionXml> topicList) {
+		for (MQTTTopicSubscriptionXml topicSubscription : topicList){
 			topicMap.put(topicSubscription.getTopic(), topicSubscription);
 		}
 	}

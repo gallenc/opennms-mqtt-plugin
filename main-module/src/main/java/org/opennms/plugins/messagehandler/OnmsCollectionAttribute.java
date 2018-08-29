@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.json;
+package org.opennms.plugins.messagehandler;
 
 import org.opennms.netmgt.collection.api.AttributeType;
 

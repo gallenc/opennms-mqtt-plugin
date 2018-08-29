@@ -26,7 +26,7 @@
  *     http://www.opennms.com/
  *******************************************************************************/
 
-package org.opennms.plugins.json.test;
+package org.opennms.plugins.mqtt.test;
 
 import static org.junit.Assert.*;
 
@@ -49,21 +49,22 @@ import org.opennms.netmgt.events.api.EventListener;
 import org.opennms.netmgt.events.api.EventProxyException;
 import org.opennms.netmgt.xml.event.Event;
 import org.opennms.netmgt.xml.event.Log;
-import org.opennms.plugins.json.OnmsCollectionAttributeMap;
-import org.opennms.plugins.messagenotifier.CompressionMethods;
-import org.opennms.plugins.messagenotifier.Controller;
+import org.opennms.plugins.messagehandler.CompressionMethods;
+import org.opennms.plugins.messagehandler.NotificationMessageHandler;
+import org.opennms.plugins.messagehandler.OnmsCollectionAttributeMap;
 import org.opennms.plugins.messagenotifier.MessageNotification;
 import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
 import org.opennms.plugins.messagenotifier.NotificationClient;
-import org.opennms.plugins.messagenotifier.NotificationMessageHandler;
-import org.opennms.plugins.messagenotifier.datanotifier.DataPersistor;
-import org.opennms.plugins.messagenotifier.eventnotifier.EventPersistor;
 import org.opennms.plugins.messagenotifier.rest.MqttRxService;
 import org.opennms.plugins.messagenotifier.rest.MqttRxServiceImpl;
+import org.opennms.plugins.mqtt.Controller;
 import org.opennms.plugins.mqtt.config.MQTTReceiverConfig;
 import org.opennms.plugins.mqtt.config.MessageDataParserConfig;
 import org.opennms.plugins.mqtt.config.MessageEventParserConfig;
-import org.opennms.plugins.mqttclient.NodeByForeignSourceCacheImpl;
+import org.opennms.plugins.payload.test.TestingSniffyKuraMessages;
+import org.opennms.plugins.persistor.NodeByForeignSourceCacheImpl;
+import org.opennms.plugins.persistor.datanotifier.DataPersistor;
+import org.opennms.plugins.persistor.eventnotifier.EventPersistor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
