@@ -1,30 +1,19 @@
-/*******************************************************************************
- * This file is part of OpenNMS(R).
+/* ***************************************************************************
+ * Copyright 2018 OpenNMS Group Inc, Entimoss Ltd. Or their affiliates.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Copyright (C) 2002-2014 The OpenNMS Group, Inc.
- * OpenNMS(R) is Copyright (C) 1999-2014 The OpenNMS Group, Inc.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * OpenNMS(R) is a registered trademark of The OpenNMS Group, Inc.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- * OpenNMS(R) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License,
- * or (at your option) any later version.
- *
- * OpenNMS(R) is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with OpenNMS(R).  If not, see:
- *      http://www.gnu.org/licenses/
- *
- * For more information contact:
- *     OpenNMS(R) Licensing <license@opennms.org>
- *     http://www.opennms.org/
- *     http://www.opennms.com/
- *******************************************************************************/
+ ****************************************************************************/
 
 package org.opennms.plugins.messagenotifier.mqttclient.test.manual;
 
@@ -32,21 +21,27 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
+
 import org.opennms.plugins.messagenotifier.MessageNotificationClientQueueImpl;
 import org.opennms.plugins.messagenotifier.MessageNotifier;
 import org.opennms.plugins.messagenotifier.NotificationClient;
 import org.opennms.plugins.messagenotifier.VerySimpleMessageNotificationClient;
 import org.opennms.plugins.messagenotifier.mqttclient.MQTTClientImpl;
+import org.opennms.plugins.messagenotifier.mqttclient.MQTTTopicSubscription;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MQTTClientTopicTests {
-	private static final Logger LOG = LoggerFactory.getLogger(MQTTClientTopicTests.class);
+public class MQTTClientTopicListTests {
+	private static final Logger LOG = LoggerFactory.getLogger(MQTTClientTopicListTests.class);
 
 	public static final String SERVER_URL = "tcp://localhost:1883";
+	//public static final String SERVER_URL = "tcp://192.168.202.1:1883";
 	public static final String MQTT_USERNAME = "mqtt-user";
 	public static final String MQTT_PASSWORD = "mqtt-password";
 	public static final String CONNECTION_RETRY_INTERVAL = "60000"; 
@@ -54,14 +49,22 @@ public class MQTTClientTopicTests {
 
 	public static final String CLIENT_ID = "receiver1";
 	public static final String CLIENT_ID2 = "transmitter1";
-	public static final String TOPIC_NAME = "mqtt-events";
-	public static final int QOS_LEVEL = 0;
+	public static final String EVENT_TOPIC_NAME = "mqtt-events";
+	public static final String DATA_TOPIC_NAME = "mqtt-data";
+	public static final String QOS_LEVEL = "0";
+
+
+	// MQTTTopicSubscription(String topic, String qos)
+	Set<MQTTTopicSubscription> topicList = new HashSet<MQTTTopicSubscription>(Arrays.asList(
+			new MQTTTopicSubscription(EVENT_TOPIC_NAME, QOS_LEVEL),
+			new MQTTTopicSubscription(DATA_TOPIC_NAME, QOS_LEVEL)));
+
 
 	private class Receiver implements Runnable {
 
 		MQTTClientImpl client;
 		MessageNotificationClientQueueImpl messageNotificationClientQueueImpl;
-		
+
 		public boolean isConnected(){
 			if(client!=null) return client.isClientConnected();
 			return false;
@@ -84,13 +87,20 @@ public class MQTTClientTopicTests {
 			String clientConnectionMaxWait= CLIENT_CONNECTION_MAX_WAIT;
 
 			LOG.debug("Receiver initiating connection");
+			
+			LOG.debug("Receiver TOPIC LIST");
+			for(MQTTTopicSubscription sub:topicList){
+				LOG.debug("   qos:"+sub.getQos()+"   topic:"+sub.getTopic());
+			}
 
 			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
-
-			messageNotificationClientQueueImpl = new MessageNotificationClientQueueImpl();
-
+			client.setTopicList(topicList);
+			
 			List<MessageNotifier> mqttClientList = new ArrayList<MessageNotifier>();
 			mqttClientList.add(client);
+			
+			messageNotificationClientQueueImpl = new MessageNotificationClientQueueImpl();
+			
 			messageNotificationClientQueueImpl.setIncommingMessageNotifiers(mqttClientList);
 
 			messageNotificationClientQueueImpl.setMaxMessageQueueThreads(1);
@@ -100,31 +110,31 @@ public class MQTTClientTopicTests {
 
 			List<NotificationClient> notificationHandlingClients = Arrays.asList(notificationClient);
 			messageNotificationClientQueueImpl.setOutgoingNotificationHandlingClients(notificationHandlingClients);
-			
+
 			try{
 				messageNotificationClientQueueImpl.init();
 				client.init();
 			} catch(Exception e){
 				LOG.debug("Receiver problem initialising reliable connection", e);
 			}
-			
+
 			// wait for receiver to connect
 			try {
 				while (!Thread.currentThread().isInterrupted() && ! client.isClientConnected()){
-				Thread.sleep(100);
+					Thread.sleep(100);
 				}
 			} catch(InterruptedException ex) {
 				Thread.currentThread().interrupt();
 			}
-			
-			// try sending message
-			String topic=TOPIC_NAME;
-			int qos=QOS_LEVEL;
-			try{
-				client.subscribe(topic, qos);
-			} catch(Exception e){
-				LOG.debug("Receiver problem subscribing", e);
-			}
+
+			// subscription already done
+			//			String topic=EVENT_TOPIC_NAME;
+			//			int qos=Integer.parseInt(QOS_LEVEL);
+			//			try{
+			//				client.subscribe(topic, qos);
+			//			} catch(Exception e){
+			//				LOG.debug("Receiver problem subscribing", e);
+			//			}
 			LOG.debug("Receiver connection initialised");
 		}
 
@@ -138,9 +148,9 @@ public class MQTTClientTopicTests {
 		Receiver receiver= new Receiver();
 		Thread thread = new Thread(receiver);
 		thread.start();
-	
+
 		try {
-			Thread.sleep(Long.parseLong(CLIENT_CONNECTION_MAX_WAIT));
+			Thread.sleep(5000);
 			assertTrue(receiver.isConnected());
 		} catch(InterruptedException ex) {
 			Thread.currentThread().interrupt();
@@ -157,7 +167,7 @@ public class MQTTClientTopicTests {
 
 		// will connect
 		brokerUrl = SERVER_URL;
-		MQTTClientImpl client  = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
+		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
 
 		try{
 			client.init();
@@ -167,15 +177,15 @@ public class MQTTClientTopicTests {
 
 		// wait for connection
 		try {
-			Thread.sleep(Long.parseLong(CLIENT_CONNECTION_MAX_WAIT));
+			Thread.sleep(3000);
 			assertTrue(client.isClientConnected());
 		} catch(InterruptedException ex) {
 			Thread.currentThread().interrupt();
 		}
 
 		// try sending messages
-		String topic=TOPIC_NAME;
-		int qos=QOS_LEVEL;
+		String topic=EVENT_TOPIC_NAME;
+		int qos=Integer.parseInt(QOS_LEVEL);
 
 		for (int count=0; count<20; count++){
 			try{
@@ -186,11 +196,11 @@ public class MQTTClientTopicTests {
 				LOG.debug("problem publishing message", e);
 			}
 		}
-		
+
 		// wait for received messages
 		try {
 			Thread.sleep(30000);
-			
+
 		} catch(InterruptedException ex) {
 			Thread.currentThread().interrupt();
 		}
