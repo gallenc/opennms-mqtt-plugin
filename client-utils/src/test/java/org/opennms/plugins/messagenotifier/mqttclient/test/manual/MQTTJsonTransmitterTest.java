@@ -134,7 +134,7 @@ public class MQTTJsonTransmitterTest {
 
 		// will connect
 
-		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
+		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait, null, null);
 
 		try{
 			client.init();

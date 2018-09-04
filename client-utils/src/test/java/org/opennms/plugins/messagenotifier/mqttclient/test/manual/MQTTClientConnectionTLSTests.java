@@ -24,25 +24,34 @@ import org.opennms.plugins.messagenotifier.mqttclient.MQTTClientImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MQTTClientConnectionTests {
-	private static final Logger LOG = LoggerFactory.getLogger(MQTTClientConnectionTests.class);
+public class MQTTClientConnectionTLSTests {
+	private static final Logger LOG = LoggerFactory.getLogger(MQTTClientConnectionTLSTests.class);
 
+	// amazon TLS end point 
+	public static final String CERTIFICATE_FILE ="src/test/resources/testcerts/opennmsclient1.cert.pem";
+	public static final String PRIVATE_KEY_FILE = "src/test/resources/testcerts/opennmsclient1.private.key";
 
-	public static final String SERVER_URL = "tcp://localhost:1883";
-	public static final String WRONG_SERVER_URL = "tcp://localhost:1884";
+	public static final String SERVER_URL = "ssl://a21s08tobcwhii.iot.eu-west-1.amazonaws.com:8883"; 
+	
+	public static final String WRONG_SERVER_URL = "ssl://a21s08tobcwhii.iot.eu-west-1.amazonaws.com:1884";
+	
+	
 	public static final String MQTT_USERNAME = "mqtt-user";
 	public static final String MQTT_PASSWORD = "mqtt-password";
 	public static final String CONNECTION_RETRY_INTERVAL = "60000"; 
 	public static final String CLIENT_CONNECTION_MAX_WAIT = "40000";
 
-	public static final String CLIENT_ID = "sewatech";
+	public static final String CLIENT_ID = "sdk-java"; // note client id is aligned with the certificate file
 	public static final String TOPIC_NAME = "sewatech";
 	public static final int QOS_LEVEL = 0;
 
 
 	@Test
-	public void testSimpleConnection() {
-		LOG.debug("start of test testSimpleConnection() ");
+	public void testSimpleTLSConnection() {
+		LOG.debug("start of test testSimpleTLSConnection() ");
+		
+		String certificateFile =CERTIFICATE_FILE;
+		String privateKeyFile = PRIVATE_KEY_FILE;
 
 		String brokerUrl = SERVER_URL;
 		String clientId = CLIENT_ID;
@@ -51,7 +60,7 @@ public class MQTTClientConnectionTests {
 		String connectionRetryInterval= CONNECTION_RETRY_INTERVAL;
 		String clientConnectionMaxWait= CLIENT_CONNECTION_MAX_WAIT;
 
-		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password,connectionRetryInterval,clientConnectionMaxWait, null, null );
+		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password,connectionRetryInterval,clientConnectionMaxWait,  certificateFile, privateKeyFile);
 
 		try{
 			try{
@@ -69,7 +78,7 @@ public class MQTTClientConnectionTests {
 				LOG.debug("problem subscribing", e);
 			}
 
-			byte[] payload = "Hello from testSimpleConnection()".getBytes();
+			byte[] payload = "Hello from testSimpleTLSConnection()".getBytes();
 
 			try{
 				client.publishSynchronous(topic, qos, payload);
@@ -82,13 +91,16 @@ public class MQTTClientConnectionTests {
 			if(client!=null) client.destroy();
 		}
 
-		LOG.debug("end of test testSimpleConnection() ");
+		LOG.debug("end of test testSimpleTLSConnection() ");
 	}
 
 	@Test
-	public void testReliableConnection() {
-		LOG.debug("start of test testReliableConnection() ");
+	public void testReliableTLSConnection() {
+		LOG.debug("start of test testReliableTLSConnection() ");
 
+		String certificateFile =CERTIFICATE_FILE;
+		String privateKeyFile = PRIVATE_KEY_FILE;
+		
 		String brokerUrl = WRONG_SERVER_URL;
 		String clientId = CLIENT_ID;
 		String userName =null;
@@ -96,7 +108,7 @@ public class MQTTClientConnectionTests {
 		String connectionRetryInterval= CONNECTION_RETRY_INTERVAL;
 		String clientConnectionMaxWait= CLIENT_CONNECTION_MAX_WAIT;
 
-		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval, clientConnectionMaxWait, null, null);
+		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval, clientConnectionMaxWait,  certificateFile, privateKeyFile);
 
 		try{
 			// wont connect
@@ -119,7 +131,7 @@ public class MQTTClientConnectionTests {
 			LOG.debug("Testing connection retrys with good url - should connect first time ");
 			// will connect
 			brokerUrl = SERVER_URL;
-			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait, null, null);
+			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait,  certificateFile, privateKeyFile);
 
 			try{
 				client.init();
@@ -143,7 +155,7 @@ public class MQTTClientConnectionTests {
 				LOG.debug("problem subscribing", e);
 			}
 
-			byte[] payload = "Hello from testReliableConnection()".getBytes();
+			byte[] payload = "Hello from testReliableTLSConnection()".getBytes();
 
 			try{
 				client.publishSynchronous(topic, qos, payload);
@@ -155,7 +167,7 @@ public class MQTTClientConnectionTests {
 			if(client!=null) client.destroy();
 		}
 
-		LOG.debug("end of test testReliableConnection() ");
+		LOG.debug("end of test testReliableTLSConnection() ");
 	}
 
 }

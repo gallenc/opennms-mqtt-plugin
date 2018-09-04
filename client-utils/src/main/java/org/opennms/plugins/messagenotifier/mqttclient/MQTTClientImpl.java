@@ -17,6 +17,7 @@
 
 package org.opennms.plugins.messagenotifier.mqttclient;
 
+import java.security.KeyStore;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.net.ssl.SSLSocketFactory;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
@@ -38,6 +40,10 @@ import org.opennms.plugins.messagenotifier.MessageNotificationClient;
 import org.opennms.plugins.messagenotifier.MessageNotifier;
 import org.opennms.plugins.messagenotifier.mqttclient.MQTTTopicSubscription;
 import org.opennms.plugins.messagenotifier.mqttclient.MQTTClientConfig;
+import org.opennms.plugins.mqtt.utils.AwsIotTlsSocketFactory;
+import org.opennms.plugins.mqtt.utils.IotConnectionException;
+import org.opennms.plugins.mqtt.utils.SampleUtil;
+import org.opennms.plugins.mqtt.utils.SampleUtil.KeyStorePasswordPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +58,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	private String m_brokerUrl;
 	private String m_password;
 	private String m_userName;
-	
+
 	private String m_instanceId = "instanceId_Not_Set";
 
 	private AtomicInteger reconnectionCount = new AtomicInteger(0);
@@ -101,7 +107,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	public boolean isClientConnected() {
 		return m_clientConnected.get();
 	}
-	
+
 
 
 	/**
@@ -110,24 +116,47 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 * @param userName the username to connect with
 	 * @param password the password for the user
 	 * @param connectionRetryInterval interval (ms) before re attempting connection.
+	 * @param certificateFile fully qualified path to certificate.pem file if null TLS connection is not attempted
+	 * @param privateKeyFile fully qualified path to private.key file if null TLS connection is not attempted
 	 */
-	public MQTTClientImpl(String brokerUrl, String clientId, String userName, String password, String connectionRetryInterval, String clientConnectionMaxWait) {
+	public MQTTClientImpl(String brokerUrl, String clientId, String userName, String password, String connectionRetryInterval, String clientConnectionMaxWait, String certificateFile, String privateKeyFile) {
 		if ((brokerUrl == null) || (brokerUrl.trim().equals(""))) throw new IllegalArgumentException("mqtt m_brokerUrl cannot be empty or null");
+
+		SSLSocketFactory sslSocketFactory=null; // socketFactory will be null if TLS socket not defined
+		
 		try{
 			this.m_connectionRetryInterval=Integer.parseInt(connectionRetryInterval);
 		} catch (Exception e){
-			new IllegalArgumentException("mqtt m_connectionRetryInterval "+connectionRetryInterval+" is not an integer value",e);
+			throw new IllegalArgumentException("mqtt m_connectionRetryInterval "+connectionRetryInterval+" is not an integer value",e);
 		}
-		
+
 		try{
 			this.m_clientConnectionMaxWait=Long.parseLong(clientConnectionMaxWait);
 		} catch (Exception e){
-			new IllegalArgumentException("mqtt m_clientConnectionMaxWait  "+clientConnectionMaxWait+" is not an long value",e);
+			throw new IllegalArgumentException("mqtt m_clientConnectionMaxWait  "+clientConnectionMaxWait+" is not an long value",e);
 		}
 
 		m_brokerUrl = brokerUrl;
 		m_userName = userName;
 		m_password = password;
+
+		if ((certificateFile != null && privateKeyFile== null) ||(certificateFile == null && privateKeyFile!= null) ) {
+			throw new IllegalArgumentException("if using TLS you must define both certificateFile ("
+					+ certificateFile +") and privateKeyFile ("+privateKeyFile + ")");
+		}
+
+		if (certificateFile != null){
+			try {
+				String algorithm = null;
+				KeyStorePasswordPair pair = SampleUtil.getKeyStorePasswordPair(certificateFile, privateKeyFile, algorithm);
+				String keyPassword = pair.keyPassword;
+				KeyStore keyStore = pair.keyStore;
+		        sslSocketFactory = new AwsIotTlsSocketFactory(keyStore, keyPassword);
+			} catch (IotConnectionException e) {
+				throw new IllegalArgumentException("cannot create socket from TLS certificateFile ("
+						+ certificateFile +") and privateKeyFile ("+privateKeyFile + ")",e);
+			}
+		}
 
 		MemoryPersistence persistence = new MemoryPersistence();
 
@@ -142,6 +171,12 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			if(m_password!= null && ! m_password.trim().equals("")) {
 				m_conOpt.setPassword(m_password.toCharArray());
 			}
+			
+			if (sslSocketFactory!=null){
+				LOG.warn("client instanceId:"+m_instanceId+": using TLS certificateFile ("
+					+ certificateFile +") and privateKeyFile ("+privateKeyFile + ")");
+				m_conOpt.setSocketFactory(sslSocketFactory);
+			}
 
 			// Construct a non-blocking MQTT m_client instance
 			m_client = new MqttAsyncClient(this.m_brokerUrl,clientId, persistence);
@@ -154,9 +189,9 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 			throw new RuntimeException("client instanceId:"+m_instanceId+": Unable to set up MQTT m_client",e);
 		}
 	}
-	
+
 	/**
-	 * constructor using MQTTClientConfigXml
+	 * constructor using MQTTClientConfig
 	 * @param mQTTClientConfig
 	 */
 	public MQTTClientImpl(MQTTClientConfig mQTTClientConfig){
@@ -165,8 +200,8 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 				mQTTClientConfig.getUserName(), 
 				mQTTClientConfig.getPassword(), 
 				mQTTClientConfig.getConnectionRetryInterval(),
-				mQTTClientConfig.getClientConnectionMaxWait());
-		
+				mQTTClientConfig.getClientConnectionMaxWait(), null, null);
+
 		m_instanceId = mQTTClientConfig.getClientInstanceId();
 		setTopicList(mQTTClientConfig.getTopicList());
 
@@ -329,7 +364,7 @@ public class MQTTClientImpl implements MqttCallback, MessageNotifier {
 	 * the retry interval sets how long between connection attempts the m_client waits
 	 */
 	private synchronized void startConnectionRetryThead(){
-		
+
 		if (m_connectionRetryThread==null){
 
 			if(m_connectionRetryInterval==null) throw new RuntimeException("client instanceId:"+m_instanceId+": connectionretryInterval cannot be null");

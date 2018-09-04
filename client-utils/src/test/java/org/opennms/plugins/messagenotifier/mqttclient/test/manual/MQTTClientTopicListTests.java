@@ -93,7 +93,7 @@ public class MQTTClientTopicListTests {
 				LOG.debug("   qos:"+sub.getQos()+"   topic:"+sub.getTopic());
 			}
 
-			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
+			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait, null, null);
 			client.setTopicList(topicList);
 			
 			List<MessageNotifier> mqttClientList = new ArrayList<MessageNotifier>();
@@ -167,7 +167,7 @@ public class MQTTClientTopicListTests {
 
 		// will connect
 		brokerUrl = SERVER_URL;
-		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
+		MQTTClientImpl client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait, null, null);
 
 		try{
 			client.init();

@@ -74,7 +74,7 @@ public class MQTTClientTopicTests {
 
 			LOG.debug("Receiver initiating connection");
 
-			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
+			client = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait, null, null);
 
 			messageNotificationClientQueueImpl = new MessageNotificationClientQueueImpl();
 
@@ -146,7 +146,7 @@ public class MQTTClientTopicTests {
 
 		// will connect
 		brokerUrl = SERVER_URL;
-		MQTTClientImpl client  = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait);
+		MQTTClientImpl client  = new MQTTClientImpl(brokerUrl, clientId, userName, password, connectionRetryInterval,clientConnectionMaxWait, null, null);
 
 		try{
 			client.init();
