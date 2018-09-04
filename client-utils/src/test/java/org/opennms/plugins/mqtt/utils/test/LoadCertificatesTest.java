@@ -24,11 +24,10 @@ import java.net.Socket;
 import java.security.KeyStore;
 
 import org.junit.Test;
+import org.opennms.plugins.mqtt.utils.AwsIotTlsSocketFactory;
+import org.opennms.plugins.mqtt.utils.IotConnectionException;
 import org.opennms.plugins.mqtt.utils.SampleUtil;
 import org.opennms.plugins.mqtt.utils.SampleUtil.KeyStorePasswordPair;
-
-import com.amazonaws.services.iot.client.util.AwsIotTlsSocketFactory;
-import com.amazonaws.services.iot.client.util.IotConnectionException;
 
 public class LoadCertificatesTest {
 

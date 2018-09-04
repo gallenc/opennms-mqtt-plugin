@@ -1,4 +1,4 @@
-/****************************************************************************
+/* ***************************************************************************
  * OpenNMS Modifications: Copyright 2018 OpenNMS Group Inc, Entimoss Ltd. Or their affiliates.
  * All Rights Reserved.
 /****************************************************************************
@@ -17,7 +17,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.services.iot.client.util;
+package org.opennms.plugins.mqtt.utils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,7 +25,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
-
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
@@ -35,8 +34,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-
-import com.amazonaws.services.iot.client.util.IotConnectionException;
 
 /**
  * This class extends {@link SSLSocketFactory} to enforce TLS v1.2 to be used
