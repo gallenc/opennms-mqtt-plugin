@@ -30,7 +30,7 @@ public class MQTTClientConfig {
 	public MQTTClientConfig(String clientInstanceId, String brokerUrl,
 			String clientId, String userName, String password,
 			String connectionRetryInterval, String clientConnectionMaxWait,
-			Set<MQTTTopicSubscription> topicList) {
+			Set<MQTTTopicSubscription> topicList, String certificateFile, String privateKeyFile) {
 		super();
 		this.clientInstanceId = clientInstanceId;
 		this.brokerUrl = brokerUrl;
@@ -40,6 +40,8 @@ public class MQTTClientConfig {
 		this.connectionRetryInterval = connectionRetryInterval;
 		this.clientConnectionMaxWait = clientConnectionMaxWait;
 		this.topicList = topicList;
+		this.certificateFile=certificateFile;
+		this.privateKeyFile=privateKeyFile;
 	}
 
 	private String clientInstanceId=null;
@@ -49,6 +51,8 @@ public class MQTTClientConfig {
 	private String password=null;
 	private String connectionRetryInterval=null;
 	private String clientConnectionMaxWait=null;
+	private String certificateFile=null; 
+	private String privateKeyFile=null;
 
 	private Set<MQTTTopicSubscription> topicList=null;
 
@@ -114,6 +118,22 @@ public class MQTTClientConfig {
 
 	public void setTopicList(Set<MQTTTopicSubscription> topicList) {
 		this.topicList = topicList;
+	}
+
+	public String getCertificateFile() {
+		return certificateFile;
+	}
+
+	public void setCertificateFile(String certificateFile) {
+		this.certificateFile = certificateFile;
+	}
+
+	public String getPrivateKeyFile() {
+		return privateKeyFile;
+	}
+
+	public void setPrivateKeyFile(String privateKeyFile) {
+		this.privateKeyFile = privateKeyFile;
 	}
 
 }

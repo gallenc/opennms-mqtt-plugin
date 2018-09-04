@@ -70,6 +70,8 @@ public class TestMqttConfigMarshalling {
 	private String clientConnectionMaxWait="20000";
 	private String password="xxx";
 	private String userName="yyy";
+	private String certificateFile="put absolute path to certificate.pem file here";
+	private String privateKeyFile="put absolute path to private.key file here";
 
 	
 	private List<String> eventSubscriptionTopics= Arrays.asList("mqtt-events","mqtt-events2");
@@ -149,17 +151,19 @@ public class TestMqttConfigMarshalling {
 		msub2.setTopic("mqtt-data");
 		topicList.add(msub2);
 		
-		MQTTClientConfigXml mConfig = new MQTTClientConfigXml();
+		MQTTClientConfigXml mConfigXml = new MQTTClientConfigXml();
 		
-		mConfig.setTopicList(topicList);
+		mConfigXml.setTopicList(topicList);
 		
-		mConfig.setBrokerUrl(brokerUrl);
-		mConfig.setClientId(clientId);
-		mConfig.setClientInstanceId(clientInstanceId);
-		mConfig.setConnectionRetryInterval(connectionRetryInterval);
-		mConfig.setClientConnectionMaxWait(clientConnectionMaxWait);
-		mConfig.setPassword(password);
-		mConfig.setUserName(userName);
+		mConfigXml.setBrokerUrl(brokerUrl);
+		mConfigXml.setClientId(clientId);
+		mConfigXml.setClientInstanceId(clientInstanceId);
+		mConfigXml.setConnectionRetryInterval(connectionRetryInterval);
+		mConfigXml.setClientConnectionMaxWait(clientConnectionMaxWait);
+		mConfigXml.setPassword(password);
+		mConfigXml.setUserName(userName);
+		mConfigXml.setCertificateFile(certificateFile);
+		mConfigXml.setPrivateKeyFile(privateKeyFile);
 		
 		MQTTReceiverConfig rxconfig =new MQTTReceiverConfig();
 		rxconfig.setMaxMessageQueueLength(maxMessageQueueLength);
@@ -187,7 +191,7 @@ public class TestMqttConfigMarshalling {
 		rxconfig.setMessageClients(messageClients);
 
 		Set<MQTTClientConfigXml> mqttClients = new LinkedHashSet<MQTTClientConfigXml>();
-		mqttClients.add(mConfig);
+		mqttClients.add(mConfigXml);
 		rxconfig.setMqttClients(mqttClients);
 		
 		// create event processors

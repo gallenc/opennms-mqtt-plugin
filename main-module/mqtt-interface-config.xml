@@ -121,6 +121,18 @@
       </topicList>
       <userName>mqtt-user</userName>
       <password>mqtt-password</password>
+
+      <!-- USING TLS -->
+      <!-- If you are using TLS you must provide both certificate and key files -->
+      <!-- If both are omitted from the configuration TLS will not be used -->
+
+      <!-- with AMAZON IoT, the certificate and key files can be generated for you -->
+      <!-- These are tied to a specific client id and IoT end point -->
+      <!-- <clientId>client id matching certificate</clientId> -->
+      
+      <!-- <certificateFile>put absolute path to certificate.pem file here</certificateFile> -->
+      <!-- <privateKeyFile>put absolute path to private.key file here</privateKeyFile> -->
+      <!-- <brokerUrl>ssl://{iot end point}:8883</brokerUrl> -->
     </client>
   </mqttClients>
 

@@ -28,7 +28,6 @@
 
 package org.opennms.plugins.mqtt.config;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -53,6 +52,8 @@ public class MQTTClientConfigXml {
 	private String password=null;
 	private String connectionRetryInterval=null;
 	private String clientConnectionMaxWait=null;
+	private String certificateFile=null;
+	private String privateKeyFile=null;
 
 	private Set<MQTTTopicSubscriptionXml> topicList=null;
 
@@ -130,6 +131,24 @@ public class MQTTClientConfigXml {
 		this.topicList = topicList;
 	}
 
+	public String getCertificateFile() {
+		return certificateFile;
+	}
+
+	@XmlElement
+	public void setCertificateFile(String certificateFile) {
+		this.certificateFile = certificateFile;
+	}
+
+	public String getPrivateKeyFile() {
+		return privateKeyFile;
+	}
+
+	@XmlElement
+	public void setPrivateKeyFile(String privateKeyFile) {
+		this.privateKeyFile = privateKeyFile;
+	}
+
 	/** 
 	 * converts xml instance to MQTTClientConfig configuration 
 	 * 
@@ -148,7 +167,7 @@ public class MQTTClientConfigXml {
 
 		return new MQTTClientConfig(clientInstanceId, brokerUrl,
 				clientId, userName, password,
-				connectionRetryInterval, clientConnectionMaxWait, tlist);
+				connectionRetryInterval, clientConnectionMaxWait, tlist, certificateFile, privateKeyFile);
 
 	}
 
