@@ -68,6 +68,11 @@ public class OnmsAttributeJsonHandlerTest {
 	private static final String TEST_XMLGROUP_7 = "src/test/resources/JsonParserTests/testXmlGroup7.xml";
 	private static final String TEST_XMLGROUP_7b = "src/test/resources/JsonParserTests/testXmlGroup7b.xml";
 	
+	// Nesta school tests 
+	private static final String TEST_JSON_8 = "src/test/resources/JsonParserTests/testJsonNestaSchoolMessage1.json";
+	private static final String TEST_XMLGROUP_8 = "src/test/resources/JsonParserTests/testXmlGroupNestaSchoolMessage1.xml";
+	
+	
 	@Test
 	public void test1() {
 		LOG.debug("start OnmsAttributeJsonHandlerTest test1");
@@ -349,6 +354,35 @@ public class OnmsAttributeJsonHandlerTest {
 		assertEquals("0.8125",attributeMapList.get(0).getAttributeMap().get("z_acc").getValue() );
 
 		LOG.debug("end OnmsAttributeJsonHandlerTest test7b");
+	}
+	
+	// test of Nesta Schools Message
+	// with id in topic
+	@Test
+	public void test8() {
+		LOG.debug("start OnmsAttributeJsonHandlerTest test8");
+
+		String xmlGroupFile = TEST_XMLGROUP_8;
+		String jsonFile = TEST_JSON_8;
+		
+		// topic parsed by xpath	schools-aqn/devices/sch7abp/up
+		//           $topicLevels[1]           /[2]    /[3]    /[4] etc...
+		String topic="schools-aqn/devices/sch7abp/up"; 
+
+		List<OnmsCollectionAttributeMap> attributeMapList = testMethod(xmlGroupFile, jsonFile, topic);
+
+//		assertTrue(attributeMapList.size()==1);
+
+//		assertTrue("00-08-00-4A-4F-F6".equals(attributeMapList.get(0).getForeignId()));
+//
+//		assertEquals("462",attributeMapList.get(0).getAttributeMap().get("light").getValue() );
+//		assertEquals("97.34025",attributeMapList.get(0).getAttributeMap().get("moisture").getValue() );
+//		assertEquals("29.8125",attributeMapList.get(0).getAttributeMap().get("temperature").getValue() );
+//		assertEquals("0.1875",attributeMapList.get(0).getAttributeMap().get("x_acc").getValue() );
+//		assertEquals("0.375",attributeMapList.get(0).getAttributeMap().get("y_acc").getValue() );
+//		assertEquals("0.8125",attributeMapList.get(0).getAttributeMap().get("z_acc").getValue() );
+
+		LOG.debug("end OnmsAttributeJsonHandlerTest test8");
 	}
 
 	/*
