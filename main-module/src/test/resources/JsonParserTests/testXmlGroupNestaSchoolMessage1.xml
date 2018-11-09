@@ -7,43 +7,43 @@
   <!-- ......... $topicLevels[1]....... /[2].. /[3].... /[4] etc... -->
 
   <xml-group name="nesta-schools-messages" resource-type="sensor-device" resource-xpath="/" key-xpath="$topicLevels[3]" timestamp-xpath="metadata/time"
-  timestamp-format="yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'">
+    timestamp-format="yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'">
 
-  <!-- "metadata": { -->
-  <!-- "time": "2018-11-01T14:07:08.566606408Z", -->
-  <xml-object name="time" type="string" xpath="metadata/time" />
+    <!-- "metadata": { -->
+    <!-- "time": "2018-11-01T14:07:08.566606408Z", -->
+    <xml-object name="time" type="string" xpath="metadata/time" />
 
-  <xml-object name="app_id" type="string" xpath="app_id" />
-  <xml-object name="dev_id" type="string" xpath="dev_id" />
-  <xml-object name="hardware_serial" type="string" xpath="hardware_serial" />
-  <xml-object name="port" type="string" xpath="port" />
-  <xml-object name="counter" type="COUNTER" xpath="counter" />
-  <xml-object name="payload_raw" type="string" xpath="payload_raw" />
-  <xml-object name="latitude" type="string" xpath="latitude" />
-  <xml-object name="longitude" type="string" xpath="longitude" />
-  <xml-object name="location_source" type="string" xpath="location_source" />
+    <xml-object name="app_id" type="string" xpath="app_id" />
+    <xml-object name="dev_id" type="string" xpath="dev_id" />
+    <xml-object name="hardware_serial" type="string" xpath="hardware_serial" />
+    <xml-object name="port" type="string" xpath="port" />
+    <xml-object name="counter" type="COUNTER" xpath="counter" />
+    <xml-object name="payload_raw" type="string" xpath="payload_raw" />
+    <xml-object name="latitude" type="string" xpath="latitude" />
+    <xml-object name="longitude" type="string" xpath="longitude" />
+    <xml-object name="location_source" type="string" xpath="location_source" />
 
 
-  <xml-object name="dht22_hum" type="GAUGE" xpath="payload_fields/dht22_hum" />
-  <xml-object name="dht22_pid" type="GAUGE" xpath="payload_fields/dht22_pid" />
-  <xml-object name="dht22_temp" type="GAUGE" xpath="payload_fields/dht22_temp" />
-  <xml-object name="hpma115s0_pid" type="GAUGE" xpath="payload_fields/hpma115s0_pid" />
-  <xml-object name="hpma115s0_pm10" type="GAUGE" xpath="payload_fields/hpma115s0_pm10" />
-  <xml-object name="hpma115s0_pm25" type="GAUGE" xpath="payload_fields/hpma115s0_pm25" />
-  <xml-object name="int_temp" type="GAUGE" xpath="payload_fields/int_temp" />
-  <xml-object name="load1" type="GAUGE" xpath="payload_fields/load1" />
-  <xml-object name="load2" type="GAUGE" xpath="payload_fields/load2" />
-  <xml-object name="load3" type="GAUGE" xpath="payload_fields/load3" />
-  <xml-object name="opcn2_pid" type="GAUGE" xpath="payload_fields/opcn2_pid" />
-  <xml-object name="opcn2_pm10" type="GAUGE" xpath="payload_fields/opcn2_pm10" />
-  <xml-object name="opcn2_pm25" type="GAUGE" xpath="payload_fields/opcn2_pm25" />
-  <xml-object name="pms5003_pid" type="GAUGE" xpath="payload_fields/pms5003_pid" />
-  <xml-object name="pms5003_pm10" type="GAUGE" xpath="payload_fields/pms5003_pm10" />
-  <xml-object name="pms5003_pm25" type="GAUGE" xpath="payload_fields/pms5003_pm25" />
-  <xml-object name="pms7003_pid" type="GAUGE" xpath="payload_fields/pms7003_pid" />
-  <xml-object name="pms7003_pm10" type="GAUGE" xpath="payload_fields/pms7003_pm10" />
-  <xml-object name="pms7003_pm25" type="GAUGE" xpath="payload_fields/pms7003_pm25" />
-</xml-group>
+    <xml-object name="dht22_hum" type="GAUGE" xpath="payload_fields/dht22_hum" />
+    <xml-object name="dht22_pid" type="GAUGE" xpath="payload_fields/dht22_pid" />
+    <xml-object name="dht22_temp" type="GAUGE" xpath="payload_fields/dht22_temp" />
+    <xml-object name="hpma115s0_pid" type="GAUGE" xpath="payload_fields/hpma115s0_pid" />
+    <xml-object name="hpma115s0_pm10" type="GAUGE" xpath="payload_fields/hpma115s0_pm10" />
+    <xml-object name="hpma115s0_pm25" type="GAUGE" xpath="payload_fields/hpma115s0_pm25" />
+    <xml-object name="int_temp" type="GAUGE" xpath="payload_fields/int_temp" />
+    <xml-object name="load1" type="GAUGE" xpath="payload_fields/load1" />
+    <xml-object name="load2" type="GAUGE" xpath="payload_fields/load2" />
+    <xml-object name="load3" type="GAUGE" xpath="payload_fields/load3" />
+    <xml-object name="opcn2_pid" type="GAUGE" xpath="payload_fields/opcn2_pid" />
+    <xml-object name="opcn2_pm10" type="GAUGE" xpath="payload_fields/opcn2_pm10" />
+    <xml-object name="opcn2_pm25" type="GAUGE" xpath="payload_fields/opcn2_pm25" />
+    <xml-object name="pms5003_pid" type="GAUGE" xpath="payload_fields/pms5003_pid" />
+    <xml-object name="pms5003_pm10" type="GAUGE" xpath="payload_fields/pms5003_pm10" />
+    <xml-object name="pms5003_pm25" type="GAUGE" xpath="payload_fields/pms5003_pm25" />
+    <xml-object name="pms7003_pid" type="GAUGE" xpath="payload_fields/pms7003_pid" />
+    <xml-object name="pms7003_pm10" type="GAUGE" xpath="payload_fields/pms7003_pm10" />
+    <xml-object name="pms7003_pm25" type="GAUGE" xpath="payload_fields/pms7003_pm25" />
+  </xml-group>
 
 
 
