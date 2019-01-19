@@ -283,16 +283,20 @@ public class OnmsAttributeMessageHandler {
 	 * @return the time stamp
 	 */
 	protected Date getTimeStamp(JXPathContext context, XmlGroup group) {
+		
+		// use current date if cannot parse from another source
+		Date date = new Date(); 
+		
 		if (group.getTimestampXpath() == null) {
 			// if no timestampXpath defined use current date
-			Date date = new Date();
 			LOG.debug("getTimeStamp: getTimestampXpath() = null. Using current Date :"+date.getTime()+" ("+date+")");
 			return date ; 
 		}
+		
 		String pattern = group.getTimestampFormat() == null ? "yyyy-MM-dd HH:mm:ss" : group.getTimestampFormat();
 
 		LOG.debug("getTimeStamp: retrieving custom timestamp to be used when updating RRDs using XPATH '{}' and pattern '{}'", group.getTimestampXpath(), pattern);
-		Date date = null;
+
 		Object val = context.getValue(group.getTimestampXpath());
 		String value = (val==null) ? null : val.toString(); // handles json Long and json string representation of long and other values
 		
